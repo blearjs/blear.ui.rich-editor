@@ -17,84 +17,83 @@
  * @extends tinymce.ui.ComboBox
  */
 
-    "use strict";
+"use strict";
 
-    var ComboBox = require("./ComboBox");
-    var Tools = require("../util/Tools");
-    var selector = require('../../../../core/dom/selector.js');
+var ComboBox = require("./ComboBox");
+var Tools = require("../util/Tools");
+var selector = require('../../../../core/dom/selector.js');
 
-    return ComboBox.extend({
-        /**
-         * Constructs a new control instance with the specified settings.
-         *
-         * @constructor
-         * @param {Object} settings Name/value object with settings.
-         */
-        init: function (settings) {
-            var self = this, editor = tinymce.activeEditor, editorSettings = editor.settings;
-            var actionCallback, fileBrowserCallback, fileBrowserCallbackTypes;
+module.exports = ComboBox.extend({
+    /**
+     * Constructs a new control instance with the specified settings.
+     *
+     * @constructor
+     * @param {Object} settings Name/value object with settings.
+     */
+    init: function (settings) {
+        var self = this, editor = tinymce.activeEditor, editorSettings = editor.settings;
+        var actionCallback, fileBrowserCallback, fileBrowserCallbackTypes;
 
-            settings.spellcheck = false;
+        settings.spellcheck = false;
 
-            fileBrowserCallbackTypes = editorSettings.file_picker_types || editorSettings.file_browser_callback_types;
-            if (fileBrowserCallbackTypes) {
-                fileBrowserCallbackTypes = Tools.makeMap(fileBrowserCallbackTypes, /[, ]/);
-            }
+        fileBrowserCallbackTypes = editorSettings.file_picker_types || editorSettings.file_browser_callback_types;
+        if (fileBrowserCallbackTypes) {
+            fileBrowserCallbackTypes = Tools.makeMap(fileBrowserCallbackTypes, /[, ]/);
+        }
 
-            if (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[settings.filetype]) {
-                fileBrowserCallback = editorSettings.file_picker_callback;
+        if (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[settings.filetype]) {
+            fileBrowserCallback = editorSettings.file_picker_callback;
+            if (fileBrowserCallback && (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[settings.filetype])) {
+                actionCallback = function (ele) {
+                    var fileEl = selector.query('input', ele)[0];
+
+                    if (!fileEl) {
+                        return;
+                    }
+
+                    var meta = self.fire('beforecall').meta;
+
+                    meta = Tools.extend({filetype: settings.filetype}, meta);
+
+                    // file_picker_callback(callback, currentValue, metaData)
+                    fileBrowserCallback.call(
+                        editor,
+                        function (value, meta) {
+                            //self.value(value).fire('change', {meta: meta});
+                            var root = self;
+
+                            while (root._parent) {
+                                root = root._parent;
+                            }
+
+                            root.settings.onUpload(meta);
+                        },
+                        self.value(),
+                        meta,
+                        fileEl
+                    );
+                };
+            } else {
+                // Legacy callback: file_picker_callback(id, currentValue, filetype, window)
+                fileBrowserCallback = editorSettings.file_browser_callback;
                 if (fileBrowserCallback && (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[settings.filetype])) {
-                    actionCallback = function (ele) {
-                        var fileEl = selector.query('input', ele)[0];
-
-                        if (!fileEl) {
-                            return;
-                        }
-
-                        var meta = self.fire('beforecall').meta;
-
-                        meta = Tools.extend({filetype: settings.filetype}, meta);
-
-                        // file_picker_callback(callback, currentValue, metaData)
-                        fileBrowserCallback.call(
-                            editor,
-                            function (value, meta) {
-                                //self.value(value).fire('change', {meta: meta});
-                                var root = self;
-
-                                while (root._parent) {
-                                    root = root._parent;
-                                }
-
-                                root.settings.onUpload(meta);
-                            },
+                    actionCallback = function () {
+                        fileBrowserCallback(
+                            self.getEl('inp').id,
                             self.value(),
-                            meta,
-                            fileEl
+                            settings.filetype,
+                            window
                         );
                     };
-                } else {
-                    // Legacy callback: file_picker_callback(id, currentValue, filetype, window)
-                    fileBrowserCallback = editorSettings.file_browser_callback;
-                    if (fileBrowserCallback && (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[settings.filetype])) {
-                        actionCallback = function () {
-                            fileBrowserCallback(
-                                self.getEl('inp').id,
-                                self.value(),
-                                settings.filetype,
-                                window
-                            );
-                        };
-                    }
                 }
             }
-
-            if (actionCallback) {
-                settings.icon = 'browse';
-                settings.onaction = actionCallback;
-            }
-
-            self._super(settings);
         }
-    });
+
+        if (actionCallback) {
+            settings.icon = 'browse';
+            settings.onaction = actionCallback;
+        }
+
+        self._super(settings);
+    }
 });

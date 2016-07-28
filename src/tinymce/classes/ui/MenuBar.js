@@ -16,17 +16,16 @@
  * @extends tinymce.ui.Container
  */
 
-    "use strict";
-    var Toolbar = require("./Toolbar");
+"use strict";
+var Toolbar = require("./Toolbar");
 
-    return Toolbar.extend({
-        Defaults: {
-            role: 'menubar',
-            containerCls: 'menubar',
-            ariaRoot: true,
-            defaults: {
-                type: 'menubutton'
-            }
+module.exports = Toolbar.extend({
+    Defaults: {
+        role: 'menubar',
+        containerCls: 'menubar',
+        ariaRoot: true,
+        defaults: {
+            type: 'menubutton'
         }
-    });
+    }
 });
