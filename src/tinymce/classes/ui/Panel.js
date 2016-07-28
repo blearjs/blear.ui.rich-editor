@@ -17,50 +17,49 @@
  * @mixes tinymce.ui.Scrollable
  */
 
-    var Container = require("./Container");
-    var Scrollable = require("./Scrollable");
-    "use strict";
+"use strict";
+var Container = require("./Container");
+var Scrollable = require("./Scrollable");
 
-    return Container.extend({
-        Defaults: {
-            layout: 'fit',
-            containerCls: 'panel'
-        },
+module.exports = Container.extend({
+    Defaults: {
+        layout: 'fit',
+        containerCls: 'panel'
+    },
 
-        Mixins: [Scrollable],
+    Mixins: [Scrollable],
 
-        /**
-         * Renders the control as a HTML string.
-         *
-         * @method renderHtml
-         * @return {String} HTML representing the control.
-         */
-        renderHtml: function () {
-            var self = this, layout = self._layout, innerHtml = self.settings.html;
+    /**
+     * Renders the control as a HTML string.
+     *
+     * @method renderHtml
+     * @return {String} HTML representing the control.
+     */
+    renderHtml: function () {
+        var self = this, layout = self._layout, innerHtml = self.settings.html;
 
-            self.preRender();
-            layout.preRender(self);
+        self.preRender();
+        layout.preRender(self);
 
-            if (typeof innerHtml == "undefined") {
-                innerHtml = (
-                    '<div id="' + self._id + '-body" class="' + self.bodyClasses + '">' +
-                    layout.renderHtml(self) +
-                    '</div>'
-                );
-            } else {
-                if (typeof innerHtml == 'function') {
-                    innerHtml = innerHtml.call(self);
-                }
-
-                self._hasBody = false;
-            }
-
-            return (
-                '<div id="' + self._id + '" class="' + self.classes + '" hidefocus="1" tabindex="-1" role="group">' +
-                (self._preBodyHtml || '') +
-                innerHtml +
+        if (typeof innerHtml == "undefined") {
+            innerHtml = (
+                '<div id="' + self._id + '-body" class="' + self.bodyClasses + '">' +
+                layout.renderHtml(self) +
                 '</div>'
             );
+        } else {
+            if (typeof innerHtml == 'function') {
+                innerHtml = innerHtml.call(self);
+            }
+
+            self._hasBody = false;
         }
-    });
+
+        return (
+            '<div id="' + self._id + '" class="' + self.classes + '" hidefocus="1" tabindex="-1" role="group">' +
+            (self._preBodyHtml || '') +
+            innerHtml +
+            '</div>'
+        );
+    }
 });

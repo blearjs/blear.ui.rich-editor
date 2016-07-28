@@ -16,13 +16,12 @@
  * @extends tinymce.ui.Checkbox
  */
 
-    var Checkbox = require("./Checkbox");
-    "use strict";
+"use strict";
+var Checkbox = require("./Checkbox");
 
-    return Checkbox.extend({
-        Defaults: {
-            classes: "radio",
-            role: "radio"
-        }
-    });
+module.exports = Checkbox.extend({
+    Defaults: {
+        classes: "radio",
+        role: "radio"
+    }
 });

@@ -35,7 +35,9 @@
     "url": "https://github.com/blearjs/blear.xxx/issues"
   },
   "dependencies": {},
-  "peerDependencies": {},
+  "peerDependencies": {
+    "blear.ui": "1.x"
+  },
   "devDependencies": {
     "jasmine-core": "^2.4.1",
     "karma": "^0.13.22",
