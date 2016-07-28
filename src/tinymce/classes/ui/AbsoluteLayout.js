@@ -17,46 +17,46 @@
  * @extends tinymce.ui.Layout
  */
 
-    var Layout = require("./Layout");
-    "use strict";
+"use strict";
 
-    return Layout.extend({
-        Defaults: {
-            containerClass: 'abs-layout',
-            controlClass: 'abs-layout-item'
-        },
+var Layout = require("./Layout");
 
-        /**
-         * Recalculates the positions of the controls in the specified container.
-         *
-         * @method recalc
-         * @param {tinymce.ui.Container} container Container instance to recalc.
-         */
-        recalc: function (container) {
-            container.items().filter(':visible').each(function (ctrl) {
-                var settings = ctrl.settings;
+module.exports = Layout.extend({
+    Defaults: {
+        containerClass: 'abs-layout',
+        controlClass: 'abs-layout-item'
+    },
 
-                ctrl.layoutRect({
-                    x: settings.x,
-                    y: settings.y,
-                    w: settings.w,
-                    h: settings.h
-                });
+    /**
+     * Recalculates the positions of the controls in the specified container.
+     *
+     * @method recalc
+     * @param {tinymce.ui.Container} container Container instance to recalc.
+     */
+    recalc: function (container) {
+        container.items().filter(':visible').each(function (ctrl) {
+            var settings = ctrl.settings;
 
-                if (ctrl.recalc) {
-                    ctrl.recalc();
-                }
+            ctrl.layoutRect({
+                x: settings.x,
+                y: settings.y,
+                w: settings.w,
+                h: settings.h
             });
-        },
 
-        /**
-         * Renders the specified container and any layout specific HTML.
-         *
-         * @method renderHtml
-         * @param {tinymce.ui.Container} container Container to render HTML for.
-         */
-        renderHtml: function (container) {
-            return '<div id="' + container._id + '-absend" class="' + container.classPrefix + 'abs-end"></div>' + this._super(container);
-        }
-    });
+            if (ctrl.recalc) {
+                ctrl.recalc();
+            }
+        });
+    },
+
+    /**
+     * Renders the specified container and any layout specific HTML.
+     *
+     * @method renderHtml
+     * @param {tinymce.ui.Container} container Container to render HTML for.
+     */
+    renderHtml: function (container) {
+        return '<div id="' + container._id + '-absend" class="' + container.classPrefix + 'abs-end"></div>' + this._super(container);
+    }
 });

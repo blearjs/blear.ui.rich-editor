@@ -17,20 +17,19 @@
  * var isZwsp = Zwsp.isZwsp('\u200b');
  * var abc = Zwsp.trim('a\u200bc');
  */
-define( function(require, exports, module) {
-	var ZWSP = '\u200b';
 
-	function isZwsp(chr) {
-		return chr == ZWSP;
-	}
+var ZWSP = '\u200b';
 
-	function trim(str) {
-		return str.replace(new RegExp(ZWSP, 'g'), '');
-	}
+function isZwsp(chr) {
+    return chr == ZWSP;
+}
 
-	return {
-		isZwsp: isZwsp,
-		ZWSP: ZWSP,
-		trim: trim
-	};
-});
+function trim(str) {
+    return str.replace(new RegExp(ZWSP, 'g'), '');
+}
+
+module.exports = {
+    isZwsp: isZwsp,
+    ZWSP: ZWSP,
+    trim: trim
+};
