@@ -17,58 +17,59 @@
  * @mixes tinymce.ui.Movable
  */
 
-    var Control = require("./Control");
-    var Movable = require("./Movable");
-    var ui = require('../../../../ui/index.js');
+'use strict';
 
-    return Control.extend({
-        Mixins: [Movable],
+var Control = require("./Control");
+var Movable = require("./Movable");
+var ui = require('../../../../ui/index.js');
 
-        Defaults: {
-            classes: 'widget tooltip tooltip-n'
-        },
+module.exports = Control.extend({
+    Mixins: [Movable],
 
-        /**
-         * Renders the control as a HTML string.
-         *
-         * @method renderHtml
-         * @return {String} HTML representing the control.
-         */
-        renderHtml: function () {
-            var self = this, prefix = self.classPrefix;
+    Defaults: {
+        classes: 'widget tooltip tooltip-n'
+    },
 
-            return (
-                '<div id="' + self._id + '" class="' + self.classes + '" role="presentation">' +
-                '<div class="' + prefix + 'tooltip-arrow"></div>' +
-                '<div class="' + prefix + 'tooltip-inner">' + self.encode(self.state.get('text')) + '</div>' +
-                '</div>'
-            );
-        },
+    /**
+     * Renders the control as a HTML string.
+     *
+     * @method renderHtml
+     * @return {String} HTML representing the control.
+     */
+    renderHtml: function () {
+        var self = this, prefix = self.classPrefix;
 
-        bindStates: function () {
-            var self = this;
+        return (
+            '<div id="' + self._id + '" class="' + self.classes + '" role="presentation">' +
+            '<div class="' + prefix + 'tooltip-arrow"></div>' +
+            '<div class="' + prefix + 'tooltip-inner">' + self.encode(self.state.get('text')) + '</div>' +
+            '</div>'
+        );
+    },
 
-            self.state.on('change:text', function (e) {
-                self.getEl().lastChild.innerHTML = self.encode(e.value);
-            });
+    bindStates: function () {
+        var self = this;
 
-            return self._super();
-        },
+        self.state.on('change:text', function (e) {
+            self.getEl().lastChild.innerHTML = self.encode(e.value);
+        });
 
-        /**
-         * Repaints the control after a layout operation.
-         *
-         * @method repaint
-         */
-        repaint: function () {
-            var self = this, style, rect;
+        return self._super();
+    },
 
-            style = self.getEl().style;
-            rect = self._layoutRect;
+    /**
+     * Repaints the control after a layout operation.
+     *
+     * @method repaint
+     */
+    repaint: function () {
+        var self = this, style, rect;
 
-            style.left = rect.x + 'px';
-            style.top = rect.y + 'px';
-            style.zIndex = ui.getZindex();
-        }
-    });
+        style = self.getEl().style;
+        rect = self._layoutRect;
+
+        style.left = rect.x + 'px';
+        style.top = rect.y + 'px';
+        style.zIndex = ui.getZindex();
+    }
 });

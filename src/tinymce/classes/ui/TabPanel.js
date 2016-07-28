@@ -18,160 +18,159 @@
  * @setting {Number} activeTab Active tab index.
  */
 
-    var Panel = require("./Panel");
-    var $ = require("../dom/DomQuery");
-    var DomUtils = require("./DomUtils");
-    "use strict";
+"use strict";
+var Panel = require("./Panel");
+var $ = require("../dom/DomQuery");
+var DomUtils = require("./DomUtils");
 
-    return Panel.extend({
-        Defaults: {
-            layout: 'absolute',
-            defaults: {
-                type: 'panel'
+module.exports = Panel.extend({
+    Defaults: {
+        layout: 'absolute',
+        defaults: {
+            type: 'panel'
+        }
+    },
+
+    /**
+     * Activates the specified tab by index.
+     *
+     * @method activateTab
+     * @param {Number} idx Index of the tab to activate.
+     */
+    activateTab: function (idx) {
+        var activeTabElm;
+
+        if (this.activeTabId) {
+            activeTabElm = this.getEl(this.activeTabId);
+            $(activeTabElm).removeClass(this.classPrefix + 'active');
+            activeTabElm.setAttribute('aria-selected', "false");
+        }
+
+        this.activeTabId = 't' + idx;
+
+        activeTabElm = this.getEl('t' + idx);
+        activeTabElm.setAttribute('aria-selected', "true");
+        $(activeTabElm).addClass(this.classPrefix + 'active');
+
+        this.items()[idx].show().fire('showtab');
+        this.reflow();
+
+        this.items().each(function (item, i) {
+            if (idx != i) {
+                item.hide();
             }
-        },
+        });
+    },
 
-        /**
-         * Activates the specified tab by index.
-         *
-         * @method activateTab
-         * @param {Number} idx Index of the tab to activate.
-         */
-        activateTab: function (idx) {
-            var activeTabElm;
+    /**
+     * Renders the control as a HTML string.
+     *
+     * @method renderHtml
+     * @return {String} HTML representing the control.
+     */
+    renderHtml: function () {
+        var self = this, layout = self._layout, tabsHtml = '', prefix = self.classPrefix;
 
-            if (this.activeTabId) {
-                activeTabElm = this.getEl(this.activeTabId);
-                $(activeTabElm).removeClass(this.classPrefix + 'active');
-                activeTabElm.setAttribute('aria-selected', "false");
-            }
+        self.preRender();
+        layout.preRender(self);
 
-            this.activeTabId = 't' + idx;
+        self.items().each(function (ctrl, i) {
+            var id = self._id + '-t' + i;
 
-            activeTabElm = this.getEl('t' + idx);
-            activeTabElm.setAttribute('aria-selected', "true");
-            $(activeTabElm).addClass(this.classPrefix + 'active');
+            ctrl.aria('role', 'tabpanel');
+            ctrl.aria('labelledby', id);
 
-            this.items()[idx].show().fire('showtab');
-            this.reflow();
-
-            this.items().each(function (item, i) {
-                if (idx != i) {
-                    item.hide();
-                }
-            });
-        },
-
-        /**
-         * Renders the control as a HTML string.
-         *
-         * @method renderHtml
-         * @return {String} HTML representing the control.
-         */
-        renderHtml: function () {
-            var self = this, layout = self._layout, tabsHtml = '', prefix = self.classPrefix;
-
-            self.preRender();
-            layout.preRender(self);
-
-            self.items().each(function (ctrl, i) {
-                var id = self._id + '-t' + i;
-
-                ctrl.aria('role', 'tabpanel');
-                ctrl.aria('labelledby', id);
-
-                tabsHtml += (
-                    '<div id="' + id + '" class="' + prefix + 'tab" ' +
-                    'unselectable="on" role="tab" aria-controls="' + ctrl._id + '" aria-selected="false" tabIndex="-1">' +
-                    self.encode(ctrl.settings.title) +
-                    '</div>'
-                );
-            });
-
-            return (
-                '<div id="' + self._id + '" class="' + self.classes + '" hidefocus="1" tabindex="-1">' +
-                '<div id="' + self._id + '-head" class="' + prefix + 'tabs" role="tablist">' +
-                tabsHtml +
-                '</div>' +
-                '<div id="' + self._id + '-body" class="' + self.bodyClasses + '">' +
-                layout.renderHtml(self) +
-                '</div>' +
+            tabsHtml += (
+                '<div id="' + id + '" class="' + prefix + 'tab" ' +
+                'unselectable="on" role="tab" aria-controls="' + ctrl._id + '" aria-selected="false" tabIndex="-1">' +
+                self.encode(ctrl.settings.title) +
                 '</div>'
             );
-        },
+        });
 
-        /**
-         * Called after the control has been rendered.
-         *
-         * @method postRender
-         */
-        postRender: function () {
-            var self = this;
+        return (
+            '<div id="' + self._id + '" class="' + self.classes + '" hidefocus="1" tabindex="-1">' +
+            '<div id="' + self._id + '-head" class="' + prefix + 'tabs" role="tablist">' +
+            tabsHtml +
+            '</div>' +
+            '<div id="' + self._id + '-body" class="' + self.bodyClasses + '">' +
+            layout.renderHtml(self) +
+            '</div>' +
+            '</div>'
+        );
+    },
 
-            self._super();
+    /**
+     * Called after the control has been rendered.
+     *
+     * @method postRender
+     */
+    postRender: function () {
+        var self = this;
 
-            self.settings.activeTab = self.settings.activeTab || 0;
-            self.activateTab(self.settings.activeTab);
+        self._super();
 
-            this.on('click', function (e) {
-                var targetParent = e.target.parentNode;
+        self.settings.activeTab = self.settings.activeTab || 0;
+        self.activateTab(self.settings.activeTab);
 
-                if (e.target.parentNode.id == self._id + '-head') {
-                    var i = targetParent.childNodes.length;
+        this.on('click', function (e) {
+            var targetParent = e.target.parentNode;
 
-                    while (i--) {
-                        if (targetParent.childNodes[i] == e.target) {
-                            self.activateTab(i);
-                        }
+            if (e.target.parentNode.id == self._id + '-head') {
+                var i = targetParent.childNodes.length;
+
+                while (i--) {
+                    if (targetParent.childNodes[i] == e.target) {
+                        self.activateTab(i);
                     }
                 }
+            }
+        });
+    },
+
+    /**
+     * Initializes the current controls layout rect.
+     * This will be executed by the layout managers to determine the
+     * default minWidth/minHeight etc.
+     *
+     * @method initLayoutRect
+     * @return {Object} Layout rect instance.
+     */
+    initLayoutRect: function () {
+        var self = this, rect, minW, minH;
+
+        minW = DomUtils.getSize(self.getEl('head')).width;
+        minW = minW < 0 ? 0 : minW;
+        minH = 0;
+
+        self.items().each(function (item) {
+            minW = Math.max(minW, item.layoutRect().minW);
+            minH = Math.max(minH, item.layoutRect().minH);
+        });
+
+        self.items().each(function (ctrl) {
+            ctrl.settings.x = 0;
+            ctrl.settings.y = 0;
+            ctrl.settings.w = minW;
+            ctrl.settings.h = minH;
+
+            ctrl.layoutRect({
+                x: 0,
+                y: 0,
+                w: minW,
+                h: minH
             });
-        },
+        });
 
-        /**
-         * Initializes the current controls layout rect.
-         * This will be executed by the layout managers to determine the
-         * default minWidth/minHeight etc.
-         *
-         * @method initLayoutRect
-         * @return {Object} Layout rect instance.
-         */
-        initLayoutRect: function () {
-            var self = this, rect, minW, minH;
+        var headH = DomUtils.getSize(self.getEl('head')).height;
 
-            minW = DomUtils.getSize(self.getEl('head')).width;
-            minW = minW < 0 ? 0 : minW;
-            minH = 0;
+        self.settings.minWidth = minW;
+        self.settings.minHeight = minH + headH;
 
-            self.items().each(function (item) {
-                minW = Math.max(minW, item.layoutRect().minW);
-                minH = Math.max(minH, item.layoutRect().minH);
-            });
+        rect = self._super();
+        rect.deltaH += headH;
+        rect.innerH = rect.h - rect.deltaH;
 
-            self.items().each(function (ctrl) {
-                ctrl.settings.x = 0;
-                ctrl.settings.y = 0;
-                ctrl.settings.w = minW;
-                ctrl.settings.h = minH;
-
-                ctrl.layoutRect({
-                    x: 0,
-                    y: 0,
-                    w: minW,
-                    h: minH
-                });
-            });
-
-            var headH = DomUtils.getSize(self.getEl('head')).height;
-
-            self.settings.minWidth = minW;
-            self.settings.minHeight = minH + headH;
-
-            rect = self._super();
-            rect.deltaH += headH;
-            rect.innerH = rect.h - rect.deltaH;
-
-            return rect;
-        }
-    });
+        return rect;
+    }
 });

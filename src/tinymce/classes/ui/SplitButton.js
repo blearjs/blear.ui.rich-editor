@@ -16,130 +16,132 @@
  * @extends tinymce.ui.Button
  */
 
-    var MenuButton = require("./MenuButton");
-    var DomUtils = require("./DomUtils");
-    var $ = require("../dom/DomQuery");
-    return MenuButton.extend({
-        Defaults: {
-            classes: "widget btn splitbtn",
-            role: "button"
-        },
+'use strict';
 
-        /**
-         * Repaints the control after a layout operation.
-         *
-         * @method repaint
-         */
-        repaint: function () {
-            var self = this, elm = self.getEl(), rect = self.layoutRect(), mainButtonElm, menuButtonElm;
+var MenuButton = require("./MenuButton");
+var DomUtils = require("./DomUtils");
+var $ = require("../dom/DomQuery");
 
-            self._super();
+module.exports = MenuButton.extend({
+    Defaults: {
+        classes: "widget btn splitbtn",
+        role: "button"
+    },
 
-            mainButtonElm = elm.firstChild;
-            menuButtonElm = elm.lastChild;
+    /**
+     * Repaints the control after a layout operation.
+     *
+     * @method repaint
+     */
+    repaint: function () {
+        var self = this, elm = self.getEl(), rect = self.layoutRect(), mainButtonElm, menuButtonElm;
 
-            $(mainButtonElm).css({
-                width: rect.w - DomUtils.getSize(menuButtonElm).width,
-                height: rect.h - 2
-            });
+        self._super();
 
-            $(menuButtonElm).css({
-                height: rect.h - 2
-            });
+        mainButtonElm = elm.firstChild;
+        menuButtonElm = elm.lastChild;
 
-            return self;
-        },
+        $(mainButtonElm).css({
+            width: rect.w - DomUtils.getSize(menuButtonElm).width,
+            height: rect.h - 2
+        });
 
-        /**
-         * Sets the active menu state.
-         *
-         * @private
-         */
-        activeMenu: function (state) {
-            var self = this;
+        $(menuButtonElm).css({
+            height: rect.h - 2
+        });
 
-            $(self.getEl().lastChild).toggleClass(self.classPrefix + 'active', state);
-        },
+        return self;
+    },
 
-        /**
-         * Renders the control as a HTML string.
-         *
-         * @method renderHtml
-         * @return {String} HTML representing the control.
-         */
-        renderHtml: function () {
-            var self = this, id = self._id, prefix = self.classPrefix, image;
-            var icon = self.state.get('icon'), text = self.state.get('text'),
-                textHtml = '';
+    /**
+     * Sets the active menu state.
+     *
+     * @private
+     */
+    activeMenu: function (state) {
+        var self = this;
 
-            image = self.settings.image;
-            if (image) {
-                icon = 'none';
+        $(self.getEl().lastChild).toggleClass(self.classPrefix + 'active', state);
+    },
 
-                // Support for [high dpi, low dpi] image sources
-                if (typeof image != "string") {
-                    image = window.getSelection ? image[0] : image[1];
-                }
+    /**
+     * Renders the control as a HTML string.
+     *
+     * @method renderHtml
+     * @return {String} HTML representing the control.
+     */
+    renderHtml: function () {
+        var self = this, id = self._id, prefix = self.classPrefix, image;
+        var icon = self.state.get('icon'), text = self.state.get('text'),
+            textHtml = '';
 
-                image = ' style="background-image: url(\'' + image + '\')"';
-            } else {
-                image = '';
+        image = self.settings.image;
+        if (image) {
+            icon = 'none';
+
+            // Support for [high dpi, low dpi] image sources
+            if (typeof image != "string") {
+                image = window.getSelection ? image[0] : image[1];
             }
 
-            icon = self.settings.icon ? prefix + 'ico ' + prefix + 'i-' + icon : '';
+            image = ' style="background-image: url(\'' + image + '\')"';
+        } else {
+            image = '';
+        }
 
-            if (text) {
-                self.classes.add('btn-has-text');
-                textHtml = '<span class="' + prefix + 'txt">' + self.encode(text) + '</span>';
-            }
+        icon = self.settings.icon ? prefix + 'ico ' + prefix + 'i-' + icon : '';
 
-            return (
-                '<div id="' + id + '" class="' + self.classes + '" role="button" tabindex="-1">' +
-                '<button type="button" hidefocus="1" tabindex="-1">' +
-                (icon ? '<i class="' + icon + '"' + image + '></i>' : '') +
-                textHtml +
-                '</button>' +
-                '<button type="button" class="' + prefix + 'open" hidefocus="1" tabindex="-1">' +
-                    //(icon ? '<i class="' + icon + '"></i>' : '') +
-                (self._menuBtnText ? (icon ? '\u00a0' : '') + self._menuBtnText : '') +
-                ' <i class="' + prefix + 'caret"></i>' +
-                '</button>' +
-                '</div>'
-            );
-        },
+        if (text) {
+            self.classes.add('btn-has-text');
+            textHtml = '<span class="' + prefix + 'txt">' + self.encode(text) + '</span>';
+        }
 
-        /**
-         * Called after the control has been rendered.
-         *
-         * @method postRender
-         */
-        postRender: function () {
-            var self = this, onClickHandler = self.settings.onclick;
+        return (
+            '<div id="' + id + '" class="' + self.classes + '" role="button" tabindex="-1">' +
+            '<button type="button" hidefocus="1" tabindex="-1">' +
+            (icon ? '<i class="' + icon + '"' + image + '></i>' : '') +
+            textHtml +
+            '</button>' +
+            '<button type="button" class="' + prefix + 'open" hidefocus="1" tabindex="-1">' +
+            //(icon ? '<i class="' + icon + '"></i>' : '') +
+            (self._menuBtnText ? (icon ? '\u00a0' : '') + self._menuBtnText : '') +
+            ' <i class="' + prefix + 'caret"></i>' +
+            '</button>' +
+            '</div>'
+        );
+    },
 
-            self.on('click', function (e) {
-                var node = e.target;
+    /**
+     * Called after the control has been rendered.
+     *
+     * @method postRender
+     */
+    postRender: function () {
+        var self = this, onClickHandler = self.settings.onclick;
 
-                if (e.control == this) {
-                    // Find clicks that is on the main button
-                    while (node) {
-                        if ((e.aria && e.aria.key != 'down') || (node.nodeName == 'BUTTON' && node.className.indexOf('open') == -1)) {
-                            e.stopImmediatePropagation();
+        self.on('click', function (e) {
+            var node = e.target;
 
-                            if (onClickHandler) {
-                                onClickHandler.call(this, e);
-                            }
+            if (e.control == this) {
+                // Find clicks that is on the main button
+                while (node) {
+                    if ((e.aria && e.aria.key != 'down') || (node.nodeName == 'BUTTON' && node.className.indexOf('open') == -1)) {
+                        e.stopImmediatePropagation();
 
-                            return;
+                        if (onClickHandler) {
+                            onClickHandler.call(this, e);
                         }
 
-                        node = node.parentNode;
+                        return;
                     }
+
+                    node = node.parentNode;
                 }
-            });
+            }
+        });
 
-            delete self.settings.onclick;
+        delete self.settings.onclick;
 
-            return self._super();
-        }
-    });
+        return self._super();
+    }
 });

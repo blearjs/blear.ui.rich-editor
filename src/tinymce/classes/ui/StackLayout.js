@@ -16,18 +16,17 @@
  * @extends tinymce.ui.FlowLayout
  */
 
-    var FlowLayout = require("./FlowLayout");
-    "use strict";
+"use strict";
+var FlowLayout = require("./FlowLayout");
 
-    return FlowLayout.extend({
-        Defaults: {
-            containerClass: 'stack-layout',
-            controlClass: 'stack-layout-item',
-            endClass: 'break'
-        },
+module.exports = FlowLayout.extend({
+    Defaults: {
+        containerClass: 'stack-layout',
+        controlClass: 'stack-layout-item',
+        endClass: 'break'
+    },
 
-        isNative: function () {
-            return true;
-        }
-    });
+    isNative: function () {
+        return true;
+    }
 });
