@@ -14,140 +14,141 @@
  * @private
  * @class tinymce.util.Arr
  */
-define( function(require, exports, module) {
-	var isArray = Array.isArray || function(obj) {
-		return Object.prototype.toString.call(obj) === "[object Array]";
-	};
+'use strict';
 
-	function toArray(obj) {
-		var array = obj, i, l;
 
-		if (!isArray(obj)) {
-			array = [];
-			for (i = 0, l = obj.length; i < l; i++) {
-				array[i] = obj[i];
-			}
-		}
+var isArray = Array.isArray || function (obj) {
+        return Object.prototype.toString.call(obj) === "[object Array]";
+    };
 
-		return array;
-	}
+function toArray(obj) {
+    var array = obj, i, l;
 
-	function each(o, cb, s) {
-		var n, l;
+    if (!isArray(obj)) {
+        array = [];
+        for (i = 0, l = obj.length; i < l; i++) {
+            array[i] = obj[i];
+        }
+    }
 
-		if (!o) {
-			return 0;
-		}
+    return array;
+}
 
-		s = s || o;
+function each(o, cb, s) {
+    var n, l;
 
-		if (o.length !== undefined) {
-			// Indexed arrays, needed for Safari
-			for (n = 0, l = o.length; n < l; n++) {
-				if (cb.call(s, o[n], n, o) === false) {
-					return 0;
-				}
-			}
-		} else {
-			// Hashtables
-			for (n in o) {
-				if (o.hasOwnProperty(n)) {
-					if (cb.call(s, o[n], n, o) === false) {
-						return 0;
-					}
-				}
-			}
-		}
+    if (!o) {
+        return 0;
+    }
 
-		return 1;
-	}
+    s = s || o;
 
-	function map(array, callback) {
-		var out = [];
+    if (o.length !== undefined) {
+        // Indexed arrays, needed for Safari
+        for (n = 0, l = o.length; n < l; n++) {
+            if (cb.call(s, o[n], n, o) === false) {
+                return 0;
+            }
+        }
+    } else {
+        // Hashtables
+        for (n in o) {
+            if (o.hasOwnProperty(n)) {
+                if (cb.call(s, o[n], n, o) === false) {
+                    return 0;
+                }
+            }
+        }
+    }
 
-		each(array, function(item, index) {
-			out.push(callback(item, index, array));
-		});
+    return 1;
+}
 
-		return out;
-	}
+function map(array, callback) {
+    var out = [];
 
-	function filter(a, f) {
-		var o = [];
+    each(array, function (item, index) {
+        out.push(callback(item, index, array));
+    });
 
-		each(a, function(v, index) {
-			if (!f || f(v, index, a)) {
-				o.push(v);
-			}
-		});
+    return out;
+}
 
-		return o;
-	}
+function filter(a, f) {
+    var o = [];
 
-	function indexOf(a, v) {
-		var i, l;
+    each(a, function (v, index) {
+        if (!f || f(v, index, a)) {
+            o.push(v);
+        }
+    });
 
-		if (a) {
-			for (i = 0, l = a.length; i < l; i++) {
-				if (a[i] === v) {
-					return i;
-				}
-			}
-		}
+    return o;
+}
 
-		return -1;
-	}
+function indexOf(a, v) {
+    var i, l;
 
-	function reduce(collection, iteratee, accumulator, thisArg) {
-		var i = 0;
+    if (a) {
+        for (i = 0, l = a.length; i < l; i++) {
+            if (a[i] === v) {
+                return i;
+            }
+        }
+    }
 
-		if (arguments.length < 3) {
-			accumulator = collection[0];
-		}
+    return -1;
+}
 
-		for (; i < collection.length; i++) {
-			accumulator = iteratee.call(thisArg, accumulator, collection[i], i);
-		}
+function reduce(collection, iteratee, accumulator, thisArg) {
+    var i = 0;
 
-		return accumulator;
-	}
+    if (arguments.length < 3) {
+        accumulator = collection[0];
+    }
 
-	function findIndex(array, predicate, thisArg) {
-		var i, l;
+    for (; i < collection.length; i++) {
+        accumulator = iteratee.call(thisArg, accumulator, collection[i], i);
+    }
 
-		for (i = 0, l = array.length; i < l; i++) {
-			if (predicate.call(thisArg, array[i], i, array)) {
-				return i;
-			}
-		}
+    return accumulator;
+}
 
-		return -1;
-	}
+function findIndex(array, predicate, thisArg) {
+    var i, l;
 
-	function find(array, predicate, thisArg) {
-		var idx = findIndex(array, predicate, thisArg);
+    for (i = 0, l = array.length; i < l; i++) {
+        if (predicate.call(thisArg, array[i], i, array)) {
+            return i;
+        }
+    }
 
-		if (idx !== -1) {
-			return array[idx];
-		}
+    return -1;
+}
 
-		return undefined;
-	}
+function find(array, predicate, thisArg) {
+    var idx = findIndex(array, predicate, thisArg);
 
-	function last(collection) {
-		return collection[collection.length - 1];
-	}
+    if (idx !== -1) {
+        return array[idx];
+    }
 
-	return {
-		isArray: isArray,
-		toArray: toArray,
-		each: each,
-		map: map,
-		filter: filter,
-		indexOf: indexOf,
-		reduce: reduce,
-		findIndex: findIndex,
-		find: find,
-		last: last
-	};
-});
+    return undefined;
+}
+
+function last(collection) {
+    return collection[collection.length - 1];
+}
+
+module.exports = {
+    isArray: isArray,
+    toArray: toArray,
+    each: each,
+    map: map,
+    filter: filter,
+    indexOf: indexOf,
+    reduce: reduce,
+    findIndex: findIndex,
+    find: find,
+    last: last
+};

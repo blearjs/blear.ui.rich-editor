@@ -14,74 +14,73 @@
  * @private
  * @class tinymce.util.Fun
  */
-define( function(require, exports, module) {
-	var slice = [].slice;
 
-	function constant(value) {
-		return function() {
-			return value;
-		};
-	}
+var slice = [].slice;
 
-	function negate(predicate) {
-		return function(x) {
-			return !predicate(x);
-		};
-	}
+function constant(value) {
+    return function () {
+        return value;
+    };
+}
 
-	function compose(f, g) {
-		return function(x) {
-			return f(g(x));
-		};
-	}
+function negate(predicate) {
+    return function (x) {
+        return !predicate(x);
+    };
+}
 
-	function or() {
-		var args = slice.call(arguments);
+function compose(f, g) {
+    return function (x) {
+        return f(g(x));
+    };
+}
 
-		return function(x) {
-			for (var i = 0; i < args.length; i++) {
-				if (args[i](x)) {
-					return true;
-				}
-			}
+function or() {
+    var args = slice.call(arguments);
 
-			return false;
-		};
-	}
+    return function (x) {
+        for (var i = 0; i < args.length; i++) {
+            if (args[i](x)) {
+                return true;
+            }
+        }
 
-	function and() {
-		var args = slice.call(arguments);
+        return false;
+    };
+}
 
-		return function(x) {
-			for (var i = 0; i < args.length; i++) {
-				if (!args[i](x)) {
-					return false;
-				}
-			}
+function and() {
+    var args = slice.call(arguments);
 
-			return true;
-		};
-	}
+    return function (x) {
+        for (var i = 0; i < args.length; i++) {
+            if (!args[i](x)) {
+                return false;
+            }
+        }
 
-	function curry(fn) {
-		var args = slice.call(arguments);
+        return true;
+    };
+}
 
-		if (args.length - 1 >= fn.length) {
-			return fn.apply(this, args.slice(1));
-		}
+function curry(fn) {
+    var args = slice.call(arguments);
 
-		return function() {
-			var tempArgs = args.concat([].slice.call(arguments));
-			return curry.apply(this, tempArgs);
-		};
-	}
+    if (args.length - 1 >= fn.length) {
+        return fn.apply(this, args.slice(1));
+    }
 
-	return {
-		constant: constant,
-		negate: negate,
-		and: and,
-		or: or,
-		curry: curry,
-		compose: compose
-	};
-});
+    return function () {
+        var tempArgs = args.concat([].slice.call(arguments));
+        return curry.apply(this, tempArgs);
+    };
+}
+
+module.exports = {
+    constant: constant,
+    negate: negate,
+    and: and,
+    or: or,
+    curry: curry,
+    compose: compose
+};

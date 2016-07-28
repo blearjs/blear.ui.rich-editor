@@ -15,20 +15,19 @@
  * @private
  */
 
-    var Env = require("../../../classes/Env");
+var Env = require("../../../classes/Env");
 
-    function getSpanVal(td, name) {
-        return parseInt(td.getAttribute(name) || 1, 10);
+function getSpanVal(td, name) {
+    return parseInt(td.getAttribute(name) || 1, 10);
+}
+
+function paddCell(cell) {
+    if (!Env.ie || Env.ie > 9) {
+        cell.innerHTML = '<br data-mce-bogus="1" />';
     }
+}
 
-    function paddCell(cell) {
-        if (!Env.ie || Env.ie > 9) {
-            cell.innerHTML = '<br data-mce-bogus="1" />';
-        }
-    }
-
-    return {
-        getSpanVal: getSpanVal,
-        paddCell: paddCell
-    };
-});
+module.exports = {
+    getSpanVal: getSpanVal,
+    paddCell: paddCell
+};

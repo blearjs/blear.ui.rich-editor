@@ -6,58 +6,57 @@
 
 
 
-    'use strict';
+'use strict';
 
-    var PluginManager = require("../../classes/AddOnManager").PluginManager;
-    var event = require('../../../../utils/event.js');
-    var typeis = require('../../../../utils/typeis.js');
-    var controller = require('../../../../utils/controller.js');
-    var modification = require('../../../../core/dom/modification.js');
+var PluginManager = require("../../classes/AddOnManager").PluginManager;
+var event = require('../../../../utils/event.js');
+var typeis = require('../../../../utils/typeis.js');
+var controller = require('../../../../utils/controller.js');
+var modification = require('../../../../core/dom/modification.js');
 
-    PluginManager.add('paste-drop-upload-image', function (editor) {
-        var self = this;
-        var settings = editor.settings;
-        var fileEl = modification.create('input', {
-            type: 'file',
-            name: settings.uploadFileName,
-            style: {
-                display: 'none'
-            }
-        });
-        var resolve = function (img) {
-            if (typeis.String(img)) {
-                img = {
-                    src: img
-                };
-            }
+PluginManager.add('paste-drop-upload-image', function (editor) {
+    var self = this;
+    var settings = editor.settings;
+    var fileEl = modification.create('input', {
+        type: 'file',
+        name: settings.uploadFileName,
+        style: {
+            display: 'none'
+        }
+    });
+    var resolve = function (img) {
+        if (typeis.String(img)) {
+            img = {
+                src: img
+            };
+        }
 
-            img.src = img.src || img.url;
-            editor.undoManager.transact(function () {
-                img.id = '__mcenew';
-                editor.selection.setContent(editor.dom.createHTML('img', img));
-                var imgElm = editor.dom.get(img.id);
-                editor.dom.setAttrib(imgElm, 'id', null);
-                editor.selection.select(imgElm);
-                editor.nodeChanged();
-                controller.nextFrame(function () {
-                    editor.focus();
-                });
+        img.src = img.src || img.url;
+        editor.undoManager.transact(function () {
+            img.id = '__mcenew';
+            editor.selection.setContent(editor.dom.createHTML('img', img));
+            var imgElm = editor.dom.get(img.id);
+            editor.dom.setAttrib(imgElm, 'id', null);
+            editor.selection.select(imgElm);
+            editor.nodeChanged();
+            controller.nextFrame(function () {
+                editor.focus();
             });
-        };
-
-        editor.on('dragenter dragover', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
         });
+    };
 
-        editor.on('paste drop', function (eve) {
-            var imgs = event.parseFiles(eve, this.getDoc());
+    editor.on('dragenter dragover', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
 
-            if (!imgs.length) {
-                return;
-            }
+    editor.on('paste drop', function (eve) {
+        var imgs = event.parseFiles(eve, this.getDoc());
 
-            editor.fire('upload', [fileEl, imgs, resolve]);
-        });
+        if (!imgs.length) {
+            return;
+        }
+
+        editor.fire('upload', [fileEl, imgs, resolve]);
     });
 });

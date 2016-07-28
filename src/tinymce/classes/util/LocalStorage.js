@@ -27,187 +27,186 @@
  * tinymce.util.LocalStorage.setItem('key', 'value');
  * var value = tinymce.util.LocalStorage.getItem('key');
  */
-define( function(require, exports, module) {
-	var LocalStorage, storageElm, items, keys, userDataKey, hasOldIEDataSupport;
 
-	// Check for native support
-	try {
-		if (window.localStorage) {
-			return localStorage;
-		}
-	} catch (ex) {
-		// Ignore
-	}
+var LocalStorage, storageElm, items, keys, userDataKey, hasOldIEDataSupport;
 
-	userDataKey = "tinymce";
-	storageElm = document.documentElement;
-	hasOldIEDataSupport = !!storageElm.addBehavior;
+// Check for native support
+try {
+    if (window.localStorage) {
+        return localStorage;
+    }
+} catch (ex) {
+    // Ignore
+}
 
-	if (hasOldIEDataSupport) {
-		storageElm.addBehavior('#default#userData');
-	}
+userDataKey = "tinymce";
+storageElm = document.documentElement;
+hasOldIEDataSupport = !!storageElm.addBehavior;
 
-	/**
-	 * Gets the keys names and updates LocalStorage.length property. Since IE7 doesn't have any getters/setters.
-	 */
-	function updateKeys() {
-		keys = [];
+if (hasOldIEDataSupport) {
+    storageElm.addBehavior('#default#userData');
+}
 
-		for (var key in items) {
-			keys.push(key);
-		}
+/**
+ * Gets the keys names and updates LocalStorage.length property. Since IE7 doesn't have any getters/setters.
+ */
+function updateKeys() {
+    keys = [];
 
-		LocalStorage.length = keys.length;
-	}
+    for (var key in items) {
+        keys.push(key);
+    }
 
-	/**
-	 * Loads the userData string and parses it into the items structure.
-	 */
-	function load() {
-		var key, data, value, pos = 0;
+    LocalStorage.length = keys.length;
+}
 
-		items = {};
+/**
+ * Loads the userData string and parses it into the items structure.
+ */
+function load() {
+    var key, data, value, pos = 0;
 
-		// localStorage can be disabled on WebKit/Gecko so make a dummy storage
-		if (!hasOldIEDataSupport) {
-			return;
-		}
+    items = {};
 
-		function next(end) {
-			var value, nextPos;
+    // localStorage can be disabled on WebKit/Gecko so make a dummy storage
+    if (!hasOldIEDataSupport) {
+        return;
+    }
 
-			nextPos = end !== undefined ? pos + end : data.indexOf(',', pos);
-			if (nextPos === -1 || nextPos > data.length) {
-				return null;
-			}
+    function next(end) {
+        var value, nextPos;
 
-			value = data.substring(pos, nextPos);
-			pos = nextPos + 1;
+        nextPos = end !== undefined ? pos + end : data.indexOf(',', pos);
+        if (nextPos === -1 || nextPos > data.length) {
+            return null;
+        }
 
-			return value;
-		}
+        value = data.substring(pos, nextPos);
+        pos = nextPos + 1;
 
-		storageElm.load(userDataKey);
-		data = storageElm.getAttribute(userDataKey) || '';
+        return value;
+    }
 
-		do {
-			var offset = next();
-			if (offset === null) {
-				break;
-			}
+    storageElm.load(userDataKey);
+    data = storageElm.getAttribute(userDataKey) || '';
 
-			key = next(parseInt(offset, 32) || 0);
-			if (key !== null) {
-				offset = next();
-				if (offset === null) {
-					break;
-				}
+    do {
+        var offset = next();
+        if (offset === null) {
+            break;
+        }
 
-				value = next(parseInt(offset, 32) || 0);
+        key = next(parseInt(offset, 32) || 0);
+        if (key !== null) {
+            offset = next();
+            if (offset === null) {
+                break;
+            }
 
-				if (key) {
-					items[key] = value;
-				}
-			}
-		} while (key !== null);
+            value = next(parseInt(offset, 32) || 0);
 
-		updateKeys();
-	}
+            if (key) {
+                items[key] = value;
+            }
+        }
+    } while (key !== null);
 
-	/**
-	 * Saves the items structure into a the userData format.
-	 */
-	function save() {
-		var value, data = '';
+    updateKeys();
+}
 
-		// localStorage can be disabled on WebKit/Gecko so make a dummy storage
-		if (!hasOldIEDataSupport) {
-			return;
-		}
+/**
+ * Saves the items structure into a the userData format.
+ */
+function save() {
+    var value, data = '';
 
-		for (var key in items) {
-			value = items[key];
-			data += (data ? ',' : '') + key.length.toString(32) + ',' + key + ',' + value.length.toString(32) + ',' + value;
-		}
+    // localStorage can be disabled on WebKit/Gecko so make a dummy storage
+    if (!hasOldIEDataSupport) {
+        return;
+    }
 
-		storageElm.setAttribute(userDataKey, data);
+    for (var key in items) {
+        value = items[key];
+        data += (data ? ',' : '') + key.length.toString(32) + ',' + key + ',' + value.length.toString(32) + ',' + value;
+    }
 
-		try {
-			storageElm.save(userDataKey);
-		} catch (ex) {
-			// Ignore disk full
-		}
+    storageElm.setAttribute(userDataKey, data);
 
-		updateKeys();
-	}
+    try {
+        storageElm.save(userDataKey);
+    } catch (ex) {
+        // Ignore disk full
+    }
 
-	LocalStorage = {
-		/**
-		 * Length of the number of items in storage.
-		 *
-		 * @property length
-		 * @type Number
-		 * @return {Number} Number of items in storage.
-		 */
-		//length:0,
+    updateKeys();
+}
 
-		/**
-		 * Returns the key name by index.
-		 *
-		 * @method key
-		 * @param {Number} index Index of key to return.
-		 * @return {String} Key value or null if it wasn't found.
-		 */
-		key: function(index) {
-			return keys[index];
-		},
+LocalStorage = {
+    /**
+     * Length of the number of items in storage.
+     *
+     * @property length
+     * @type Number
+     * @return {Number} Number of items in storage.
+     */
+    //length:0,
 
-		/**
-		 * Returns the value if the specified key or null if it wasn't found.
-		 *
-		 * @method getItem
-		 * @param {String} key Key of item to retrive.
-		 * @return {String} Value of the specified item or null if it wasn't found.
-		 */
-		getItem: function(key) {
-			return key in items ? items[key] : null;
-		},
+    /**
+     * Returns the key name by index.
+     *
+     * @method key
+     * @param {Number} index Index of key to return.
+     * @return {String} Key value or null if it wasn't found.
+     */
+    key: function (index) {
+        return keys[index];
+    },
 
-		/**
-		 * Sets the value of the specified item by it's key.
-		 *
-		 * @method setItem
-		 * @param {String} key Key of the item to set.
-		 * @param {String} value Value of the item to set.
-		 */
-		setItem: function(key, value) {
-			items[key] = "" + value;
-			save();
-		},
+    /**
+     * Returns the value if the specified key or null if it wasn't found.
+     *
+     * @method getItem
+     * @param {String} key Key of item to retrive.
+     * @return {String} Value of the specified item or null if it wasn't found.
+     */
+    getItem: function (key) {
+        return key in items ? items[key] : null;
+    },
 
-		/**
-		 * Removes the specified item by key.
-		 *
-		 * @method removeItem
-		 * @param {String} key Key of item to remove.
-		 */
-		removeItem: function(key) {
-			delete items[key];
-			save();
-		},
+    /**
+     * Sets the value of the specified item by it's key.
+     *
+     * @method setItem
+     * @param {String} key Key of the item to set.
+     * @param {String} value Value of the item to set.
+     */
+    setItem: function (key, value) {
+        items[key] = "" + value;
+        save();
+    },
 
-		/**
-		 * Removes all items.
-		 *
-		 * @method clear
-		 */
-		clear: function() {
-			items = {};
-			save();
-		}
-	};
+    /**
+     * Removes the specified item by key.
+     *
+     * @method removeItem
+     * @param {String} key Key of item to remove.
+     */
+    removeItem: function (key) {
+        delete items[key];
+        save();
+    },
 
-	load();
+    /**
+     * Removes all items.
+     *
+     * @method clear
+     */
+    clear: function () {
+        items = {};
+        save();
+    }
+};
 
-	return LocalStorage;
-});
+load();
+
+module.exports = LocalStorage;

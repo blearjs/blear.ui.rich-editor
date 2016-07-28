@@ -6,40 +6,39 @@
 
 
 
-    'use strict';
+'use strict';
 
-    var PluginManager = require("../../classes/AddOnManager").PluginManager;
+var PluginManager = require("../../classes/AddOnManager").PluginManager;
 
-    PluginManager.add('placeholder', function (editor) {
-        var settings = editor.settings;
-        var canPlaceholder = false;
+PluginManager.add('placeholder', function (editor) {
+    var settings = editor.settings;
+    var canPlaceholder = false;
 
-        editor.placeholdered = true;
-        // 载入内容之后，判断是否内容，没有的话显示占位
-        editor.on('loadcontent', function (eve) {
-            canPlaceholder = !eve.content && settings.placeholder;
+    editor.placeholdered = true;
+    // 载入内容之后，判断是否内容，没有的话显示占位
+    editor.on('loadcontent', function (eve) {
+        canPlaceholder = !eve.content && settings.placeholder;
 
-            if (canPlaceholder) {
-                editor.setContent(settings.placeholder);
-                editor.setDirty(false);
-                editor.startContent = '';
-            }
-        });
+        if (canPlaceholder) {
+            editor.setContent(settings.placeholder);
+            editor.setDirty(false);
+            editor.startContent = '';
+        }
+    });
 
-        // 第一次聚焦的时候设置为空
-        editor.once('focus', function () {
-            if (canPlaceholder && !editor.isDirty()) {
-                editor.setContent('');
-                editor.setDirty(false);
-                editor.placeholdered = false;
-            }
-        });
+    // 第一次聚焦的时候设置为空
+    editor.once('focus', function () {
+        if (canPlaceholder && !editor.isDirty()) {
+            editor.setContent('');
+            editor.setDirty(false);
+            editor.placeholdered = false;
+        }
+    });
 
-        // 销毁实例前保存内容，如果内容没有变化则设置为空
-        editor.once('SaveContent', function (eve) {
-            if (eve.destroy && canPlaceholder && !editor.isDirty()) {
-                eve.content = '';
-            }
-        });
+    // 销毁实例前保存内容，如果内容没有变化则设置为空
+    editor.once('SaveContent', function (eve) {
+        if (eve.destroy && canPlaceholder && !editor.isDirty()) {
+            eve.content = '';
+        }
     });
 });
