@@ -36,11 +36,11 @@ PluginManager.add('auto-fixed-toolbar', function (editor) {
         }
 
         var scrollTop = layout.scrollTop(win);
-        var containerTop = layout.top(containerEle);
+        var containerTop = layout.offsetTop(containerEle);
         var winScrollLeft = layout.scrollLeft(win);
         var toolbarHeight = layout.height(toolbarEle);
         var containerHeight = layout.height(containerEle);
-        var containerLeft = layout.left(containerEle);
+        var containerLeft = layout.offsetLeft(containerEle);
 
         if (scrollTop > containerTop && scrollTop < containerTop + containerHeight - toolbarHeight) {
             attribute.style(toolbarEle, {

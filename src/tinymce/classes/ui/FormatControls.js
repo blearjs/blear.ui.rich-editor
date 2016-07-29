@@ -41,7 +41,7 @@ Control.translate = function (text) {
 
 Widget.tooltips = !Env.iOS;
 
-module.exports = function registerControls(editor) {
+var registerControls = module.exports = function registerControls(editor) {
     var formatMenu;
 
     function createListBoxChangeHandler(items, formatName) {

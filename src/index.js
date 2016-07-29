@@ -153,8 +153,8 @@ var pro = RichEditor.prototype;
 
 pro[_initNode] = function () {
     var the = this;
-    var options = the._options;
-    var textareaEl = the._textareaEl;
+    var options = the[_options];
+    var textareaEl = the[_textareaEl];
 
     the[_richEditor] = tinymce.init({
         ele: textareaEl,
