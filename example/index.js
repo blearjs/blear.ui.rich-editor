@@ -7,6 +7,10 @@
 
 'use strict';
 
+var RichEditor = require('../src/index');
 
+new RichEditor({
+    el: '#demo'
+});
 
 
