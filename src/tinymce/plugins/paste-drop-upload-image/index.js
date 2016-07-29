@@ -8,11 +8,12 @@
 
 'use strict';
 
+var event = require('blear.core.event');
+var typeis = require('blear.utils.typeis');
+var time = require('blear.utils.time');
+var modification = require('blear.core.modification');
+
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
-var event = require('../../../../utils/event.js');
-var typeis = require('../../../../utils/typeis.js');
-var controller = require('../../../../utils/controller.js');
-var modification = require('../../../../core/dom/modification.js');
 
 PluginManager.add('paste-drop-upload-image', function (editor) {
     var self = this;
@@ -39,7 +40,7 @@ PluginManager.add('paste-drop-upload-image', function (editor) {
             editor.dom.setAttrib(imgElm, 'id', null);
             editor.selection.select(imgElm);
             editor.nodeChanged();
-            controller.nextFrame(function () {
+            time.nextFrame(function () {
                 editor.focus();
             });
         });

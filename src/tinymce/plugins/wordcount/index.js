@@ -2,9 +2,10 @@
 
 'use strict';
 
+var fun = require('blear.utils.function');
+
 var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
-var controller = require('../../../../utils/controller.js');
 
 /**
  * plugin.js
@@ -65,7 +66,7 @@ PluginManager.add('wordcount', function (editor) {
                 disabled: editor.settings.readonly
             }, 0);
 
-            editor.on('nodechange setcontent keyup', controller.debounce(update));
+            editor.on('nodechange setcontent keyup', fun.debounce(update));
         }
     });
 });

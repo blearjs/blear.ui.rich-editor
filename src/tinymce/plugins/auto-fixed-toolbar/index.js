@@ -8,13 +8,14 @@
 
 'use strict';
 
+var fun = require('blear.utils.function');
+var attribute = require('blear.core.attribute');
+var layout = require('blear.core.layout');
+var event = require('blear.core.event');
+
 var win = window;
 var doc = win.document;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
-var controller = require('../../../../utils/controller.js');
-var attribute = require('../../../../core/dom/attribute.js');
-var event = require('../../../../core/event/base.js');
-var ui = require('../../../../ui/index.js');
 
 PluginManager.add('auto-fixed-toolbar', function (editor) {
     var resize = function (eve) {
@@ -34,42 +35,42 @@ PluginManager.add('auto-fixed-toolbar', function (editor) {
             return;
         }
 
-        var scrollTop = attribute.scrollTop(win);
-        var containerTop = attribute.top(containerEle);
-        var winScrollLeft = attribute.scrollLeft(win);
-        var toolbarHeight = attribute.height(toolbarEle);
-        var containerHeight = attribute.height(containerEle);
-        var containerLeft = attribute.left(containerEle);
+        var scrollTop = layout.scrollTop(win);
+        var containerTop = layout.top(containerEle);
+        var winScrollLeft = layout.scrollLeft(win);
+        var toolbarHeight = layout.height(toolbarEle);
+        var containerHeight = layout.height(containerEle);
+        var containerLeft = layout.left(containerEle);
 
         if (scrollTop > containerTop && scrollTop < containerTop + containerHeight - toolbarHeight) {
-            attribute.css(toolbarEle, {
+            attribute.style(toolbarEle, {
                 position: 'fixed',
-                width: attribute.innerWidth(containerEle),
+                width: layout.innerWidth(containerEle),
                 top: 0,
                 zIndex: 9,
                 left: containerLeft - winScrollLeft
             });
-            attribute.css(containerEle, 'padding-top', attribute.outerHeight(toolbarEle));
+            attribute.style(containerEle, 'padding-top', layout.outerHeight(toolbarEle));
         } else {
-            attribute.css(toolbarEle, {
+            attribute.style(toolbarEle, {
                 position: 'static',
                 width: 'auto',
                 top: 'auto',
                 zIndex: 'auto',
                 left: 'auto'
             });
-            attribute.css(containerEle, 'padding-top', 0);
+            attribute.style(containerEle, 'padding-top', 0);
         }
     };
 
-    event.on(win, 'scroll resize', controller.debounce(resize, 10));
-    event.on(doc, 'scroll', controller.debounce(resize, 10));
+    event.on(win, 'scroll resize', fun.debounce(resize, 10));
+    event.on(doc, 'scroll', fun.debounce(resize, 10));
 
     // Add appropriate listeners for resizing content area
-    editor.on("nodechange setcontent keyup FullscreenStateChanged", controller.debounce(resize, 10));
+    editor.on("nodechange setcontent keyup FullscreenStateChanged", fun.debounce(resize, 10));
 
     if (editor.getParam('auto_fixed_toolbar_on_init', true)) {
-        editor.on('init', controller.once(resize));
+        editor.on('init', fun.once(resize));
     }
 
     // Register the command so that it can be invoked by using tinyMCE.activeEditor.execCommand('mceExample');
