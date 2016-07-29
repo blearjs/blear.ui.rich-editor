@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "富文本编辑器，基于 Tinymce",
   "scripts": {
-    "live": "browser-sync start --config bs-config.js",
-    "test": "node ./node_modules/.bin/karma start karma.conf.js --single-run",
-    "prepublish": "npm test"
+    "live": "browser-sync start --config bs-config.js"
   },
   "preferGlobal": false,
   "bin": {},
@@ -16,7 +14,9 @@
   "main": "src/index.js",
   "keywords": [
     "blear",
-    "__template__",
+    "ui",
+    "rich editor",
+    "tinymce",
     "cloudcome",
     "ydr.me"
   ],

@@ -13,3 +13,11 @@
 [coveralls-img]: https://img.shields.io/coveralls/blearjs/blear.ui.rich-editor/master.svg?style=flat-square
 [coveralls-url]: https://coveralls.io/github/blearjs/blear.ui.rich-editor?branch=master
 
+# usage
+```
+var RichEditor = require('blear.ui.rich-editor');
+
+new RichEditor({
+    el: '#textarea'
+});
+```
