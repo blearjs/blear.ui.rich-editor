@@ -29,7 +29,7 @@
 "use strict";
 
 var $ = require("../dom/DomQuery");
-var ui = require('../../../../ui/index.js');
+var UI = require('blear.ui');
 
 function getDocumentSize(doc) {
     var documentElement, body, scrollWidth, clientWidth;
@@ -95,7 +95,7 @@ module.exports = function (id, settings) {
             top: 0, left: 0,
             width: docSize.width,
             height: docSize.height,
-            zIndex: ui.getZindex(),
+            zIndex: UI.zIndex(),
             opacity: 0.0001,
             cursor: cursor
         }).appendTo(doc.body);

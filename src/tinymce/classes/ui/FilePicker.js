@@ -21,7 +21,7 @@
 
 var ComboBox = require("./ComboBox");
 var Tools = require("../util/Tools");
-var selector = require('../../../../core/dom/selector.js');
+var selector = require('blear.core.selector');
 
 module.exports = ComboBox.extend({
     /**

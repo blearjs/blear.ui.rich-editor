@@ -21,7 +21,7 @@
 
 var Control = require("./Control");
 var Movable = require("./Movable");
-var ui = require('../../../../ui/index.js');
+var UI = require('blear.ui');
 
 module.exports = Control.extend({
     Mixins: [Movable],
@@ -70,6 +70,6 @@ module.exports = Control.extend({
 
         style.left = rect.x + 'px';
         style.top = rect.y + 'px';
-        style.zIndex = ui.getZindex();
+        style.zIndex = UI.zIndex();
     }
 });

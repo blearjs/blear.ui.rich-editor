@@ -25,7 +25,7 @@ var Resizable = require("./Resizable");
 var DomUtils = require("./DomUtils");
 var $ = require("../dom/DomQuery");
 var Delay = require("../util/Delay");
-var ui = require('../../../../ui/index.js');
+var UI = require('blear.ui');
 
 var documentClickHandler, documentScrollHandler, windowResizeHandler, visiblePanels = [];
 var zOrder = [], hasModal;
@@ -152,7 +152,7 @@ function repositionPanel(panel) {
 }
 
 function addRemove(add, ctrl) {
-    var i, zIndex = FloatPanel.zIndex || ui.getZindex(), topModal;
+    var i, zIndex = FloatPanel.zIndex || UI.zIndex(), topModal;
 
     if (add) {
         zOrder.push(ctrl);
