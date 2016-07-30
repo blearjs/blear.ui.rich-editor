@@ -13,6 +13,7 @@ var typeis = require('blear.utils.typeis');
 var time = require('blear.utils.time');
 var modification = require('blear.core.modification');
 
+var parseEventFiles = require('../../../parse-event-files');
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
 
 PluginManager.add('paste-drop-upload-image', function (editor) {
@@ -52,7 +53,7 @@ PluginManager.add('paste-drop-upload-image', function (editor) {
     });
 
     editor.on('paste drop', function (eve) {
-        var imgs = event.parseFiles(eve, this.getDoc());
+        var imgs = parseEventFiles(eve, this.getDoc());
 
         if (!imgs.length) {
             return;
