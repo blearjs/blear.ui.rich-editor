@@ -33,6 +33,7 @@ var RichEditor = UI.extend({
         var the = this;
 
         options = the[_options] = object.assign({}, defaults, options);
+        RichEditor.parent(the);
         the[_textareaEl] = selector.query(options.el)[0];
         the[_initNode]();
         the[_initEvent]();
