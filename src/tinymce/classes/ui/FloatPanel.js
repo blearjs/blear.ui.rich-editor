@@ -152,7 +152,7 @@ function repositionPanel(panel) {
 }
 
 function addRemove(add, ctrl) {
-    var i, zIndex = FloatPanel.zIndex || UI.zIndex(), topModal;
+    var i, zIndex = UI.zIndex(), topModal;
 
     if (add) {
         zOrder.push(ctrl);
@@ -169,7 +169,7 @@ function addRemove(add, ctrl) {
     if (zOrder.length) {
         for (i = 0; i < zOrder.length; i++) {
             if (zOrder[i].modal) {
-                zIndex++;
+                zIndex = UI.zIndex();
                 topModal = zOrder[i];
             }
 
