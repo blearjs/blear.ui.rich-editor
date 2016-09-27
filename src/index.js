@@ -62,7 +62,7 @@ var RichEditor = UI.extend({
                 });
                 the[_callbacks] = [];
             }, function () {
-                return !!the.getDoc();
+                return !!the[_richEditor].getDoc();
             });
         }
 
