@@ -12,9 +12,10 @@ var selector = require('blear.core.selector');
 var object = require('blear.utils.object');
 var array = require('blear.utils.array');
 var typeis = require('blear.utils.typeis');
+var fun = require('blear.utils.function');
 
 var tinymce = require('./tinymce/index.js');
-var parseEventFiles= require('./parse-event-files');
+var parseEventFiles = require('./parse-event-files');
 
 
 var defaults = {
@@ -37,6 +38,35 @@ var RichEditor = UI.extend({
         the[_textareaEl] = selector.query(options.el)[0];
         the[_initNode]();
         the[_initEvent]();
+        the[_readied] = false;
+        the[_callbacks] = [];
+    },
+
+
+    /**
+     * 编辑器准备完毕回调
+     * @param callback
+     * @returns {RichEditor}
+     */
+    ready: function (callback) {
+        var the = this;
+        callback = fun.noop(callback);
+
+        if (the[_readied]) {
+            callback.call(the);
+        } else {
+            the[_callbacks].push(callback);
+            fun.until(function () {
+                array.each(the[_callbacks], function (_, callback) {
+                    callback.call(the);
+                });
+                the[_callbacks] = [];
+            }, function () {
+                return !!the.getDoc();
+            });
+        }
+
+        return the;
     },
 
 
@@ -86,6 +116,8 @@ var _textareaEl = RichEditor.sole();
 var _initNode = RichEditor.sole();
 var _initEvent = RichEditor.sole();
 var _richEditor = RichEditor.sole();
+var _readied = RichEditor.sole();
+var _callbacks = RichEditor.sole();
 var pro = RichEditor.prototype;
 
 pro[_initNode] = function () {

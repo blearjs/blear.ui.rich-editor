@@ -9,8 +9,11 @@
 
 var RichEditor = require('../src/index');
 
-new RichEditor({
+var re = new RichEditor({
     el: '#demo'
 });
 
+re.ready(function () {
+
+});
 
