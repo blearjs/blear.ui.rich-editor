@@ -10,7 +10,10 @@
 var RichEditor = require('../src/index');
 
 var re = new RichEditor({
-    el: '#demo'
+    el: '#demo',
+    contentStyle: require('./style.css', 'css|text'),
+    toolbar: 'bold italic underline strikethrough | forecolor removeformat | bullist numlist | ' +
+    ' alignleft aligncenter alignright alignjustify | image hr | fullscreen undo redo'
 });
 
 re.ready(function () {

@@ -18,7 +18,7 @@ PluginManager.add('textcolor', function (editor) {
     var cols, rows;
 
     rows = editor.settings.textcolor_rows || 5;
-    cols = editor.settings.textcolor_cols || 8;
+    cols = editor.settings.textcolor_cols || 9;
 
     function getCurrentColor(format) {
         var color;
@@ -38,14 +38,12 @@ PluginManager.add('textcolor', function (editor) {
         var i, colors = [], colorMap;
 
         colorMap = editor.settings.textcolor_map || [
-                "000000", "993300", "333300", "003300", "003366",
-                "000080", "333399", "333333", "800000", "FF6600",
-                "808000", "008000", "008080", "0000FF", "666699",
-                "808080", "FF0000", "FF9900", "99CC00", "339966",
-                "33CCCC", "3366FF", "800080", "999999", "FF00FF",
-                "FFCC00", "FFFF00", "00FF00", "00FFFF", "00CCFF",
-                "993366", "FFFFFF", "FF99CC", "FFCC99", "FFFF99",
-                "CCFFCC", "CCFFFF", "99CCFF", "CC99FF"/*transparent*/
+                "ffffff", "ffd7d5", "ffdaa9", "fffed5", "d4fa00", "73fcd6", "a5c8ff", "ffacd5", "ff7faa",
+                "d6d6d6", "ffacaa", "ffb995", "fffb00", "73fa79", "00fcff", "78acf1", "d84fa9", "ff4f79",
+                "b2b2b2", "d7aba9", "ff6827", "ffda51", "00d100", "00d5ff", "0080ff", "ac39ff", "ff2941",
+                "888888", "7a4442", "ff4c00", "ffa900", "3da742", "3dad66", "0052ff", "7a4fd6", "d92142",
+                "000000", "7b0c00", "ff4c41", 'd6a841', '407600', '007aaa', '021eaa', '797baa', 'ab1942'
+                /*transparent*/
             ];
 
         for (i = 0; i < colorMap.length; i++) {
@@ -75,7 +73,7 @@ PluginManager.add('textcolor', function (editor) {
         }
 
         colors = mapColors();
-        colors.push('transparent');
+        // colors.push('transparent');
 
         html = '<table class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody>';
         last = colors.length - 1;

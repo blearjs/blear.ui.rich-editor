@@ -130,7 +130,7 @@ pro[_initNode] = function () {
         content_style: options.contentStyle,
         // 转换 url 为相对路径
         relative_urls: false,
-        // 移除 url 的 host
+        // 移除 script 的 host
         remove_script_host: false,
         height: options.height,
         min_height: options.minHeight,
@@ -138,6 +138,7 @@ pro[_initNode] = function () {
         placeholder: options.placeholder,
         uploadFileName: options.fileName,
         uploadFileLabel: options.fileLabel,
+        toolbar: options.toolbar,
         file_picker_callback: function (callback, value, meta, fileEl) {
             fileEl.onchange = function (eve) {
                 eve = eve || window.event;
