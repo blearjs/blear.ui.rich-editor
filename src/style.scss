@@ -41,3 +41,16 @@ p {
   white-space: pre-wrap;
   margin-bottom: 1em;
 }
+
+
+ul, ol {
+  margin-bottom: 1em;
+}
+
+ul li {
+  list-style: disc inside;
+}
+
+ol li {
+  list-style: decimal inside;
+}
