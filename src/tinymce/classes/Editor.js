@@ -1702,7 +1702,7 @@
 
             // Setup args object
             args = args || {};
-            args.format = args.format || 'html';
+            args.format = args.format || 'raw';
             args.set = true;
             args.content = content;
 
@@ -1799,7 +1799,7 @@
 
             // Setup args object
             args = args || {};
-            args.format = args.format || 'html';
+            args.format = args.format || 'raw';
             args.get = true;
             args.getInner = true;
 
