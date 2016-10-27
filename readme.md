@@ -1,5 +1,7 @@
 # blear.ui.rich-editor
 
+base on tinymce@4.4.3
+
 [![npm module][npm-img]][npm-url]
 [![build status][travis-img]][travis-url]
 [![coverage][coveralls-img]][coveralls-url]

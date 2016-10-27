@@ -5,9 +5,7 @@ body {
   font-family: -apple-system-font,"Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
-  line-height: 1.6;
-  padding: 0;
-  margin: 10px; }
+  line-height: 1.6; }
 
 * {
   max-width: 100% !important;

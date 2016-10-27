@@ -16,134 +16,148 @@
  * @class tinymce.caret.CaretContainer
  */
 
-    var NodeType = require("../dom/NodeType");
-    var Zwsp = require("../text/Zwsp");
-    var isElement = NodeType.isElement,
-        isText = NodeType.isText;
+var NodeType = require("../dom/NodeType");
+var Zwsp = require("../text/Zwsp");
 
-    function isCaretContainerBlock(node) {
-        if (isText(node)) {
-            node = node.parentNode;
+var isElement = NodeType.isElement,
+    isText = NodeType.isText;
+
+function isCaretContainerBlock(node) {
+    if (isText(node)) {
+        node = node.parentNode;
+    }
+
+    return isElement(node) && node.hasAttribute('data-mce-caret');
+}
+
+function isCaretContainerInline(node) {
+    return isText(node) && Zwsp.isZwsp(node.data);
+}
+
+function isCaretContainer(node) {
+    return isCaretContainerBlock(node) || isCaretContainerInline(node);
+}
+
+function removeNode(node) {
+    var parentNode = node.parentNode;
+    if (parentNode) {
+        parentNode.removeChild(node);
+    }
+}
+
+function getNodeValue(node) {
+    try {
+        return node.nodeValue;
+    } catch (ex) {
+        // IE sometimes produces "Invalid argument" on nodes
+        return "";
+    }
+}
+
+function setNodeValue(node, text) {
+    if (text.length === 0) {
+        removeNode(node);
+    } else {
+        node.nodeValue = text;
+    }
+}
+
+function insertInline(node, before) {
+    var doc, sibling, textNode, parentNode;
+
+    doc = node.ownerDocument;
+    textNode = doc.createTextNode(Zwsp.ZWSP);
+    parentNode = node.parentNode;
+
+    if (!before) {
+        sibling = node.nextSibling;
+        if (isText(sibling)) {
+            if (isCaretContainer(sibling)) {
+                return sibling;
+            }
+
+            if (startsWithCaretContainer(sibling)) {
+                sibling.splitText(1);
+                return sibling;
+            }
         }
 
-        return isElement(node) && node.hasAttribute('data-mce-caret');
-    }
-
-    function isCaretContainerInline(node) {
-        return isText(node) && Zwsp.isZwsp(node.data);
-    }
-
-    function isCaretContainer(node) {
-        return isCaretContainerBlock(node) || isCaretContainerInline(node);
-    }
-
-    function insertInline(node, before) {
-        var doc, sibling, textNode, parentNode;
-
-        doc = node.ownerDocument;
-        textNode = doc.createTextNode(Zwsp.ZWSP);
-        parentNode = node.parentNode;
-
-        if (!before) {
-            sibling = node.nextSibling;
-            if (isText(sibling)) {
-                if (isCaretContainer(sibling)) {
-                    return sibling;
-                }
-
-                if (startsWithCaretContainer(sibling)) {
-                    sibling.splitText(1);
-                    return sibling;
-                }
-            }
-
-            if (node.nextSibling) {
-                parentNode.insertBefore(textNode, node.nextSibling);
-            } else {
-                parentNode.appendChild(textNode);
-            }
+        if (node.nextSibling) {
+            parentNode.insertBefore(textNode, node.nextSibling);
         } else {
-            sibling = node.previousSibling;
-            if (isText(sibling)) {
-                if (isCaretContainer(sibling)) {
-                    return sibling;
-                }
-
-                if (endsWithCaretContainer(sibling)) {
-                    return sibling.splitText(sibling.data.length - 1);
-                }
+            parentNode.appendChild(textNode);
+        }
+    } else {
+        sibling = node.previousSibling;
+        if (isText(sibling)) {
+            if (isCaretContainer(sibling)) {
+                return sibling;
             }
 
-            parentNode.insertBefore(textNode, node);
+            if (endsWithCaretContainer(sibling)) {
+                return sibling.splitText(sibling.data.length - 1);
+            }
         }
 
-        return textNode;
+        parentNode.insertBefore(textNode, node);
     }
 
-    function insertBlock(blockName, node, before) {
-        var doc, blockNode, parentNode;
+    return textNode;
+}
 
-        doc = node.ownerDocument;
-        blockNode = doc.createElement(blockName);
-        blockNode.setAttribute('data-mce-caret', before ? 'before' : 'after');
-        blockNode.setAttribute('data-mce-bogus', 'all');
-        blockNode.appendChild(doc.createTextNode('\u00a0'));
-        parentNode = node.parentNode;
+function insertBlock(blockName, node, before) {
+    var doc, blockNode, parentNode;
 
-        if (!before) {
-            if (node.nextSibling) {
-                parentNode.insertBefore(blockNode, node.nextSibling);
-            } else {
-                parentNode.appendChild(blockNode);
-            }
+    doc = node.ownerDocument;
+    blockNode = doc.createElement(blockName);
+    blockNode.setAttribute('data-mce-caret', before ? 'before' : 'after');
+    blockNode.setAttribute('data-mce-bogus', 'all');
+    blockNode.appendChild(doc.createTextNode('\u00a0'));
+    parentNode = node.parentNode;
+
+    if (!before) {
+        if (node.nextSibling) {
+            parentNode.insertBefore(blockNode, node.nextSibling);
         } else {
-            parentNode.insertBefore(blockNode, node);
+            parentNode.appendChild(blockNode);
         }
-
-        return blockNode;
+    } else {
+        parentNode.insertBefore(blockNode, node);
     }
 
-    function remove(caretContainerNode) {
-        var text;
+    return blockNode;
+}
 
-        if (isElement(caretContainerNode) && isCaretContainer(caretContainerNode)) {
-            if (caretContainerNode.innerHTML != '&nbsp;') {
-                caretContainerNode.removeAttribute('data-mce-caret');
-            } else {
-                if (caretContainerNode.parentNode) {
-                    caretContainerNode.parentNode.removeChild(caretContainerNode);
-                }
-            }
-        }
-
-        if (isText(caretContainerNode)) {
-            text = Zwsp.trim(caretContainerNode.data);
-
-            if (text.length === 0) {
-                if (caretContainerNode.parentNode) {
-                    caretContainerNode.parentNode.removeChild(caretContainerNode);
-                }
-            }
-
-            caretContainerNode.nodeValue = text;
+function remove(caretContainerNode) {
+    if (isElement(caretContainerNode) && isCaretContainer(caretContainerNode)) {
+        if (caretContainerNode.innerHTML != '&nbsp;') {
+            caretContainerNode.removeAttribute('data-mce-caret');
+        } else {
+            removeNode(caretContainerNode);
         }
     }
 
-    function startsWithCaretContainer(node) {
-        return isText(node) && node.data[0] == Zwsp.ZWSP;
+    if (isText(caretContainerNode)) {
+        var text = Zwsp.trim(getNodeValue(caretContainerNode));
+        setNodeValue(caretContainerNode, text);
     }
+}
 
-    function endsWithCaretContainer(node) {
-        return isText(node) && node.data[node.data.length - 1] == Zwsp.ZWSP;
-    }
+function startsWithCaretContainer(node) {
+    return isText(node) && node.data[0] == Zwsp.ZWSP;
+}
 
-    module.exports = {
-        isCaretContainer: isCaretContainer,
-        isCaretContainerBlock: isCaretContainerBlock,
-        isCaretContainerInline: isCaretContainerInline,
-        insertInline: insertInline,
-        insertBlock: insertBlock,
-        remove: remove,
-        startsWithCaretContainer: startsWithCaretContainer,
-        endsWithCaretContainer: endsWithCaretContainer
-    };
+function endsWithCaretContainer(node) {
+    return isText(node) && node.data[node.data.length - 1] == Zwsp.ZWSP;
+}
+
+module.exports = {
+    isCaretContainer: isCaretContainer,
+    isCaretContainerBlock: isCaretContainerBlock,
+    isCaretContainerInline: isCaretContainerInline,
+    insertInline: insertInline,
+    insertBlock: insertBlock,
+    remove: remove,
+    startsWithCaretContainer: startsWithCaretContainer,
+    endsWithCaretContainer: endsWithCaretContainer
+};

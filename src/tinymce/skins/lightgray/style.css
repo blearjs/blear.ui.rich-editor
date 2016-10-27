@@ -89,7 +89,8 @@ div.mce-fullscreen {
 
 div.mce-edit-area {
     background: #fff;
-    filter: none
+    filter: none;
+    padding: 10px;
 }
 
 .mce-statusbar {
