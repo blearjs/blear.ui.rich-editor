@@ -34,6 +34,7 @@ var EventUtils = require("./EventUtils");
 var Sizzle = require("./Sizzle");
 var Tools = require("../util/Tools");
 var Env = require("../Env");
+
 var doc = document, push = Array.prototype.push, slice = Array.prototype.slice;
 var rquickExpr = /^(?:[^#<]*(<[\w\W]+>)[^>]*$|#([\w\-]*)$)/;
 var Event = EventUtils.Event, undef;
@@ -642,7 +643,8 @@ DomQuery.fn = DomQuery.prototype = {
      */
     append: function () {
         return domManipulate(this, arguments, function (node) {
-            if (this.nodeType === 1) {
+            // Either element or Shadow Root
+            if (this.nodeType === 1 || (this.host && this.host.nodeType === 1)) {
                 this.appendChild(node);
             }
         });
@@ -657,7 +659,8 @@ DomQuery.fn = DomQuery.prototype = {
      */
     prepend: function () {
         return domManipulate(this, arguments, function (node) {
-            if (this.nodeType === 1) {
+            // Either element or Shadow Root
+            if (this.nodeType === 1 || (this.host && this.host.nodeType === 1)) {
                 this.insertBefore(node, this.firstChild);
             }
         }, true);

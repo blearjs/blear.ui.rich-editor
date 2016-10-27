@@ -18,6 +18,7 @@ var Tools = require("../util/Tools");
 var TreeWalker = require("./TreeWalker");
 var NodeType = require("./NodeType");
 var CaretContainer = require("../caret/CaretContainer");
+
 var each = Tools.each,
     isContentEditableFalse = NodeType.isContentEditableFalse,
     isCaretContainer = CaretContainer.isCaretContainer;
@@ -55,7 +56,7 @@ function RangeUtils(dom) {
 
         // Handle table cell selection the table plugin enables
         // you to fake select table cells and perform formatting actions on them
-        nodes = dom.select('td.mce-item-selected,th.mce-item-selected');
+        nodes = dom.select('td[data-mce-selected],th[data-mce-selected]');
         if (nodes.length > 0) {
             each(nodes, function (node) {
                 callback([node]);
@@ -394,6 +395,11 @@ function RangeUtils(dom) {
                     container = container.childNodes[offset];
                     offset = 0;
 
+                    // Don't normalize non collapsed selections like <p>[a</p><table></table>]
+                    if (!collapsed && container === body.lastChild && container.nodeName === 'TABLE') {
+                        return;
+                    }
+
                     if (hasContentEditableFalseParent(container) || isCaretContainer(container)) {
                         return;
                     }
@@ -535,7 +541,7 @@ function findClosestIeRange(clientX, clientY, doc) {
     element = doc.elementFromPoint(clientX, clientY);
     rng = doc.body.createTextRange();
 
-    if (element.tagName == 'HTML') {
+    if (!element || element.tagName == 'HTML') {
         element = doc.body;
     }
 

@@ -73,15 +73,15 @@ var i,
 	slice = arr.slice,
 	// Use a stripped-down indexOf if we can't use a native one
 	indexOf = arr.indexOf || function( elem ) {
-		var i = 0,
-			len = this.length;
-		for ( ; i < len; i++ ) {
-			if ( this[i] === elem ) {
-				return i;
+			var i = 0,
+				len = this.length;
+			for (; i < len; i++) {
+				if (this[i] === elem) {
+					return i;
+				}
 			}
-		}
-		return -1;
-	},
+			return -1;
+		},
 
 	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
 
@@ -243,12 +243,12 @@ function Sizzle( selector, context, results, seed ) {
 					}
 				}
 
-			// Speed-up: Sizzle("TAG")
+				// Speed-up: Sizzle("TAG")
 			} else if ( match[2] ) {
 				push.apply( results, context.getElementsByTagName( selector ) );
 				return results;
 
-			// Speed-up: Sizzle(".CLASS")
+				// Speed-up: Sizzle(".CLASS")
 			} else if ( (m = match[3]) && support.getElementsByClassName ) {
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
@@ -474,6 +474,17 @@ setDocument = Sizzle.setDocument = function( node ) {
 		doc = node ? node.ownerDocument || node : preferredDoc,
 		parent = doc.defaultView;
 
+	function getTop(win) {
+		// Edge throws a lovely Object expected if you try to get top on a detached reference see #2642
+		try {
+			return win.top;
+		} catch (ex) {
+			// Ignore
+		}
+
+		return null;
+	}
+
 	// If no document and documentElement is available, return
 	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
 		return document;
@@ -490,7 +501,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// If iframe document is assigned to "document" variable and if iframe has been reloaded,
 	// IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
 	// IE6-8 do not support the defaultView property so parent will be undefined
-	if ( parent && parent !== parent.top ) {
+	if (parent && parent !== getTop(parent)) {
 		// IE11 does not have attachEvent, so all must suffer
 		if ( parent.addEventListener ) {
 			parent.addEventListener( "unload", function() {
@@ -504,7 +515,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	}
 
 	/* Attributes
-	---------------------------------------------------------------------- */
+	 ---------------------------------------------------------------------- */
 
 	// Support: IE<8
 	// Verify that getAttribute really returns attributes and not properties (excepting IE8 booleans)
@@ -514,7 +525,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	});
 
 	/* getElement(s)By*
-	---------------------------------------------------------------------- */
+	 ---------------------------------------------------------------------- */
 
 	// Check if getElementsByTagName("*") returns only elements
 	support.getElementsByTagName = assert(function( div ) {
@@ -592,13 +603,13 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	// Class
 	Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
-		if ( documentIsHTML ) {
-			return context.getElementsByClassName( className );
-		}
-	};
+			if (documentIsHTML) {
+				return context.getElementsByClassName(className);
+			}
+		};
 
 	/* QSA/matchesSelector
-	---------------------------------------------------------------------- */
+	 ---------------------------------------------------------------------- */
 
 	// QSA and matchesSelector support
 
@@ -671,10 +682,10 @@ setDocument = Sizzle.setDocument = function( node ) {
 	}
 
 	if ( (support.matchesSelector = rnative.test( (matches = docElem.matches ||
-		docElem.webkitMatchesSelector ||
-		docElem.mozMatchesSelector ||
-		docElem.oMatchesSelector ||
-		docElem.msMatchesSelector) )) ) {
+			docElem.webkitMatchesSelector ||
+			docElem.mozMatchesSelector ||
+			docElem.oMatchesSelector ||
+			docElem.msMatchesSelector)))) {
 
 		assert(function( div ) {
 			// Check to see if it's possible to do matchesSelector
@@ -692,7 +703,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	rbuggyMatches = rbuggyMatches.length && new RegExp( rbuggyMatches.join("|") );
 
 	/* Contains
-	---------------------------------------------------------------------- */
+	 ---------------------------------------------------------------------- */
 	hasCompare = rnative.test( docElem.compareDocumentPosition );
 
 	// Element contains another
@@ -703,10 +714,10 @@ setDocument = Sizzle.setDocument = function( node ) {
 			var adown = a.nodeType === 9 ? a.documentElement : a,
 				bup = b && b.parentNode;
 			return a === bup || !!( bup && bup.nodeType === 1 && (
-				adown.contains ?
-					adown.contains( bup ) :
+					adown.contains ?
+						adown.contains(bup) :
 					a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
-			));
+				));
 		} :
 		function( a, b ) {
 			if ( b ) {
@@ -720,104 +731,104 @@ setDocument = Sizzle.setDocument = function( node ) {
 		};
 
 	/* Sorting
-	---------------------------------------------------------------------- */
+	 ---------------------------------------------------------------------- */
 
 	// Document order sorting
 	sortOrder = hasCompare ?
-	function( a, b ) {
+		function (a, b) {
 
-		// Flag for duplicate removal
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
-
-		// Sort on method existence if only one input has compareDocumentPosition
-		var compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
-		if ( compare ) {
-			return compare;
-		}
-
-		// Calculate position if both inputs belong to the same document
-		compare = ( a.ownerDocument || a ) === ( b.ownerDocument || b ) ?
-			a.compareDocumentPosition( b ) :
-
-			// Otherwise we know they are disconnected
-			1;
-
-		// Disconnected nodes
-		if ( compare & 1 ||
-			(!support.sortDetached && b.compareDocumentPosition( a ) === compare) ) {
-
-			// Choose the first element that is related to our preferred document
-			if ( a === doc || a.ownerDocument === preferredDoc && contains(preferredDoc, a) ) {
-				return -1;
-			}
-			if ( b === doc || b.ownerDocument === preferredDoc && contains(preferredDoc, b) ) {
-				return 1;
+			// Flag for duplicate removal
+			if (a === b) {
+				hasDuplicate = true;
+				return 0;
 			}
 
-			// Maintain original order
-			return sortInput ?
-				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
-				0;
-		}
+			// Sort on method existence if only one input has compareDocumentPosition
+			var compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
+			if (compare) {
+				return compare;
+			}
 
-		return compare & 4 ? -1 : 1;
-	} :
-	function( a, b ) {
-		// Exit early if the nodes are identical
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
+			// Calculate position if both inputs belong to the same document
+			compare = ( a.ownerDocument || a ) === ( b.ownerDocument || b ) ?
+				a.compareDocumentPosition(b) :
 
-		var cur,
-			i = 0,
-			aup = a.parentNode,
-			bup = b.parentNode,
-			ap = [ a ],
-			bp = [ b ];
+				// Otherwise we know they are disconnected
+				1;
 
-		// Parentless nodes are either documents or disconnected
-		if ( !aup || !bup ) {
-			return a === doc ? -1 :
-				b === doc ? 1 :
-				aup ? -1 :
-				bup ? 1 :
-				sortInput ?
-				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
-				0;
+			// Disconnected nodes
+			if (compare & 1 ||
+				(!support.sortDetached && b.compareDocumentPosition(a) === compare)) {
 
-		// If the nodes are siblings, we can do a quick check
-		} else if ( aup === bup ) {
-			return siblingCheck( a, b );
-		}
+				// Choose the first element that is related to our preferred document
+				if (a === doc || a.ownerDocument === preferredDoc && contains(preferredDoc, a)) {
+					return -1;
+				}
+				if (b === doc || b.ownerDocument === preferredDoc && contains(preferredDoc, b)) {
+					return 1;
+				}
 
-		// Otherwise we need full lists of their ancestors for comparison
-		cur = a;
-		while ( (cur = cur.parentNode) ) {
-			ap.unshift( cur );
-		}
-		cur = b;
-		while ( (cur = cur.parentNode) ) {
-			bp.unshift( cur );
-		}
+				// Maintain original order
+				return sortInput ?
+					( indexOf.call(sortInput, a) - indexOf.call(sortInput, b) ) :
+					0;
+			}
 
-		// Walk down the tree looking for a discrepancy
-		while ( ap[i] === bp[i] ) {
-			i++;
-		}
+			return compare & 4 ? -1 : 1;
+		} :
+		function (a, b) {
+			// Exit early if the nodes are identical
+			if (a === b) {
+				hasDuplicate = true;
+				return 0;
+			}
 
-		return i ?
-			// Do a sibling check if the nodes have a common ancestor
-			siblingCheck( ap[i], bp[i] ) :
+			var cur,
+				i = 0,
+				aup = a.parentNode,
+				bup = b.parentNode,
+				ap = [a],
+				bp = [b];
 
-			// Otherwise nodes in our document sort first
-			ap[i] === preferredDoc ? -1 :
-			bp[i] === preferredDoc ? 1 :
-			0;
-	};
+			// Parentless nodes are either documents or disconnected
+			if (!aup || !bup) {
+				return a === doc ? -1 :
+					b === doc ? 1 :
+						aup ? -1 :
+							bup ? 1 :
+								sortInput ?
+									( indexOf.call(sortInput, a) - indexOf.call(sortInput, b) ) :
+									0;
+
+				// If the nodes are siblings, we can do a quick check
+			} else if (aup === bup) {
+				return siblingCheck(a, b);
+			}
+
+			// Otherwise we need full lists of their ancestors for comparison
+			cur = a;
+			while ((cur = cur.parentNode)) {
+				ap.unshift(cur);
+			}
+			cur = b;
+			while ((cur = cur.parentNode)) {
+				bp.unshift(cur);
+			}
+
+			// Walk down the tree looking for a discrepancy
+			while (ap[i] === bp[i]) {
+				i++;
+			}
+
+			return i ?
+				// Do a sibling check if the nodes have a common ancestor
+				siblingCheck(ap[i], bp[i]) :
+
+				// Otherwise nodes in our document sort first
+				ap[i] === preferredDoc ? -1 :
+					bp[i] === preferredDoc ? 1 :
+						0;
+		};
 
 	return doc;
 };
@@ -844,9 +855,9 @@ Sizzle.matchesSelector = function( elem, expr ) {
 
 			// IE 9's matchesSelector returns false on disconnected nodes
 			if ( ret || support.disconnectedMatch ||
-					// As well, disconnected nodes are said to be in a document
-					// fragment in IE 9
-					elem.document && elem.document.nodeType !== 11 ) {
+				// As well, disconnected nodes are said to be in a document
+				// fragment in IE 9
+				elem.document && elem.document.nodeType !== 11) {
 				return ret;
 			}
 		} catch(e) {}
@@ -992,15 +1003,15 @@ Expr = Sizzle.selectors = {
 
 		"CHILD": function( match ) {
 			/* matches from matchExpr["CHILD"]
-				1 type (only|nth|...)
-				2 what (child|of-type)
-				3 argument (even|odd|\d*|\d*n([+-]\d+)?|...)
-				4 xn-component of xn+y argument ([+-]?\d*n|)
-				5 sign of xn-component
-				6 x of xn-component
-				7 sign of y-component
-				8 y of y-component
-			*/
+			 1 type (only|nth|...)
+			 2 what (child|of-type)
+			 3 argument (even|odd|\d*|\d*n([+-]\d+)?|...)
+			 4 xn-component of xn+y argument ([+-]?\d*n|)
+			 5 sign of xn-component
+			 6 x of xn-component
+			 7 sign of y-component
+			 8 y of y-component
+			 */
 			match[1] = match[1].toLowerCase();
 
 			if ( match[1].slice( 0, 3 ) === "nth" ) {
@@ -1014,7 +1025,7 @@ Expr = Sizzle.selectors = {
 				match[4] = +( match[4] ? match[5] + (match[6] || 1) : 2 * ( match[3] === "even" || match[3] === "odd" ) );
 				match[5] = +( ( match[7] + match[8] ) || match[3] === "odd" );
 
-			// other types prohibit arguments
+				// other types prohibit arguments
 			} else if ( match[3] ) {
 				Sizzle.error( match[0] );
 			}
@@ -1034,7 +1045,7 @@ Expr = Sizzle.selectors = {
 			if ( match[3] ) {
 				match[2] = match[4] || match[5] || "";
 
-			// Strip excess characters from unquoted arguments
+				// Strip excess characters from unquoted arguments
 			} else if ( unquoted && rpseudo.test( unquoted ) &&
 				// Get excess from tokenize (recursively)
 				(excess = tokenize( unquoted, true )) &&
@@ -1087,12 +1098,12 @@ Expr = Sizzle.selectors = {
 
 				return operator === "=" ? result === check :
 					operator === "!=" ? result !== check :
-					operator === "^=" ? check && result.indexOf( check ) === 0 :
-					operator === "*=" ? check && result.indexOf( check ) > -1 :
-					operator === "$=" ? check && result.slice( -check.length ) === check :
-					operator === "~=" ? ( " " + result + " " ).indexOf( check ) > -1 :
-					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
-					false;
+						operator === "^=" ? check && result.indexOf(check) === 0 :
+							operator === "*=" ? check && result.indexOf(check) > -1 :
+								operator === "$=" ? check && result.slice(-check.length) === check :
+									operator === "~=" ? ( " " + result + " " ).indexOf(check) > -1 :
+										operator === "|=" ? result === check || result.slice(0, check.length + 1) === check + "-" :
+											false;
 			};
 		},
 
@@ -1155,11 +1166,11 @@ Expr = Sizzle.selectors = {
 								}
 							}
 
-						// Use previously-cached element index if available
+							// Use previously-cached element index if available
 						} else if ( useCache && (cache = (elem[ expando ] || (elem[ expando ] = {}))[ type ]) && cache[0] === dirruns ) {
 							diff = cache[1];
 
-						// xml :nth-child(...) or :nth-last-child(...) or :nth(-last)?-of-type(...)
+							// xml :nth-child(...) or :nth-last-child(...) or :nth(-last)?-of-type(...)
 						} else {
 							// Use the same loop as above to seek `elem` from the start
 							while ( (node = ++nodeIndex && node && node[ dir ] ||
@@ -1283,7 +1294,7 @@ Expr = Sizzle.selectors = {
 				var elemLang;
 				do {
 					if ( (elemLang = documentIsHTML ?
-						elem.lang :
+							elem.lang :
 						elem.getAttribute("xml:lang") || elem.getAttribute("lang")) ) {
 
 						elemLang = elemLang.toLowerCase();
@@ -1689,7 +1700,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				}
 			}
 
-		// Add elements to results, through postFinder if defined
+			// Add elements to results, through postFinder if defined
 		} else {
 			matcherOut = condense(
 				matcherOut === results ?
@@ -1721,9 +1732,9 @@ function matcherFromTokens( tokens ) {
 		}, implicitRelative, true ),
 		matchers = [ function( elem, context, xml ) {
 			return ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
-				(checkContext = context).nodeType ?
-					matchContext( elem, context, xml ) :
-					matchAnyContext( elem, context, xml ) );
+					(checkContext = context).nodeType ?
+						matchContext(elem, context, xml) :
+						matchAnyContext(elem, context, xml) );
 		} ];
 
 	for ( ; i < len; i++ ) {
@@ -1911,14 +1922,14 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		// Take a shortcut and set the context if the root selector is an ID
 		tokens = match[0] = match[0].slice( 0 );
 		if ( tokens.length > 2 && (token = tokens[0]).type === "ID" &&
-				support.getById && context.nodeType === 9 && documentIsHTML &&
-				Expr.relative[ tokens[1].type ] ) {
+			support.getById && context.nodeType === 9 && documentIsHTML &&
+			Expr.relative[tokens[1].type]) {
 
 			context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
 			if ( !context ) {
 				return results;
 
-			// Precompiled matchers will still verify ancestry, so step up a level
+				// Precompiled matchers will still verify ancestry, so step up a level
 			} else if ( compiled ) {
 				context = context.parentNode;
 			}
@@ -1938,9 +1949,9 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 			if ( (find = Expr.find[ type ]) ) {
 				// Search, expanding context for leading sibling combinators
 				if ( (seed = find(
-					token.matches[0].replace( runescape, funescape ),
-					rsibling.test( tokens[0].type ) && testContext( context.parentNode ) || context
-				)) ) {
+						token.matches[0].replace(runescape, funescape),
+						rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
+					))) {
 
 					// If seed is empty or no tokens remain, we can return early
 					tokens.splice( i, 1 );
@@ -1991,9 +2002,9 @@ support.sortDetached = assert(function( div1 ) {
 // Prevent attribute/property "interpolation"
 // http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
 if ( !assert(function( div ) {
-	div.innerHTML = "<a href='#'></a>";
-	return div.firstChild.getAttribute("href") === "#" ;
-}) ) {
+		div.innerHTML = "<a href='#'></a>";
+		return div.firstChild.getAttribute("href") === "#";
+	})) {
 	addHandle( "type|href|height|width", function( elem, name, isXML ) {
 		if ( !isXML ) {
 			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
@@ -2004,10 +2015,10 @@ if ( !assert(function( div ) {
 // Support: IE<9
 // Use defaultValue in place of getAttribute("value")
 if ( !support.attributes || !assert(function( div ) {
-	div.innerHTML = "<input/>";
-	div.firstChild.setAttribute( "value", "" );
-	return div.firstChild.getAttribute( "value" ) === "";
-}) ) {
+		div.innerHTML = "<input/>";
+		div.firstChild.setAttribute("value", "");
+		return div.firstChild.getAttribute("value") === "";
+	})) {
 	addHandle( "value", function( elem, name, isXML ) {
 		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
 			return elem.defaultValue;
@@ -2018,19 +2029,18 @@ if ( !support.attributes || !assert(function( div ) {
 // Support: IE<9
 // Use getAttributeNode to fetch booleans when getAttribute lies
 if ( !assert(function( div ) {
-	return div.getAttribute("disabled") == null;
-}) ) {
+		return div.getAttribute("disabled") == null;
+	})) {
 	addHandle( booleans, function( elem, name, isXML ) {
 		var val;
 		if ( !isXML ) {
 			return elem[ name ] === true ? name.toLowerCase() :
-					(val = elem.getAttributeNode( name )) && val.specified ?
+				(val = elem.getAttributeNode(name)) && val.specified ?
 					val.value :
-				null;
+					null;
 		}
 	});
 }
-
 // EXPOSE
 module.exports = Sizzle;
 

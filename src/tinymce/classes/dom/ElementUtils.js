@@ -17,6 +17,7 @@
 
 var BookmarkManager = require("./BookmarkManager");
 var Tools = require("../util/Tools");
+
 var each = Tools.each;
 
 function ElementUtils(dom) {
@@ -49,7 +50,7 @@ function ElementUtils(dom) {
                 var name = attr.nodeName.toLowerCase();
 
                 // Don't compare internal attributes or style
-                if (name.indexOf('_') !== 0 && name !== 'style' && name !== 'data-mce-style') {
+                if (name.indexOf('_') !== 0 && name !== 'style' && name.indexOf('data-') !== 0) {
                     attribs[name] = dom.getAttrib(node, name);
                 }
             });

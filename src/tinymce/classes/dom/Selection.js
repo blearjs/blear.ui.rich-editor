@@ -26,6 +26,7 @@ var BookmarkManager = require("./BookmarkManager");
 var NodeType = require("./NodeType");
 var Env = require("../Env");
 var Tools = require("../util/Tools");
+
 var each = Tools.each, trim = Tools.trim;
 var isIE = Env.ie;
 
@@ -146,7 +147,7 @@ Selection.prototype = {
      *
      * @method setContent
      * @param {String} content HTML contents to set could also be other formats depending on settings.
-     * @param {Object} [args] Optional settings object with for example data format.
+     * @param {Object} args Optional settings object with for example data format.
      * @example
      * // Inserts some HTML contents at the current selection
      * tinymce.activeEditor.selection.setContent('<strong>Some contents</strong>');
@@ -379,7 +380,7 @@ Selection.prototype = {
      *
      * @method select
      * @param {Element} node HTML DOM element to select.
-     * @param {Boolean} [content] Optional bool state if the contents should be selected or not on non IE browser.
+     * @param {Boolean} content Optional bool state if the contents should be selected or not on non IE browser.
      * @return {Element} Selected element the same element as the one that got passed in.
      * @example
      * // Select the first paragraph in the active editor
@@ -495,6 +496,10 @@ Selection.prototype = {
         }
 
         doc = self.win.document;
+
+        if (typeof doc === 'undefined' || doc === null) {
+            return null;
+        }
 
         // Use last rng passed from FocusManager if it's available this enables
         // calls to editor.selection.getStart() to work when caret focus is lost on IE
@@ -687,8 +692,7 @@ Selection.prototype = {
      */
     getNode: function () {
         var self = this, rng = self.getRng(), elm;
-        var startContainer = rng.startContainer, endContainer = rng.endContainer;
-        var startOffset = rng.startOffset, endOffset = rng.endOffset, root = self.dom.getRoot();
+        var startContainer, endContainer, startOffset, endOffset, root = self.dom.getRoot();
 
         function skipEmptyTextNodes(node, forwards) {
             var orig = node;
@@ -704,6 +708,11 @@ Selection.prototype = {
         if (!rng) {
             return root;
         }
+
+        startContainer = rng.startContainer;
+        endContainer = rng.endContainer;
+        startOffset = rng.startOffset;
+        endOffset = rng.endOffset;
 
         if (rng.setStart) {
             elm = rng.commonAncestorContainer;
@@ -995,6 +1004,11 @@ Selection.prototype = {
                 rng.setEnd(root, root.childNodes.length);
             }
         }
+    },
+
+    getBoundingClientRect: function () {
+        var rng = this.getRng();
+        return rng.collapsed ? CaretPosition.fromRangeStart(rng).getClientRects()[0] : rng.getBoundingClientRect();
     },
 
     destroy: function () {

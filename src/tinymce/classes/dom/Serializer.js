@@ -25,12 +25,9 @@ var Schema = require("../html/Schema");
 var Env = require("../Env");
 var Tools = require("../util/Tools");
 var Zwsp = require("../text/Zwsp");
+
 var each = Tools.each, trim = Tools.trim;
 var DOM = DOMUtils.DOM;
-var trimContentRegExp = new RegExp([
-    '<span[^>]+data-mce-bogus[^>]+>[\u200B\uFEFF]+<\\/span>', // Trim bogus spans like caret containers
-    '\\s?data-mce-selected="[^"]+"' // Trim temporaty data-mce prefixed attributes like data-mce-selected
-].join('|'), 'gi');
 
 /**
  * IE 11 has a fantastic bug where it will produce two trailing BR elements to iframe bodies when
@@ -68,11 +65,22 @@ function trimTrailingBr(rootNode) {
  * @param {tinymce.Editor} editor Optional editor to bind events to and get schema/dom from.
  */
 module.exports = function (settings, editor) {
-    var dom, schema, htmlParser;
+    var dom, schema, htmlParser, tempAttrs = ["data-mce-selected"];
 
     if (editor) {
         dom = editor.dom;
         schema = editor.schema;
+    }
+
+    function trimHtml(html) {
+        var trimContentRegExp = new RegExp([
+            '<span[^>]+data-mce-bogus[^>]+>[\u200B\uFEFF]+<\\/span>', // Trim bogus spans like caret containers
+            '\\s?(' + tempAttrs.join('|') + ')="[^"]+"' // Trim temporaty data-mce prefixed attributes like data-mce-selected
+        ].join('|'), 'gi');
+
+        html = Zwsp.trim(html.replace(trimContentRegExp, ''));
+
+        return html;
     }
 
     /**
@@ -90,7 +98,7 @@ module.exports = function (settings, editor) {
         var bogusAllRegExp = /<(\w+) [^>]*data-mce-bogus="all"[^>]*>/g;
         var endTagIndex, index, matchLength, matches, shortEndedElements, schema = editor.schema;
 
-        content = Zwsp.trim(content.replace(trimContentRegExp, ''));
+        content = trimHtml(content);
         shortEndedElements = schema.getShortEndedElements();
 
         // Remove all bogus elements marked with "all"
@@ -109,6 +117,20 @@ module.exports = function (settings, editor) {
         }
 
         return trim(content);
+    }
+
+    function addTempAttr(name) {
+        if (Tools.inArray(tempAttrs, name) === -1) {
+            htmlParser.addAttributeFilter(name, function (nodes, name) {
+                var i = nodes.length;
+
+                while (i--) {
+                    nodes[i].attr(name, null);
+                }
+            });
+
+            tempAttrs.push(name);
+        }
     }
 
     // Default DOM and Schema if they are undefined
@@ -366,7 +388,7 @@ module.exports = function (settings, editor) {
 
             // Nodes needs to be attached to something in WebKit/Opera
             // This fix will make DOM ranges and make Sizzle happy!
-            impl = node.ownerDocument.implementation;
+            impl = document.implementation;
             if (impl.createHTMLDocument) {
                 // Create an empty HTML document
                 doc = impl.createHTMLDocument("");
@@ -467,6 +489,17 @@ module.exports = function (settings, editor) {
             }
         },
 
+        /**
+         * Adds a temporary internal attribute these attributes will get removed on undo and
+         * when getting contents out of the editor.
+         *
+         * @method addTempAttr
+         * @param {String} name string
+         */
+        addTempAttr: addTempAttr,
+
+        // Internal
+        trimHtml: trimHtml,
         getTrimmedContent: getTrimmedContent
     };
 };

@@ -38,6 +38,7 @@
 
 var DOMUtils = require("../dom/DOMUtils");
 var Tools = require("../util/Tools");
+
 var DOM = DOMUtils.DOM;
 var each = Tools.each, grep = Tools.grep;
 
@@ -163,6 +164,11 @@ function ScriptLoader() {
                 scope: scope || this
             });
         }
+    };
+
+    this.remove = function (url) {
+        delete states[url];
+        delete scriptLoadedCallbacks[url];
     };
 
     /**

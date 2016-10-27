@@ -30,6 +30,7 @@ var Entities = require("../html/Entities");
 var Env = require("../Env");
 var Tools = require("../util/Tools");
 var StyleSheetLoader = require("./StyleSheetLoader");
+
 // Shorten names
 var each = Tools.each, is = Tools.is, grep = Tools.grep, trim = Tools.trim;
 var isIE = Env.ie;
@@ -331,7 +332,7 @@ DOMUtils.prototype = {
      * @method getParent
      * @param {Node/String} node DOM node to search parents on or ID string.
      * @param {function} selector Selection function or CSS selector to execute on each node.
-     * @param {Node} [root] Optional root element, never go below this point.
+     * @param {Node} root Optional root element, never go below this point.
      * @return {Node} DOM Node or null if it wasn't found.
      */
     getParent: function (node, selector, root) {
@@ -395,7 +396,7 @@ DOMUtils.prototype = {
      * Returns the specified element by ID or the input element if it isn't a string.
      *
      * @method get
-     * @param {String/Element} elm Element id to look for or element to just pass though.
+     * @param {String/Element} n Element id to look for or element to just pass though.
      * @return {Element} Element matching the specified id or null if it wasn't found.
      */
     get: function (elm) {
@@ -567,7 +568,7 @@ DOMUtils.prototype = {
      * @method createHTML
      * @param {String} name Name of new element.
      * @param {Object} attrs Optional object name/value collection with element attributes.
-     * @param {String} [html] Optional HTML string to set as inner HTML of the element.
+     * @param {String} html Optional HTML string to set as inner HTML of the element.
      * @return {String} String with new HTML element, for example: <a href="#">test</a>.
      * @example
      * // Creates a html chunk and inserts it at the current selection/caret location
@@ -815,7 +816,7 @@ DOMUtils.prototype = {
      * @method getAttrib
      * @param {String/Element} elm Element string id or DOM element to get attribute from.
      * @param {String} name Name of attribute to get.
-     * @param {String} [defaultVal] Optional default value to return if the attribute didn't exist.
+     * @param {String} defaultVal Optional default value to return if the attribute didn't exist.
      * @return {String} Attribute value string, default value or null if the attribute wasn't found.
      */
     getAttrib: function (elm, name, defaultVal) {
@@ -905,7 +906,7 @@ DOMUtils.prototype = {
      *
      * @method serializeStyle
      * @param {Object} styles Object to serialize as string, for example: {border: '1px solid red'}
-     * @param {String} [name] Optional element name.
+     * @param {String} name Optional element name.
      * @return {String} String representation of the style object, for example: border: 1px solid red.
      */
     serializeStyle: function (styles, name) {
@@ -1165,7 +1166,7 @@ DOMUtils.prototype = {
                     target.removeChild(target.firstChild);
                 } catch (ex) {
                     // IE sometimes produces an unknown runtime error on innerHTML if it's a div inside a p
-                    $('<div>').html('<br>' + html).contents().slice(1).appendTo(target);
+                    $('<div></div>').html('<br>' + html).contents().slice(1).appendTo(target);
                 }
 
                 return html;
@@ -1189,7 +1190,7 @@ DOMUtils.prototype = {
         elm = this.get(elm);
 
         // Older FF doesn't have outerHTML 3.6 is still used by some orgaizations
-        return elm.nodeType == 1 && "outerHTML" in elm ? elm.outerHTML : $('<div>').append($(elm).clone()).html();
+        return elm.nodeType == 1 && "outerHTML" in elm ? elm.outerHTML : $('<div></div>').append($(elm).clone()).html();
     },
 
     /**
