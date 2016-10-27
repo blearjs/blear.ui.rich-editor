@@ -15,63 +15,65 @@
  * @private
  * @class tinymce.data.Binding
  */
-	/**
-	 * Constructs a new bidning.
-	 *
-	 * @constructor
-	 * @method Binding
-	 * @param {Object} settings Settings to the binding.
-	 */
-	function Binding(settings) {
-		this.create = settings.create;
-	}
 
-	/**
-	 * Creates a binding for a property on a model.
-	 *
-	 * @method create
-	 * @param {tinymce.data.ObservableObject} model Model to create binding to.
-	 * @param {String} name Name of property to bind.
-	 * @return {tinymce.data.Binding} Binding instance.
-	 */
-	Binding.create = function(model, name) {
-		return new Binding({
-			create: function(otherModel, otherName) {
-				var bindings;
 
-				function fromSelfToOther(e) {
-					otherModel.set(otherName, e.value);
-				}
+/**
+ * Constructs a new bidning.
+ *
+ * @constructor
+ * @method Binding
+ * @param {Object} settings Settings to the binding.
+ */
+function Binding(settings) {
+    this.create = settings.create;
+}
 
-				function fromOtherToSelf(e) {
-					model.set(name, e.value);
-				}
+/**
+ * Creates a binding for a property on a model.
+ *
+ * @method create
+ * @param {tinymce.data.ObservableObject} model Model to create binding to.
+ * @param {String} name Name of property to bind.
+ * @return {tinymce.data.Binding} Binding instance.
+ */
+Binding.create = function(model, name) {
+    return new Binding({
+        create: function(otherModel, otherName) {
+            var bindings;
 
-				otherModel.on('change:' + otherName, fromOtherToSelf);
-				model.on('change:' + name, fromSelfToOther);
+            function fromSelfToOther(e) {
+                otherModel.set(otherName, e.value);
+            }
 
-				// Keep track of the bindings
-				bindings = otherModel._bindings;
+            function fromOtherToSelf(e) {
+                model.set(name, e.value);
+            }
 
-				if (!bindings) {
-					bindings = otherModel._bindings = [];
+            otherModel.on('change:' + otherName, fromOtherToSelf);
+            model.on('change:' + name, fromSelfToOther);
 
-					otherModel.on('destroy', function() {
-						var i = bindings.length;
+            // Keep track of the bindings
+            bindings = otherModel._bindings;
 
-						while (i--) {
-							bindings[i]();
-						}
-					});
-				}
+            if (!bindings) {
+                bindings = otherModel._bindings = [];
 
-				bindings.push(function() {
-					model.off('change:' + name, fromSelfToOther);
-				});
+                otherModel.on('destroy', function() {
+                    var i = bindings.length;
 
-				return model.get(name);
-			}
-		});
-	};
+                    while (i--) {
+                        bindings[i]();
+                    }
+                });
+            }
 
-	module.exports = Binding;
+            bindings.push(function() {
+                model.off('change:' + name, fromSelfToOther);
+            });
+
+            return model.get(name);
+        }
+    });
+};
+
+module.exports = Binding;
