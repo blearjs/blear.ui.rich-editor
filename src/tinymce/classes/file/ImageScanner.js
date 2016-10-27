@@ -20,9 +20,10 @@ var Arr = require("../util/Arr");
 var Fun = require("../util/Fun");
 var Conversions = require("./Conversions");
 var Env = require("../Env");
+
 var count = 0;
 
-module.exports = function (blobCache) {
+module.exports = function (uploadStatus, blobCache) {
     var cachedPromises = {};
 
     function findAll(elm, predicate) {
@@ -93,7 +94,7 @@ module.exports = function (blobCache) {
             }
 
             if (src.indexOf('blob:') === 0) {
-                return true;
+                return !uploadStatus.isUploaded(src);
             }
 
             if (src.indexOf('data:') === 0) {

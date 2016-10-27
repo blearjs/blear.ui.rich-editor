@@ -18,6 +18,9 @@
  */
 
 var Delay = require("../util/Delay");
+var Env = require("../Env");
+
+
 var eventExpandoPrefix = "mce-data-";
 var mouseEventRe = /^(?:mouse|contextmenu)|click/;
 var deprecated = {
