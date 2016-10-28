@@ -112,6 +112,15 @@ function compare(clientRect1, clientRect2) {
     return 0;
 }
 
+function containsXY(clientRect, clientX, clientY) {
+    return (
+        clientX >= clientRect.left &&
+        clientX <= clientRect.right &&
+        clientY >= clientRect.top &&
+        clientY <= clientRect.bottom
+    );
+}
+
 module.exports = {
     clone: clone,
     collapse: collapse,
@@ -120,5 +129,6 @@ module.exports = {
     isBelow: isBelow,
     isLeft: isLeft,
     isRight: isRight,
-    compare: compare
+    compare: compare,
+    containsXY: containsXY
 };
