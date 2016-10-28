@@ -20,6 +20,8 @@
 
 var Writer = require("./Writer");
 var Schema = require("./Schema");
+
+
 /**
  * Constructs a new Serializer instance.
  *

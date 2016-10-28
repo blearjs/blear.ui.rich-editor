@@ -54,6 +54,7 @@
 var Schema = require("./Schema");
 var Entities = require("./Entities");
 var Tools = require("../util/Tools");
+
 var each = Tools.each;
 
 /**
@@ -436,7 +437,7 @@ function SaxParser(settings, schema) {
                     value = ' ' + value;
                 }
 
-                if (!settings.allow_conditional_comments && value.substr(0, 3) === '[if') {
+                if (!settings.allow_conditional_comments && value.substr(0, 3).toLowerCase() === '[if') {
                     value = ' ' + value;
                 }
 

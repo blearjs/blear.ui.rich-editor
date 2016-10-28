@@ -8,24 +8,7 @@
  * Contributing: http://www.tinymce.com/contributing
  */
 
-/**
- * This class is used to parse CSS styles it also compresses styles to reduce the output size.
- *
- * @example
- * var Styles = new tinymce.html.Styles({
- *    url_converter: function(url) {
- *       return url;
- *    }
- * });
- *
- * styles = Styles.parse('border: 1px solid red');
- * styles.color = 'red';
- *
- * console.log(new tinymce.html.StyleSerializer().serialize(styles));
- *
- * @class tinymce.html.Styles
- * @version 3.4
- */
+
 module.exports = function (settings, schema) {
     /*jshint maxlen:255 */
     /*eslint max-len:0 */
@@ -33,7 +16,7 @@ module.exports = function (settings, schema) {
         urlOrStrRegExp = /(?:url(?:(?:\(\s*\"([^\"]+)\"\s*\))|(?:\(\s*\'([^\']+)\'\s*\))|(?:\(\s*([^)\s]+)\s*\))))|(?:\'([^\']+)\')|(?:\"([^\"]+)\")/gi,
         styleRegExp = /\s*([^:]+):\s*([^;]+);?/g,
         trimRightRegExp = /\s+$/,
-        undef, i, encodingLookup = {}, encodingItems, validStyles, invalidStyles, invisibleChar = '\uFEFF';
+        i, encodingLookup = {}, encodingItems, validStyles, invalidStyles, invisibleChar = '\uFEFF';
 
     settings = settings || {};
 
@@ -194,6 +177,14 @@ module.exports = function (settings, schema) {
                 return str;
             }
 
+            function decodeSingleHexSequence(escSeq) {
+                return String.fromCharCode(parseInt(escSeq.slice(1), 16));
+            }
+
+            function decodeHexSequences(value) {
+                return value.replace(/\\[0-9a-f]+/gi, decodeSingleHexSequence);
+            }
+
             function processUrl(match, url, url2, url3, str, str2) {
                 str = str || str2;
 
@@ -207,7 +198,7 @@ module.exports = function (settings, schema) {
                 url = decode(url || url2 || url3);
 
                 if (!settings.allow_script_urls) {
-                    var scriptUrl = url.replace(/[\s\r\n]+/, '');
+                    var scriptUrl = url.replace(/[\s\r\n]+/g, '');
 
                     if (/(java|vb)script:/i.test(scriptUrl)) {
                         return "";
@@ -237,17 +228,22 @@ module.exports = function (settings, schema) {
 
                 // Parse styles
                 while ((matches = styleRegExp.exec(css))) {
+                    styleRegExp.lastIndex = matches.index + matches[0].length;
                     name = matches[1].replace(trimRightRegExp, '').toLowerCase();
                     value = matches[2].replace(trimRightRegExp, '');
 
-                    // Decode escaped sequences like \65 -> e
-                    /*jshint loopfunc:true*/
-                    /*eslint no-loop-func:0 */
-                    value = value.replace(/\\[0-9a-f]+/g, function (e) {
-                        return String.fromCharCode(parseInt(e.substr(1), 16));
-                    });
+                    if (name && value) {
+                        // Decode escaped sequences like \65 -> e
+                        name = decodeHexSequences(name);
+                        value = decodeHexSequences(value);
 
-                    if (name && value.length > 0) {
+                        // Skip properties with double quotes and sequences like \" \' in their names
+                        // See 'mXSS Attacks: Attacking well-secured Web-Applications by using innerHTML Mutations'
+                        // https://cure53.de/fp170.pdf
+                        if (name.indexOf(invisibleChar) !== -1 || name.indexOf('"') !== -1) {
+                            continue;
+                        }
+
                         // Don't allow behavior name or expression/comments within the values
                         if (!settings.allow_script_urls && (name == "behavior" || /expression\s*\(|\/\*|\*\//.test(value))) {
                             continue;
@@ -267,8 +263,6 @@ module.exports = function (settings, schema) {
                         value = value.replace(urlOrStrRegExp, processUrl);
                         styles[name] = isEncoded ? decode(value, true) : value;
                     }
-
-                    styleRegExp.lastIndex = matches.index + matches[0].length;
                 }
                 // Compress the styles to reduce it's size for example IE will expand styles
                 compress("border", "", true);
@@ -314,7 +308,7 @@ module.exports = function (settings, schema) {
                         name = styleList[i];
                         value = styles[name];
 
-                        if (value !== undef && value.length > 0) {
+                        if (value) {
                             css += (css.length > 0 ? ' ' : '') + name + ': ' + value + ';';
                         }
                     }
@@ -347,10 +341,8 @@ module.exports = function (settings, schema) {
                 for (name in styles) {
                     value = styles[name];
 
-                    if (value !== undef && value.length > 0) {
-                        if (!invalidStyles || isValid(name, elementName)) {
-                            css += (css.length > 0 ? ' ' : '') + name + ': ' + value + ';';
-                        }
+                    if (value && (!invalidStyles || isValid(name, elementName))) {
+                        css += (css.length > 0 ? ' ' : '') + name + ': ' + value + ';';
                     }
                 }
             }

@@ -25,6 +25,8 @@ var Node = require("./Node");
 var Schema = require("./Schema");
 var SaxParser = require("./SaxParser");
 var Tools = require("../util/Tools");
+
+
 var makeMap = Tools.makeMap, each = Tools.each, explode = Tools.explode, extend = Tools.extend;
 
 /**
@@ -35,7 +37,7 @@ var makeMap = Tools.makeMap, each = Tools.each, explode = Tools.explode, extend 
  * @param {Object} settings Name/value collection of settings. comment, cdata, text, start and end are callbacks.
  * @param {tinymce.html.Schema} schema HTML Schema class to use when parsing.
  */
-module.exports = function (settings, schema) {
+return function (settings, schema) {
     var self = this, nodeFilters = {}, attributeFilters = [], matchedNodes = {}, matchedAttributes = {};
 
     settings = settings || {};
