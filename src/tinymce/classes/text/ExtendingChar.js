@@ -47,6 +47,7 @@ function isExtendingChar(ch) {
     return typeof ch == "string" && ch.charCodeAt(0) >= 768 && extendingChars.test(ch);
 }
 
+
 module.exports = {
     isExtendingChar: isExtendingChar
 };

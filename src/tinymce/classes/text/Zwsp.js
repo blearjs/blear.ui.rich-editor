@@ -18,7 +18,7 @@
  * var abc = Zwsp.trim('a\u200bc');
  */
 
-var ZWSP = '\u200b';
+var ZWSP = '\uFEFF';
 
 function isZwsp(chr) {
     return chr == ZWSP;
