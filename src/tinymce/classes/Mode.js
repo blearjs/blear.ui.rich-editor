@@ -14,39 +14,75 @@
  * @private
  * @class tinymce.Mode
  */
-	function setEditorCommandState(editor, cmd, state) {
-		try {
-			editor.getDoc().execCommand(cmd, false, state);
-		} catch (ex) {
-			// Ignore
-		}
-	}
+function setEditorCommandState(editor, cmd, state) {
+    try {
+        editor.getDoc().execCommand(cmd, false, state);
+    } catch (ex) {
+        // Ignore
+    }
+}
 
-	function setMode(editor, mode) {
-		var currentMode = editor.readonly ? 'readonly' : 'design';
+function clickBlocker(editor) {
+    var target, handler;
 
-		if (mode == currentMode) {
-			return;
-		}
+    target = editor.getBody();
 
-		if (mode == 'readonly') {
-			editor.selection.controlSelection.hideResizeRect();
-			editor.readonly = true;
-			editor.getBody().contentEditable = false;
-		} else {
-			editor.readonly = false;
-			editor.getBody().contentEditable = true;
-			setEditorCommandState(editor, "StyleWithCSS", false);
-			setEditorCommandState(editor, "enableInlineTableEditing", false);
-			setEditorCommandState(editor, "enableObjectResizing", false);
-			editor.focus();
-			editor.nodeChanged();
-		}
+    handler = function (e) {
+        if (editor.dom.getParents(e.target, 'a').length > 0) {
+            e.preventDefault();
+        }
+    };
 
-		// Event is NOT preventable
-		editor.fire('SwitchMode', {mode: mode});
-	}
+    editor.dom.bind(target, 'click', handler);
 
-	module.exports = {
-		setMode: setMode
-	};
+    return {
+        unbind: function () {
+            editor.dom.unbind(target, 'click', handler);
+        }
+    };
+}
+
+function toggleReadOnly(editor, state) {
+    if (editor._clickBlocker) {
+        editor._clickBlocker.unbind();
+        editor._clickBlocker = null;
+    }
+
+    if (state) {
+        editor._clickBlocker = clickBlocker(editor);
+        editor.selection.controlSelection.hideResizeRect();
+        editor.readonly = true;
+        editor.getBody().contentEditable = false;
+    } else {
+        editor.readonly = false;
+        editor.getBody().contentEditable = true;
+        setEditorCommandState(editor, "StyleWithCSS", false);
+        setEditorCommandState(editor, "enableInlineTableEditing", false);
+        setEditorCommandState(editor, "enableObjectResizing", false);
+        editor.focus();
+        editor.nodeChanged();
+    }
+}
+
+function setMode(editor, mode) {
+    var currentMode = editor.readonly ? 'readonly' : 'design';
+
+    if (mode == currentMode) {
+        return;
+    }
+
+    if (editor.initialized) {
+        toggleReadOnly(editor, mode == 'readonly');
+    } else {
+        editor.on('init', function () {
+            toggleReadOnly(editor, mode == 'readonly');
+        });
+    }
+
+    // Event is NOT preventable
+    editor.fire('SwitchMode', {mode: mode});
+}
+
+module.exports = {
+    setMode: setMode
+};

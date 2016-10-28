@@ -23,7 +23,9 @@ var FloatPanel = require("./FloatPanel");
 var Tools = require("../util/Tools");
 var Env = require("../Env");
 var I18n = require("../util/I18n");
+var Arr = require("../util/Arr");
 var Observable = require('../util/Observable');
+var EditorManager = require('../EditorManager');
 
 var each = Tools.each;
 

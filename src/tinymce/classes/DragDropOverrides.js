@@ -8,6 +8,16 @@
  * Contributing: http://www.tinymce.com/contributing
  */
 
+
+var NodeType = require('./dom/NodeType');
+var Arr = require('./util/Arr');
+var Fun = require('./util/Fun');
+var Delay = require('./util/Delay');
+var DOMUtils = require('./dom/DOMUtils');
+var MousePosition = require('./dom/MousePosition');
+
+
+
 /**
  * This module contains logic overriding the drag/drop logic of the editor.
  *
@@ -15,180 +25,249 @@
  * @class tinymce.DragDropOverrides
  */
 
-    var NodeType = require("./dom/NodeType");
-    var isContentEditableFalse = NodeType.isContentEditableFalse;
+var isContentEditableFalse = NodeType.isContentEditableFalse,
+    isContentEditableTrue = NodeType.isContentEditableTrue;
 
-    function init(editor) {
-        var $ = editor.$, rootDocument = document,
-            editableDoc = editor.getDoc(),
-            dom = editor.dom, state = {};
+var isDraggable = function (elm) {
+    return isContentEditableFalse(elm);
+};
 
-        function isDraggable(elm) {
-            return isContentEditableFalse(elm);
-        }
+var isValidDropTarget = function (editor, targetElement, dragElement) {
+    if (targetElement === dragElement || editor.dom.isChildOf(targetElement, dragElement)) {
+        return false;
+    }
 
-        function setBodyCursor(cursor) {
-            $(editor.getBody()).css('cursor', cursor);
-        }
+    if (isContentEditableFalse(targetElement)) {
+        return false;
+    }
 
-        function isValidDropTarget(elm) {
-            if (elm == state.element || editor.dom.isChildOf(elm, state.element)) {
-                return false;
+    return true;
+};
+
+var cloneElement = function (elm) {
+    var cloneElm = elm.cloneNode(true);
+    cloneElm.removeAttribute('data-mce-selected');
+    return cloneElm;
+};
+
+var createGhost = function (editor, elm, width, height) {
+    var clonedElm = elm.cloneNode(true);
+
+    editor.dom.setStyles(clonedElm, {width: width, height: height});
+    editor.dom.setAttrib(clonedElm, 'data-mce-selected', null);
+
+    var ghostElm = editor.dom.create('div', {
+        'class': 'mce-drag-container',
+        'data-mce-bogus': 'all',
+        unselectable: 'on',
+        contenteditable: 'false'
+    });
+
+    editor.dom.setStyles(ghostElm, {
+        position: 'absolute',
+        opacity: 0.5,
+        overflow: 'hidden',
+        border: 0,
+        padding: 0,
+        margin: 0,
+        width: width,
+        height: height
+    });
+
+    editor.dom.setStyles(clonedElm, {
+        margin: 0,
+        boxSizing: 'border-box'
+    });
+
+    ghostElm.appendChild(clonedElm);
+
+    return ghostElm;
+};
+
+var appendGhostToBody = function (ghostElm, bodyElm) {
+    if (ghostElm.parentNode !== bodyElm) {
+        bodyElm.appendChild(ghostElm);
+    }
+};
+
+var moveGhost = function (ghostElm, position, width, height, maxX, maxY) {
+    var overflowX = 0, overflowY = 0;
+
+    ghostElm.style.left = position.pageX + 'px';
+    ghostElm.style.top = position.pageY + 'px';
+
+    if (position.pageX + width > maxX) {
+        overflowX = (position.pageX + width) - maxX;
+    }
+
+    if (position.pageY + height > maxY) {
+        overflowY = (position.pageY + height) - maxY;
+    }
+
+    ghostElm.style.width = (width - overflowX) + 'px';
+    ghostElm.style.height = (height - overflowY) + 'px';
+};
+
+var removeElement = function (elm) {
+    if (elm && elm.parentNode) {
+        elm.parentNode.removeChild(elm);
+    }
+};
+
+var isLeftMouseButtonPressed = function (e) {
+    return e.button === 0;
+};
+
+var hasDraggableElement = function (state) {
+    return state.element;
+};
+
+var applyRelPos = function (state, position) {
+    return {
+        pageX: position.pageX - state.relX,
+        pageY: position.pageY + 5
+    };
+};
+
+var start = function (state, editor) {
+    return function (e) {
+        if (isLeftMouseButtonPressed(e)) {
+            var ceElm = Arr.find(editor.dom.getParents(e.target), Fun.or(isContentEditableFalse, isContentEditableTrue));
+
+            if (isDraggable(ceElm)) {
+                var elmPos = editor.dom.getPos(ceElm);
+                var bodyElm = editor.getBody();
+                var docElm = editor.getDoc().documentElement;
+
+                state.element = ceElm;
+                state.screenX = e.screenX;
+                state.screenY = e.screenY;
+                state.maxX = (editor.inline ? bodyElm.scrollWidth : docElm.offsetWidth) - 2;
+                state.maxY = (editor.inline ? bodyElm.scrollHeight : docElm.offsetHeight) - 2;
+                state.relX = e.pageX - elmPos.x;
+                state.relY = e.pageY - elmPos.y;
+                state.width = ceElm.offsetWidth;
+                state.height = ceElm.offsetHeight;
+                state.ghost = createGhost(editor, ceElm, state.width, state.height);
             }
-
-            if (isContentEditableFalse(elm)) {
-                return false;
-            }
-
-            return true;
         }
+    };
+};
 
-        function move(e) {
-            var deltaX, deltaY, pos, viewPort,
-                overflowX = 0, overflowY = 0, movement,
-                clientX, clientY, rootClientRect;
+var move = function (state, editor) {
+    // Reduces laggy drag behavior on Gecko
+    var throttledPlaceCaretAt = Delay.throttle(function (clientX, clientY) {
+        editor._selectionOverrides.hideFakeCaret();
+        editor.selection.placeCaretAt(clientX, clientY);
+    }, 0);
 
-            if (e.button !== 0) {
+    return function (e) {
+        var movement = Math.max(Math.abs(e.screenX - state.screenX), Math.abs(e.screenY - state.screenY));
+
+        if (hasDraggableElement(state) && !state.dragging && movement > 10) {
+            var args = editor.fire('dragstart', {target: state.element});
+            if (args.isDefaultPrevented()) {
                 return;
             }
 
-            deltaX = e.screenX - state.screenX;
-            deltaY = e.screenY - state.screenY;
-            movement = Math.max(Math.abs(deltaX), Math.abs(deltaY));
-
-            if (!state.dragging && movement > 10) {
-                state.dragging = true;
-                setBodyCursor('default');
-
-                state.clone = state.element.cloneNode(true);
-
-                pos = dom.getPos(state.element);
-                state.relX = state.clientX - pos.x;
-                state.relY = state.clientY - pos.y;
-                state.width = state.element.offsetWidth;
-                state.height = state.element.offsetHeight;
-
-                $(state.clone).css({
-                    width: state.width,
-                    height: state.height
-                }).removeAttr('data-mce-selected');
-
-                state.ghost = $('<div>').css({
-                    position: 'absolute',
-                    opacity: 0.5,
-                    overflow: 'hidden',
-                    width: state.width,
-                    height: state.height
-                }).attr({
-                    'data-mce-bogus': 'all',
-                    unselectable: 'on',
-                    contenteditable: 'false'
-                }).addClass('mce-drag-container mce-reset').append(state.clone).appendTo(editor.getBody())[0];
-
-                viewPort = editor.dom.getViewPort(editor.getWin());
-                state.maxX = viewPort.w;
-                state.maxY = viewPort.h;
-            }
-
-            if (state.dragging) {
-                editor.selection.placeCaretAt(e.clientX, e.clientY);
-
-                clientX = state.clientX + deltaX - state.relX;
-                clientY = state.clientY + deltaY + 5;
-
-                if (clientX + state.width > state.maxX) {
-                    overflowX = (clientX + state.width) - state.maxX;
-                }
-
-                if (clientY + state.height > state.maxY) {
-                    overflowY = (clientY + state.height) - state.maxY;
-                }
-
-                if (editor.getBody().nodeName != 'BODY') {
-                    rootClientRect = editor.getBody().getBoundingClientRect();
-                } else {
-                    rootClientRect = {left: 0, top: 0};
-                }
-
-                $(state.ghost).css({
-                    left: clientX - rootClientRect.left,
-                    top: clientY - rootClientRect.top,
-                    width: state.width - overflowX,
-                    height: state.height - overflowY
-                });
-            }
+            state.dragging = true;
+            editor.focus();
         }
 
-        function drop() {
-            if (state.dragging) {
-                // Hack for IE since it doesn't sync W3C Range with IE Specific range
-                editor.selection.setRng(editor.selection.getSel().getRangeAt(0));
+        if (state.dragging) {
+            var targetPos = applyRelPos(state, MousePosition.calc(editor, e));
 
-                if (isValidDropTarget(editor.selection.getNode())) {
+            appendGhostToBody(state.ghost, editor.getBody());
+            moveGhost(state.ghost, targetPos, state.width, state.height, state.maxX, state.maxY);
+
+            throttledPlaceCaretAt(e.clientX, e.clientY);
+        }
+    };
+};
+
+var drop = function (state, editor) {
+    return function (e) {
+        if (state.dragging) {
+            if (isValidDropTarget(editor, editor.selection.getNode(), state.element)) {
+                var targetClone = cloneElement(state.element);
+
+                var args = editor.fire('drop', {
+                    targetClone: targetClone,
+                    clientX: e.clientX,
+                    clientY: e.clientY
+                });
+
+                if (!args.isDefaultPrevented()) {
+                    targetClone = args.targetClone;
+
                     editor.undoManager.transact(function () {
-                        editor.insertContent(dom.getOuterHTML(state.element));
-                        $(state.element).remove();
+                        removeElement(state.element);
+                        editor.insertContent(editor.dom.getOuterHTML(targetClone));
+                        editor._selectionOverrides.hideFakeCaret();
                     });
                 }
             }
-
-            stop();
         }
 
-        function start(e) {
-            stop();
-
-            if (isDraggable(e.target)) {
-                if (editor.fire('dragstart', {target: e.target}).isDefaultPrevented()) {
-                    return;
-                }
-
-                editor.on('mousemove', move);
-                editor.on('mouseup', drop);
-
-                if (rootDocument != editableDoc) {
-                    dom.bind(rootDocument, 'mousemove', move);
-                    dom.bind(rootDocument, 'mouseup', drop);
-                }
-
-                state = {
-                    screenX: e.screenX,
-                    screenY: e.screenY,
-                    clientX: e.clientX,
-                    clientY: e.clientY,
-                    element: e.target
-                };
-            }
-        }
-
-        function stop() {
-            $(state.ghost).remove();
-            setBodyCursor(null);
-
-            editor.off('mousemove', move);
-            editor.off('mouseup', stop);
-
-            if (rootDocument != editableDoc) {
-                dom.unbind(rootDocument, 'mousemove', move);
-                dom.unbind(rootDocument, 'mouseup', stop);
-            }
-
-            state = {};
-        }
-
-        editor.on('mousedown', start);
-
-        // Blocks drop inside cE=false on IE
-        editor.on('drop', function (e) {
-            var realTarget = editor.getDoc().elementFromPoint(e.clientX, e.clientY);
-
-            if (isContentEditableFalse(realTarget) || isContentEditableFalse(editor.dom.getContentEditableParent(realTarget))) {
-                e.preventDefault();
-            }
-        });
-    }
-
-    return {
-        init: init
+        removeDragState(state);
     };
+};
+
+var stop = function (state, editor) {
+    return function () {
+        removeDragState(state);
+        if (state.dragging) {
+            editor.fire('dragend');
+        }
+    };
+};
+
+var removeDragState = function (state) {
+    state.dragging = false;
+    state.element = null;
+    removeElement(state.ghost);
+};
+
+var bindFakeDragEvents = function (editor) {
+    var state = {}, pageDom, dragStartHandler, dragHandler, dropHandler, dragEndHandler, rootDocument;
+
+    pageDom = DOMUtils.DOM;
+    rootDocument = document;
+    dragStartHandler = start(state, editor);
+    dragHandler = move(state, editor);
+    dropHandler = drop(state, editor);
+    dragEndHandler = stop(state, editor);
+
+    editor.on('mousedown', dragStartHandler);
+    editor.on('mousemove', dragHandler);
+    editor.on('mouseup', dropHandler);
+
+    pageDom.bind(rootDocument, 'mousemove', dragHandler);
+    pageDom.bind(rootDocument, 'mouseup', dragEndHandler);
+
+    editor.on('remove', function () {
+        pageDom.unbind(rootDocument, 'mousemove', dragHandler);
+        pageDom.unbind(rootDocument, 'mouseup', dragEndHandler);
+    });
+};
+
+var blockIeDrop = function (editor) {
+    editor.on('drop', function (e) {
+        // FF doesn't pass out clientX/clientY for drop since this is for IE we just use null instead
+        var realTarget = typeof e.clientX !== 'undefined' ? editor.getDoc().elementFromPoint(e.clientX, e.clientY) : null;
+
+        if (isContentEditableFalse(realTarget) || isContentEditableFalse(editor.dom.getContentEditableParent(realTarget))) {
+            e.preventDefault();
+        }
+    });
+};
+
+var init = function (editor) {
+    bindFakeDragEvents(editor);
+    blockIeDrop(editor);
+};
+
+module.exports = {
+    init: init
+};
 

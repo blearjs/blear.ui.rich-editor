@@ -57,8 +57,8 @@ function is(obj, type) {
  *
  * @method makeMap
  * @param {Array/String} items Items to make map out of.
- * @param {String} delim Optional delimiter to split string by.
- * @param {Object} map Optional map to add items to.
+ * @param {String} [delim] Optional delimiter to split string by.
+ * @param {Object} [map] Optional map to add items to.
  * @return {Object} Name/value map of items.
  */
 function makeMap(items, delim, map) {
