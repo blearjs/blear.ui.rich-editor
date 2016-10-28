@@ -19,7 +19,7 @@
 var $ = require("../dom/DomQuery");
 var DragHelper = require("./DragHelper");
 
-return {
+module.exports = {
     init: function () {
         var self = this;
         self.on('repaint', self.renderScroll);

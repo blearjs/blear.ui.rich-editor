@@ -21,9 +21,27 @@ var DOMUtils = require("../dom/DOMUtils");
 
 var count = 0;
 
-module.exports = {
+var funcs = {
     id: function () {
         return 'mceu_' + (count++);
+    },
+
+    create: function (name, attrs, children) {
+        var elm = document.createElement(name);
+
+        DOMUtils.DOM.setAttribs(elm, attrs);
+
+        if (typeof children === 'string') {
+            elm.innerHTML = children;
+        } else {
+            Tools.each(children, function (child) {
+                if (child.nodeType) {
+                    elm.appendChild(child);
+                }
+            });
+        }
+
+        return elm;
     },
 
     createFragment: function (html) {
@@ -51,7 +69,11 @@ module.exports = {
     },
 
     getPos: function (elm, root) {
-        return DOMUtils.DOM.getPos(elm, root);
+        return DOMUtils.DOM.getPos(elm, root || funcs.getContainer());
+    },
+
+    getContainer: function () {
+        return Env.container ? Env.container : document.body;
     },
 
     getViewPort: function (win) {
@@ -103,3 +125,6 @@ module.exports = {
         DOMUtils.DOM.setHTML(elm, html);
     }
 };
+
+
+module.exports = funcs;

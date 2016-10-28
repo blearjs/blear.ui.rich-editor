@@ -118,6 +118,7 @@ var MenuButton = Button.extend({
         self.menu.show();
         self.menu.layoutRect({w: self.layoutRect().w});
         self.menu.moveRel(self.getEl(), self.isRtl() ? ['br-tr', 'tr-br'] : ['bl-tl', 'tl-bl']);
+        self.fire('showmenu');
     },
 
     /**
@@ -206,7 +207,7 @@ var MenuButton = Button.extend({
                 self.showMenu();
 
                 if (e.aria) {
-                    self.menu.items()[0].focus();
+                    self.menu.items().filter(':visible')[0].focus();
                 }
             }
         });

@@ -70,6 +70,6 @@ module.exports = Control.extend({
 
         style.left = rect.x + 'px';
         style.top = rect.y + 'px';
-        style.zIndex = UI.zIndex();
+        style.zIndex = 0xFFFF + 0xFFFF;
     }
 });

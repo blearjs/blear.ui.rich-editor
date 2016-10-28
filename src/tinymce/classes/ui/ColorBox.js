@@ -45,7 +45,8 @@ module.exports = ComboBox.extend({
     },
 
     repaintColor: function (value) {
-        var elm = this.getEl().getElementsByTagName('i')[0];
+        var openElm = this.getEl('open');
+        var elm = openElm ? openElm.getElementsByTagName('i')[0] : null;
 
         if (elm) {
             try {
@@ -60,7 +61,7 @@ module.exports = ComboBox.extend({
         var self = this;
 
         self.state.on('change:value', function (e) {
-            if (self._rendered) {
+            if (self.state.get('rendered')) {
                 self.repaintColor(e.value);
             }
         });

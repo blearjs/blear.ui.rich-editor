@@ -152,7 +152,7 @@ function repositionPanel(panel) {
 }
 
 function addRemove(add, ctrl) {
-    var i, zIndex = UI.zIndex(), topModal;
+    var i, zIndex = FloatPanel.zIndex || 0xFFFF, topModal;
 
     if (add) {
         zOrder.push(ctrl);
@@ -169,7 +169,7 @@ function addRemove(add, ctrl) {
     if (zOrder.length) {
         for (i = 0; i < zOrder.length; i++) {
             if (zOrder[i].modal) {
-                zIndex = UI.zIndex();
+                zIndex++;
                 topModal = zOrder[i];
             }
 
@@ -179,7 +179,7 @@ function addRemove(add, ctrl) {
         }
     }
 
-    var modalBlockEl = document.getElementById(ctrl.classPrefix + 'modal-block');
+    var modalBlockEl = $('#' + ctrl.classPrefix + 'modal-block', ctrl.getContainerElm())[0];
 
     if (topModal) {
         $(modalBlockEl).css('z-index', topModal.zIndex - 1);
@@ -229,7 +229,7 @@ var FloatPanel = Panel.extend({
                 var $modalBlockEl, prefix = self.classPrefix;
 
                 if (self.modal && !hasModal) {
-                    $modalBlockEl = $('#' + prefix + 'modal-block');
+                    $modalBlockEl = $('#' + prefix + 'modal-block', self.getContainerElm());
                     if (!$modalBlockEl[0]) {
                         $modalBlockEl = $(
                             '<div id="' + prefix + 'modal-block" class="' + prefix + 'reset ' + prefix + 'fade"></div>'
@@ -261,6 +261,10 @@ var FloatPanel = Panel.extend({
             self._preBodyHtml = '<div class="' + self.classPrefix + 'arrow"></div>';
             self.classes.add('popover').add('bottom').add(self.isRtl() ? 'end' : 'start');
         }
+
+        self.aria('label', settings.ariaLabel);
+        self.aria('labelledby', self._id);
+        self.aria('describedby', self.describedBy || self._id + '-none');
     },
 
     fixed: function (state) {

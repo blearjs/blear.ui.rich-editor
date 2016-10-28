@@ -81,7 +81,7 @@ module.exports = {
         }
 
         function getSide(name) {
-            var val = parseFloat(getStyle(name));
+            var val = parseFloat(getStyle(name), 10);
 
             return isNaN(val) ? 0 : val;
         }

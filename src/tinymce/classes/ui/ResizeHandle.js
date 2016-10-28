@@ -20,7 +20,7 @@
 var Widget = require("./Widget");
 var DragHelper = require("./DragHelper");
 
-return Widget.extend({
+module.exports = Widget.extend({
     /**
      * Renders the control as a HTML string.
      *

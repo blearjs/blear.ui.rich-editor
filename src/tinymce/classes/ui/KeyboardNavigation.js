@@ -101,7 +101,7 @@ module.exports = function (settings) {
 
         // Notice: since type can be "email" etc we don't check the type
         // So all input elements gets treated as text input elements
-        return tagName == "INPUT" || tagName == "TEXTAREA";
+        return tagName == "INPUT" || tagName == "TEXTAREA" || tagName == "SELECT";
     }
 
     /**
@@ -116,7 +116,7 @@ module.exports = function (settings) {
             return true;
         }
 
-        if (/^(button|menuitem|checkbox|tab|menuitemcheckbox|option|gridcell)$/.test(getRole(elm))) {
+        if (/^(button|menuitem|checkbox|tab|menuitemcheckbox|option|gridcell|slider)$/.test(getRole(elm))) {
             return true;
         }
 
@@ -346,6 +346,10 @@ module.exports = function (settings) {
         function handleNonTabOrEscEvent(e, handler) {
             // Ignore non tab keys for text elements
             if (isTextInputElement(focusedElement)) {
+                return;
+            }
+
+            if (getRole(focusedElement) === 'slider') {
                 return;
             }
 

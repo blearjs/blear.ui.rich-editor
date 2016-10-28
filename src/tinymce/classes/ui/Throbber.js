@@ -28,7 +28,7 @@ var Delay = require("../util/Delay");
  * @param {Boolean} inline Optional true/false state if the throbber should be appended to end of element for infinite scroll.
  */
 module.exports = function (elm, inline) {
-    var self = this, state, classPrefix = Control.classPrefix;
+    var self = this, state, classPrefix = Control.classPrefix, timer;
 
     /**
      * Shows the throbber.
@@ -39,11 +39,7 @@ module.exports = function (elm, inline) {
      * @return {tinymce.ui.Throbber} Current throbber instance.
      */
     self.show = function (time, callback) {
-        self.hide();
-
-        state = true;
-
-        Delay.setTimeout(function () {
+        function render() {
             if (state) {
                 $(elm).append(
                     '<div class="' + classPrefix + 'throbber' + (inline ? ' ' + classPrefix + 'throbber-inline' : '') + '"></div>'
@@ -53,7 +49,17 @@ module.exports = function (elm, inline) {
                     callback();
                 }
             }
-        }, time);
+        }
+
+        self.hide();
+
+        state = true;
+
+        if (time) {
+            timer = Delay.setTimeout(render, time);
+        } else {
+            render();
+        }
 
         return self;
     };
@@ -66,6 +72,8 @@ module.exports = function (elm, inline) {
      */
     self.hide = function () {
         var child = elm.lastChild;
+
+        Delay.clearTimeout(timer);
 
         if (child && child.className.indexOf('throbber') != -1) {
             child.parentNode.removeChild(child);

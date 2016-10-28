@@ -27,21 +27,41 @@ var Observable = require('../util/Observable');
 
 var each = Tools.each;
 
-Observable.on('AddEditor', function (e) {
-    if (e.editor.rtl) {
-        Control.rtl = true;
-    }
+var flatten = function (ar) {
+    return Arr.reduce(ar, function (result, item) {
+        return result.concat(item);
+    }, []);
+};
 
-    registerControls(e.editor);
+EditorManager.on('AddEditor', function (e) {
+    var editor = e.editor;
+
+    setupRtlMode(editor);
+    registerControls(editor);
+    setupContainer(editor);
 });
 
 Control.translate = function (text) {
-    return I18n.translate(text);
+    return EditorManager.translate(text);
 };
 
 Widget.tooltips = !Env.iOS;
 
-var registerControls = module.exports = function registerControls(editor) {
+function setupContainer(editor) {
+    if (editor.settings.ui_container) {
+        Env.container = DOMUtils.DOM.select(editor.settings.ui_container)[0];
+    }
+}
+
+function setupRtlMode(editor) {
+    editor.on('ScriptsLoaded', function () {
+        if (editor.rtl) {
+            Control.rtl = true;
+        }
+    });
+}
+
+function registerControls(editor) {
     var formatMenu;
 
     function createListBoxChangeHandler(items, formatName) {
@@ -343,6 +363,71 @@ var registerControls = module.exports = function registerControls(editor) {
         self.active(editor.hasVisual);
     }
 
+    var trimMenuItems = function (menuItems) {
+        var outputMenuItems = menuItems;
+
+        if (outputMenuItems.length > 0 && outputMenuItems[0].text === '-') {
+            outputMenuItems = outputMenuItems.slice(1);
+        }
+
+        if (outputMenuItems.length > 0 && outputMenuItems[outputMenuItems.length - 1].text === '-') {
+            outputMenuItems = outputMenuItems.slice(0, outputMenuItems.length - 1);
+        }
+
+        return outputMenuItems;
+    };
+
+    var createCustomMenuItems = function (names) {
+        var items, nameList;
+
+        if (typeof names === 'string') {
+            nameList = names.split(' ');
+        } else if (Tools.isArray(names)) {
+            return flatten(Tools.map(names, createCustomMenuItems));
+        }
+
+        items = Tools.grep(nameList, function (name) {
+            return name === '|' || name in editor.menuItems;
+        });
+
+        return Tools.map(items, function (name) {
+            return name === '|' ? {text: '-'} : editor.menuItems[name];
+        });
+    };
+
+    var createContextMenuItems = function (context) {
+        var outputMenuItems = [{text: '-'}];
+        var menuItems = Tools.grep(editor.menuItems, function (menuItem) {
+            return menuItem.context === context;
+        });
+
+        Tools.each(menuItems, function (menuItem) {
+            if (menuItem.separator == 'before') {
+                outputMenuItems.push({text: '|'});
+            }
+
+            if (menuItem.prependToContext) {
+                outputMenuItems.unshift(menuItem);
+            } else {
+                outputMenuItems.push(menuItem);
+            }
+
+            if (menuItem.separator == 'after') {
+                outputMenuItems.push({text: '|'});
+            }
+        });
+
+        return outputMenuItems;
+    };
+
+    var createInsertMenu = function (editorSettings) {
+        if (editorSettings.insert_button_items) {
+            return trimMenuItems(createCustomMenuItems(editorSettings.insert_button_items));
+        } else {
+            return trimMenuItems(createContextMenuItems('insert'));
+        }
+    };
+
     editor.addButton('undo', {
         tooltip: 'Undo',
         onPostRender: toggleUndoRedoState('undo'),
@@ -390,6 +475,16 @@ var registerControls = module.exports = function registerControls(editor) {
         cmd: 'Delete'
     });
 
+    editor.addButton('insert', {
+        type: 'menubutton',
+        icon: 'insert',
+        menu: [],
+        oncreatemenu: function () {
+            this.menu.add(createInsertMenu(editor.settings));
+            this.menu.renderNew();
+        }
+    });
+
     each({
         cut: ['Cut', 'Cut', 'Meta+X'],
         copy: ['Copy', 'Copy', 'Meta+C'],
@@ -425,10 +520,61 @@ var registerControls = module.exports = function registerControls(editor) {
         }
     }
 
+    function hideMenuObjects(menu) {
+        var count = menu.length;
+
+        Tools.each(menu, function (item) {
+            if (item.menu) {
+                item.hidden = hideMenuObjects(item.menu) === 0;
+            }
+
+            var formatName = item.format;
+            if (formatName) {
+                item.hidden = !editor.formatter.canApply(formatName);
+            }
+
+            if (item.hidden) {
+                count--;
+            }
+        });
+
+        return count;
+    }
+
+    function hideFormatMenuItems(menu) {
+        var count = menu.items().length;
+
+        menu.items().each(function (item) {
+            if (item.menu) {
+                item.visible(hideFormatMenuItems(item.menu) > 0);
+            }
+
+            if (!item.menu && item.settings.menu) {
+                item.visible(hideMenuObjects(item.settings.menu) > 0);
+            }
+
+            var formatName = item.settings.format;
+            if (formatName) {
+                item.visible(editor.formatter.canApply(formatName));
+            }
+
+            if (!item.visible()) {
+                count--;
+            }
+        });
+
+        return count;
+    }
+
     editor.addButton('styleselect', {
         type: 'menubutton',
         text: 'Formats',
-        menu: formatMenu
+        menu: formatMenu,
+        onShowMenu: function () {
+            if (editor.settings.style_formats_autohide) {
+                hideFormatMenuItems(this.menu);
+            }
+        }
     });
 
     editor.addButton('formatselect', function () {
@@ -464,32 +610,24 @@ var registerControls = module.exports = function registerControls(editor) {
     });
 
     editor.addButton('fontselect', function () {
-        //var defaultFontsFormats =
-        //    'Andale Mono=andale mono,monospace;' +
-        //    'Arial=arial,helvetica,sans-serif;' +
-        //    'Arial Black=arial black,sans-serif;' +
-        //    'Book Antiqua=book antiqua,palatino,serif;' +
-        //    'Comic Sans MS=comic sans ms,sans-serif;' +
-        //    'Courier New=courier new,courier,monospace;' +
-        //    'Georgia=georgia,palatino,serif;' +
-        //    'Helvetica=helvetica,arial,sans-serif;' +
-        //    'Impact=impact,sans-serif;' +
-        //    'Symbol=symbol;' +
-        //    'Tahoma=tahoma,arial,helvetica,sans-serif;' +
-        //    'Terminal=terminal,monaco,monospace;' +
-        //    'Times New Roman=times new roman,times,serif;' +
-        //    'Trebuchet MS=trebuchet ms,geneva,sans-serif;' +
-        //    'Verdana=verdana,geneva,sans-serif;' +
-        //    'Webdings=webdings;' +
-        //    'Wingdings=wingdings,zapf dingbats';
         var defaultFontsFormats =
-            '宋体=宋体,SimSun;' +
-            '微软雅黑=微软雅黑,Microsoft YaHei;' +
-            '楷体=楷体,楷体_GB2312,KaiTi_GB2312,SimKai;' +
-            '黑体=黑体,SimHei;' +
-            '隶书=隶书,SimLi;' +
+            'Andale Mono=andale mono,monospace;' +
             'Arial=arial,helvetica,sans-serif;' +
-            'Times New Roman=Times New Roman';
+            'Arial Black=arial black,sans-serif;' +
+            'Book Antiqua=book antiqua,palatino,serif;' +
+            'Comic Sans MS=comic sans ms,sans-serif;' +
+            'Courier New=courier new,courier,monospace;' +
+            'Georgia=georgia,palatino,serif;' +
+            'Helvetica=helvetica,arial,sans-serif;' +
+            'Impact=impact,sans-serif;' +
+            'Symbol=symbol;' +
+            'Tahoma=tahoma,arial,helvetica,sans-serif;' +
+            'Terminal=terminal,monaco,monospace;' +
+            'Times New Roman=times new roman,times,serif;' +
+            'Trebuchet MS=trebuchet ms,geneva,sans-serif;' +
+            'Verdana=verdana,geneva,sans-serif;' +
+            'Webdings=webdings;' +
+            'Wingdings=wingdings,zapf dingbats';
 
         var items = [], fonts = createFormats(editor.settings.font_formats || defaultFontsFormats);
 
@@ -497,7 +635,7 @@ var registerControls = module.exports = function registerControls(editor) {
             items.push({
                 text: {raw: font[0]},
                 value: font[1],
-                textStyle: 'font-family:' + font[1]
+                textStyle: font[1].indexOf('dings') == -1 ? 'font-family:' + font[1] : ''
             });
         });
 
@@ -517,8 +655,7 @@ var registerControls = module.exports = function registerControls(editor) {
     });
 
     editor.addButton('fontsizeselect', function () {
-        //var items = [], defaultFontsizeFormats = '8pt 10pt 12pt 14pt 18pt 24pt 36pt';
-        var items = [], defaultFontsizeFormats = '12px 16px 18px 20px 24px 32px 48px';
+        var items = [], defaultFontsizeFormats = '8pt 10pt 12pt 14pt 18pt 24pt 36pt';
         var fontsize_formats = editor.settings.fontsize_formats || defaultFontsizeFormats;
 
         each(fontsize_formats.split(' '), function (item) {
@@ -529,11 +666,7 @@ var registerControls = module.exports = function registerControls(editor) {
                 text = values[0];
                 value = values[1];
             }
-            items.push({
-                text: text,
-                value: value,
-                textStyle: 'font-size:' + value
-            });
+            items.push({text: text, value: value});
         });
 
         return {
@@ -555,4 +688,4 @@ var registerControls = module.exports = function registerControls(editor) {
         text: 'Formats',
         menu: formatMenu
     });
-};
+}

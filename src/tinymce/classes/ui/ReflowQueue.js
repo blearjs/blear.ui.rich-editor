@@ -18,6 +18,7 @@
  */
 
 var Delay = require("../util/Delay");
+
 var dirtyCtrls = {}, animationFrameRequested;
 
 module.exports = {

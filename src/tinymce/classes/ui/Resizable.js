@@ -17,7 +17,7 @@
 "use strict";
 var DomUtils = require("./DomUtils");
 
-return {
+module.exports = {
     /**
      * Resizes the control to contents.
      *

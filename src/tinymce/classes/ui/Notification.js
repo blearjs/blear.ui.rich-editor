@@ -103,6 +103,16 @@ return Control.extend({
         );
     },
 
+    postRender: function () {
+        var self = this;
+
+        Delay.setTimeout(function () {
+            self.$el.addClass(self.classPrefix + 'in');
+        });
+
+        return self._super();
+    },
+
     bindStates: function () {
         var self = this;
 
@@ -138,6 +148,9 @@ return Control.extend({
 
         style.left = rect.x + 'px';
         style.top = rect.y + 'px';
-        style.zIndex = UI.zIndex();
+
+        // Hardcoded arbitrary z-value because we want the
+        // notifications under the other windows
+        style.zIndex = 0xFFFF - 1;
     }
 });

@@ -131,9 +131,11 @@ module.exports = Widget.extend({
                     menu.hide();
                 });
                 menu.on('show hide', function (e) {
-                    e.control.items().each(function (ctrl) {
-                        ctrl.active(ctrl.settings.selected);
-                    });
+                    if (e.control.items) {
+                        e.control.items().each(function (ctrl) {
+                            ctrl.active(ctrl.settings.selected);
+                        });
+                    }
                 }).fire('show');
 
                 menu.on('hide', function (e) {
@@ -197,8 +199,9 @@ module.exports = Widget.extend({
      * @return {String} HTML representing the control.
      */
     renderHtml: function () {
-        var self = this, id = self._id, settings = self.settings, prefix = self.classPrefix, text = self.encode(self.state.get('text'));
+        var self = this, id = self._id, settings = self.settings, prefix = self.classPrefix, text = self.state.get('text');
         var icon = self.settings.icon, image = '', shortcut = settings.shortcut;
+        var url = self.encode(settings.url), iconHtml = '';
 
         // Converts shortcut format to Mac/PC variants
         function convertShortcut(shortcut) {
@@ -230,6 +233,22 @@ module.exports = Widget.extend({
             return shortcut.join('+');
         }
 
+        function escapeRegExp(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        }
+
+        function markMatches(text) {
+            var match = settings.match || '';
+
+            return match ? text.replace(new RegExp(escapeRegExp(match), 'gi'), function (match) {
+                return '!mce~match[' + match + ']mce~match!';
+            }) : text;
+        }
+
+        function boldMatches(text) {
+            return text.replace(new RegExp(escapeRegExp('!mce~match['), 'g'), '<b>').replace(new RegExp(escapeRegExp(']mce~match!'), 'g'), '</b>');
+        }
+
         if (icon) {
             self.parent().classes.add('menu-has-icons');
         }
@@ -243,13 +262,18 @@ module.exports = Widget.extend({
         }
 
         icon = prefix + 'ico ' + prefix + 'i-' + (self.settings.icon || 'none');
+        iconHtml = (text !== '-' ? '<i class="' + icon + '"' + image + '></i>\u00a0' : '');
+
+        text = boldMatches(self.encode(markMatches(text)));
+        url = boldMatches(self.encode(markMatches(url)));
 
         return (
             '<div id="' + id + '" class="' + self.classes + '" tabindex="-1">' +
-            (text !== '-' ? '<i class="' + icon + '"' + image + '></i>\u00a0' : '') +
+            iconHtml +
             (text !== '-' ? '<span id="' + id + '-text" class="' + prefix + 'text">' + text + '</span>' : '') +
             (shortcut ? '<div id="' + id + '-shortcut" class="' + prefix + 'menu-shortcut">' + shortcut + '</div>' : '') +
             (settings.menu ? '<div class="' + prefix + 'caret"></div>' : '') +
+            (url ? '<div class="' + prefix + 'menu-item-link">' + url + '</div>' : '') +
             '</div>'
         );
     },
@@ -278,7 +302,11 @@ module.exports = Widget.extend({
             if (e.control === self) {
                 if (!settings.menu && e.type === 'click') {
                     self.fire('select');
-                    self.parent().hideAll();
+
+                    // Edge will crash if you stress it see #2660
+                    Delay.requestAnimationFrame(function () {
+                        self.parent().hideAll();
+                    });
                 } else {
                     self.showMenu();
 
@@ -290,6 +318,18 @@ module.exports = Widget.extend({
         });
 
         self._super();
+
+        return self;
+    },
+
+    hover: function () {
+        var self = this;
+
+        self.parent().items().each(function (ctrl) {
+            ctrl.classes.remove('selected');
+        });
+
+        self.classes.toggle('selected', true);
 
         return self;
     },

@@ -63,7 +63,7 @@ function updateWithTouchData(e) {
     }
 }
 
-module.exports = function (id, settings) {
+return function (id, settings) {
     var $eventOverlay, doc = settings.document || document, downButton, start, stop, drag, startX, startY;
 
     settings = settings || {};
@@ -90,12 +90,12 @@ module.exports = function (id, settings) {
             cursor = handleElm.runtimeStyle.cursor;
         }
 
-        $eventOverlay = $('<div>').css({
+        $eventOverlay = $('<div></div>').css({
             position: "absolute",
             top: 0, left: 0,
             width: docSize.width,
             height: docSize.height,
-            zIndex: UI.zIndex(),
+            zIndex: 0x7FFFFFFF,
             opacity: 0.0001,
             cursor: cursor
         }).appendTo(doc.body);
