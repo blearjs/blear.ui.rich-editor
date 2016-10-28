@@ -21,11 +21,13 @@
  */
 
 var Tools = require("./Tools");
+
+
 var nativeEvents = Tools.makeMap(
     "focus blur focusin focusout click dblclick mousedown mouseup mousemove mouseover beforepaste paste cut copy selectionchange " +
     "mouseout mouseenter mouseleave wheel keydown keypress keyup input contextmenu dragstart dragend dragover " +
     "draggesture dragdrop drop drag submit " +
-    "compositionstart compositionend compositionupdate touchstart touchend",
+    "compositionstart compositionend compositionupdate touchstart touchmove touchend",
     ' '
 );
 

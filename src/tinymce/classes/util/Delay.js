@@ -18,6 +18,8 @@
 
 
 var Promise = require("./Promise");
+
+
 var requestAnimationFramePromise;
 
 function requestAnimationFrame(callback, element) {
@@ -48,7 +50,7 @@ function wrappedSetTimeout(callback, time) {
 
 function wrappedSetInterval(callback, time) {
     if (typeof time != 'number') {
-        time = 0;
+        time = 1; // IE 8 needs it to be > 0
     }
 
     return setInterval(callback, time);
@@ -155,9 +157,9 @@ module.exports = {
      * @return {Function} Throttled function callback.
      */
     throttle: function (callback, time) {
-        var timer;
+        var timer, func;
 
-        return function () {
+        func = function () {
             var args = arguments;
 
             clearTimeout(timer);
@@ -166,6 +168,12 @@ module.exports = {
                 callback.apply(this, args);
             }, time);
         };
+
+        func.stop = function () {
+            clearTimeout(timer);
+        };
+
+        return func;
     },
 
     /**

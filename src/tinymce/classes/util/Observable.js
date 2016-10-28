@@ -33,7 +33,8 @@ function getEventDispatcher(obj) {
 
 module.exports = {
     /**
-     * Fires the specified event by name.
+     * Fires the specified event by name. Consult the
+     * <a href="/advanced/events">event reference</a> for more details on each event.
      *
      * @method fire
      * @param {String} name Name of the event to fire.
@@ -66,12 +67,13 @@ module.exports = {
     },
 
     /**
-     * Binds an event listener to a specific event by name.
+     * Binds an event listener to a specific event by name. Consult the
+     * <a href="/advanced/events">event reference</a> for more details on each event.
      *
      * @method on
      * @param {String} name Event name or space separated list of events to bind.
-     * @param {Function} callback Callback to be executed when the event occurs.
-     * @param {Boolean} [prepend] Optional flag if the event should be prepended. Use this with care.
+     * @param {callback} callback Callback to be executed when the event occurs.
+     * @param {Boolean} first Optional flag if the event should be prepended. Use this with care.
      * @return {Object} Current class instance.
      * @example
      * instance.on('event', function(e) {
@@ -83,7 +85,8 @@ module.exports = {
     },
 
     /**
-     * Unbinds an event listener to a specific event by name.
+     * Unbinds an event listener to a specific event by name. Consult the
+     * <a href="/advanced/events">event reference</a> for more details on each event.
      *
      * @method off
      * @param {String?} name Name of the event to unbind.
@@ -104,7 +107,8 @@ module.exports = {
     },
 
     /**
-     * Bind the event callback and once it fires the callback is removed.
+     * Bind the event callback and once it fires the callback is removed. Consult the
+     * <a href="/advanced/events">event reference</a> for more details on each event.
      *
      * @method once
      * @param {String} name Name of the event to bind.

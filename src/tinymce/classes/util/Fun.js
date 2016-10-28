@@ -76,11 +76,15 @@ function curry(fn) {
     };
 }
 
+function noop() {
+}
+
 module.exports = {
     constant: constant,
     negate: negate,
     and: and,
     or: or,
     curry: curry,
-    compose: compose
+    compose: compose,
+    noop: noop
 };

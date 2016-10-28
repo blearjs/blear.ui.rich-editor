@@ -35,6 +35,7 @@ function serialize(o, quote) {
     if (t == 'string') {
         v = '\bb\tt\nn\ff\rr\""\'\'\\\\';
 
+        /*eslint no-control-regex:0 */
         return quote + o.replace(/([\u0080-\uFFFF\x00-\x1f\"\'\\])/g, function (a, b) {
                 // Make sure single quotes never get encoded inside double quotes for JSON compatibility
                 if (quote === '"' && a === "'") {
@@ -92,7 +93,7 @@ module.exports = {
      * Unserializes/parses the specified JSON string into a object.
      *
      * @method parse
-     * @param {string} s JSON String to parse into a JavaScript object.
+     * @param {string} text JSON String to parse into a JavaScript object.
      * @return {Object} Object from input JSON string or undefined if it failed.
      */
     parse: function (text) {

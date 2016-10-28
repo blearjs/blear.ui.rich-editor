@@ -21,6 +21,8 @@
  */
 
 var Tools = require("./Tools");
+
+
 var each = Tools.each, extend = Tools.extend;
 
 var extendClass, initializing;
@@ -87,8 +89,6 @@ Class.extend = extendClass = function (prop) {
     // Add mixins
     if (prop.Mixins) {
         each(prop.Mixins, function (mixin) {
-            mixin = mixin;
-
             for (var name in mixin) {
                 if (name !== "init") {
                     prop[name] = mixin[name];
@@ -163,5 +163,4 @@ Class.extend = extendClass = function (prop) {
 
     return Class;
 };
-
 module.exports = Class;

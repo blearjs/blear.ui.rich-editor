@@ -17,6 +17,8 @@
 
 var Env = require("../Env");
 var Arr = require("./Arr");
+
+
 /**
  * Removes whitespace from the beginning and end of a string.
  *
@@ -55,8 +57,8 @@ function is(obj, type) {
  *
  * @method makeMap
  * @param {Array/String} items Items to make map out of.
- * @param {String} [delim] Optional delimiter to split string by.
- * @param {Object} [map] Optional map to add items to.
+ * @param {String} delim Optional delimiter to split string by.
+ * @param {Object} map Optional map to add items to.
  * @return {Object} Name/value map of items.
  */
 function makeMap(items, delim, map) {
@@ -77,6 +79,18 @@ function makeMap(items, delim, map) {
     }
 
     return map;
+}
+
+/**
+ * JavaScript does not protect hasOwnProperty method, so it is possible to overwrite it. This is
+ * object independent version.
+ *
+ * @param {Object} obj
+ * @param {String} prop
+ * @returns {Boolean}
+ */
+function hasOwnProperty(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 /**
@@ -430,6 +444,8 @@ module.exports = {
      * @return {boolean} true/false state if the object is an array or not.
      */
     inArray: Arr.indexOf,
+
+    hasOwn: hasOwnProperty,
 
     extend: extend,
     create: create,
