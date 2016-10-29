@@ -4,9 +4,9 @@
 
 'use strict';
 
-var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
 var Tools = require('../../classes/util/Tools');
+var Arr = require('../../classes/util/Arr');
 
 /**
  * plugin.js
@@ -54,7 +54,7 @@ PluginManager.add('image', function (editor) {
         function appendItems(values, output) {
             output = output || [];
 
-            tinymce.each(values, function (item) {
+            Arr.each(values, function (item) {
                 var menuItem = {text: item.text || item.title};
 
                 if (item.menu) {
@@ -74,22 +74,7 @@ PluginManager.add('image', function (editor) {
     }
 
     function createImageList(callback) {
-        return function () {
-            var imageList = editor.settings.image_list;
-
-            if (typeof imageList == "string") {
-                tinymce.util.XHR.send({
-                    url: imageList,
-                    success: function (text) {
-                        callback(tinymce.util.JSON.parse(text));
-                    }
-                });
-            } else if (typeof imageList == "function") {
-                imageList(callback);
-            } else {
-                callback(imageList);
-            }
-        };
+        return callback;
     }
 
     function showDialog(imageList) {
@@ -457,7 +442,7 @@ PluginManager.add('image', function (editor) {
 
                     if (hasImageClass(node)) {
                         node.attr('contenteditable', state ? 'false' : null);
-                        tinymce.each(node.getAll('figcaption'), toggleContentEditable);
+                        Arr.each(node.getAll('figcaption'), toggleContentEditable);
                     }
                 }
             };

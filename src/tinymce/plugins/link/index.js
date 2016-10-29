@@ -1,5 +1,6 @@
-var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
+var Arr = require('../../classes/util/Arr');
+var Tools = require('../../classes/util/Tools');
 
 
 /**
@@ -16,29 +17,14 @@ var PluginManager = require("../../classes/AddOnManager").PluginManager;
 
 PluginManager.add('link', function (editor) {
     function createLinkList(callback) {
-        return function () {
-            var linkList = editor.settings.link_list;
-
-            if (typeof linkList == "string") {
-                tinymce.util.XHR.send({
-                    url: linkList,
-                    success: function (text) {
-                        callback(tinymce.util.JSON.parse(text));
-                    }
-                });
-            } else if (typeof linkList == "function") {
-                linkList(callback);
-            } else {
-                callback(linkList);
-            }
-        };
+        return callback;
     }
 
     function buildListItems(inputList, itemCallback, startItems) {
         function appendItems(values, output) {
             output = output || [];
 
-            tinymce.each(values, function (item) {
+            Arr.each(values, function (item) {
                 var menuItem = {text: item.text || item.title};
 
                 if (item.menu) {
@@ -77,7 +63,7 @@ PluginManager.add('link', function (editor) {
         function buildAnchorListControl(url) {
             var anchorList = [];
 
-            tinymce.each(editor.dom.select('a:not([href])'), function (anchor) {
+            Arr.each(editor.dom.select('a:not([href])'), function (anchor) {
                 var id = anchor.name || anchor.id;
 
                 if (id) {
@@ -115,7 +101,7 @@ PluginManager.add('link', function (editor) {
                 linkListCtrl.value(editor.convertURL(this.value(), 'href'));
             }
 
-            tinymce.each(e.meta, function (value, key) {
+            Arr.each(e.meta, function (value, key) {
                 win.find('#' + key).value(value);
             });
 
@@ -284,20 +270,8 @@ PluginManager.add('link', function (editor) {
                 /*eslint dot-notation: 0*/
                 var href;
 
-                data = tinymce.extend(data, e.data);
+                data = Tools.extend(data, e.data);
                 href = data.href;
-
-                // Delay confirm since onSubmit will move focus
-                function delayedConfirm(message, callback) {
-                    var rng = editor.selection.getRng();
-
-                    tinymce.util.Delay.setEditorTimeout(editor, function () {
-                        editor.windowManager.confirm(message, function (state) {
-                            editor.selection.setRng(rng);
-                            callback(state);
-                        });
-                    });
-                }
 
                 function insertLink() {
                     var linkAttrs = {

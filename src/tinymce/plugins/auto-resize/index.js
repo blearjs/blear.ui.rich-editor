@@ -3,6 +3,7 @@
 var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
 var DOM = require('../../classes/dom/DOMUtils').DOM;
+var Env = require('../../classes/Env');
 
 /**
  * plugin.js
@@ -74,7 +75,7 @@ PluginManager.add('auto-resize', function (editor) {
         // Make sure we have a valid height
         if (isNaN(myHeight) || myHeight <= 0) {
             // Get height differently depending on the browser used
-            myHeight = tinymce.Env.ie ? body.scrollHeight : (tinymce.Env.webkit && body.clientHeight === 0 ? 0 : body.offsetHeight);
+            myHeight = Env.ie ? body.scrollHeight : (Env.webkit && body.clientHeight === 0 ? 0 : body.offsetHeight);
         }
 
         // Don't make it smaller than the minimum height
@@ -101,27 +102,11 @@ PluginManager.add('auto-resize', function (editor) {
 
             // WebKit doesn't decrease the size of the body element until the iframe gets resized
             // So we need to continue to resize the iframe down until the size gets fixed
-            if (tinymce.isWebKit && deltaSize < 0) {
+            if (Env.webkit && deltaSize < 0) {
                 resize(e);
             }
         }
     }
-
-    ///**
-    // * Calls the resize x times in 100ms intervals. We can't wait for load events since
-    // * the CSS files might load async.
-    // */
-    //function wait(times, interval, callback) {
-    //    tinymce.util.Delay.setEditorTimeout(editor, function () {
-    //        resize({});
-    //
-    //        if (times--) {
-    //            wait(times, interval, callback);
-    //        } else if (callback) {
-    //            callback();
-    //        }
-    //    }, interval);
-    //}
 
     // Define minimum height
     settings.autoresize_min_height = parseInt(editor.getParam('autoresize_min_height', settings.height), 10);
