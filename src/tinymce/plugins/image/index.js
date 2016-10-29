@@ -74,46 +74,14 @@ PluginManager.add('image', function (editor) {
     }
 
     function createImageList(callback) {
-        return callback;
+        return function () {
+            callback();
+        };
     }
 
-    function showDialog(imageList) {
+    function showDialog() {
         var win, data = {}, dom = editor.dom, imgElm, figureElm;
         var width, height, classListCtrl, imageDimensions = editor.settings.image_dimensions !== false;
-
-        function recalcSize() {
-            var widthCtrl, heightCtrl, newWidth, newHeight;
-
-            widthCtrl = win.find('#width')[0];
-            heightCtrl = win.find('#height')[0];
-
-            if (!widthCtrl || !heightCtrl) {
-                return;
-            }
-
-            newWidth = widthCtrl.value();
-            newHeight = heightCtrl.value();
-
-            if (win.find('#constrain')[0].checked() && width && height && newWidth && newHeight) {
-                if (width != newWidth) {
-                    newHeight = Math.round((newWidth / width) * newHeight);
-
-                    if (!isNaN(newHeight)) {
-                        heightCtrl.value(newHeight);
-                    }
-                } else {
-                    newWidth = Math.round((newHeight / height) * newWidth);
-
-                    if (!isNaN(newWidth)) {
-                        widthCtrl.value(newWidth);
-                    }
-                }
-            }
-
-            width = newWidth;
-            height = newHeight;
-        }
-
 
         // 点击确定之后回调
         function onSubmitForm() {

@@ -17,7 +17,9 @@ var Tools = require('../../classes/util/Tools');
 
 PluginManager.add('link', function (editor) {
     function createLinkList(callback) {
-        return callback;
+        return function () {
+            callback();
+        };
     }
 
     function buildListItems(inputList, itemCallback, startItems) {
@@ -46,9 +48,9 @@ PluginManager.add('link', function (editor) {
         return appendItems(inputList, startItems || []);
     }
 
-    function showDialog(linkList) {
+    function showDialog() {
         var data = {}, selection = editor.selection, dom = editor.dom, selectedElm, anchorElm, initialText;
-        var win, onlyText, textListCtrl, linkListCtrl, relListCtrl, targetListCtrl, classListCtrl, linkTitleCtrl, value;
+        var win, onlyText, textListCtrl, linkListCtrl, value;
 
         function linkListChangeHandler(e) {
             var textCtrl = win.find('#text');
@@ -172,78 +174,6 @@ PluginManager.add('link', function (editor) {
             };
         }
 
-        if (linkList) {
-            linkListCtrl = {
-                type: 'listbox',
-                label: 'Link list',
-                values: buildListItems(
-                    linkList,
-                    function (item) {
-                        item.value = editor.convertURL(item.value || item.url, 'href');
-                    },
-                    [{text: 'None', value: ''}]
-                ),
-                onselect: linkListChangeHandler,
-                value: editor.convertURL(data.href, 'href'),
-                onPostRender: function () {
-                    /*eslint consistent-this:0*/
-                    linkListCtrl = this;
-                }
-            };
-        }
-
-        if (editor.settings.target_list !== false) {
-            if (!editor.settings.target_list) {
-                editor.settings.target_list = [
-                    {text: 'None', value: ''},
-                    {text: 'New window', value: '_blank'}
-                ];
-            }
-
-            targetListCtrl = {
-                name: 'target',
-                type: 'listbox',
-                label: 'Target',
-                values: buildListItems(editor.settings.target_list)
-            };
-        }
-
-        if (editor.settings.rel_list) {
-            relListCtrl = {
-                name: 'rel',
-                type: 'listbox',
-                label: 'Rel',
-                values: buildListItems(editor.settings.rel_list)
-            };
-        }
-
-        if (editor.settings.link_class_list) {
-            classListCtrl = {
-                name: 'class',
-                type: 'listbox',
-                label: 'Class',
-                values: buildListItems(
-                    editor.settings.link_class_list,
-                    function (item) {
-                        if (item.value) {
-                            item.textStyle = function () {
-                                return editor.formatter.getCssText({inline: 'a', classes: [item.value]});
-                            };
-                        }
-                    }
-                )
-            };
-        }
-
-        if (editor.settings.link_title !== false) {
-            linkTitleCtrl = {
-                name: 'title',
-                type: 'textbox',
-                label: 'Title',
-                value: data.title
-            };
-        }
-
         win = editor.windowManager.open({
             title: 'Insert link',
             data: data,
@@ -259,12 +189,7 @@ PluginManager.add('link', function (editor) {
                     onkeyup: updateText
                 },
                 textListCtrl,
-                linkTitleCtrl,
-                buildAnchorListControl(data.href),
-                linkListCtrl,
-                relListCtrl,
-                targetListCtrl,
-                classListCtrl
+                buildAnchorListControl(data.href)
             ],
             onSubmit: function (e) {
                 /*eslint dot-notation: 0*/
