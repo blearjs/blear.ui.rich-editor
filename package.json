@@ -1,7 +1,7 @@
 {
   "name": "blear.ui.rich-editor",
-  "version": "1.0.10",
-  "description": "富文本编辑器，基于 Tinymce",
+  "version": "1.1.0",
+  "description": "富文本编辑器，基于 Tinymce V4.4.3",
   "scripts": {
     "live": "browser-sync start --config bs-config.js"
   },
