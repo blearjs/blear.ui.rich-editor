@@ -218,11 +218,6 @@ module.exports = Widget.extend({
             width = rect.w - 10;
         }
 
-        // 文件选择按钮的宽度等于父级宽度
-        if (self.settings.type === 'filepicker') {
-            width = rect.w - 2;
-        }
-
         // Detect old IE 7+8 add lineHeight to align caret vertically in the middle
         var doc = document;
         if (doc.all && (!doc.documentMode || doc.documentMode <= 8)) {
@@ -265,8 +260,7 @@ module.exports = Widget.extend({
     renderHtml: function () {
         var self = this, id = self._id, settings = self.settings, prefix = self.classPrefix;
         var value = self.state.get('value') || '';
-        var icon, text, extraAttrs = '';
-        var innerHTML = '';
+        var icon, text, openBtnHtml = '', extraAttrs = '', statusHtml = '';
 
         if ("spellcheck" in settings) {
             extraAttrs += ' spellcheck="' + settings.spellcheck + '"';
@@ -284,43 +278,39 @@ module.exports = Widget.extend({
             extraAttrs += ' type="' + settings.subtype + '"';
         }
 
+        statusHtml = '<i id="' + id + '-status" class="mce-status mce-ico" style="display: none"></i>';
+
         if (self.disabled()) {
             extraAttrs += ' disabled="disabled"';
         }
 
         icon = settings.icon;
-
         if (icon && icon != 'caret') {
             icon = prefix + 'ico ' + prefix + 'i-' + settings.icon;
         }
 
         text = self.state.get('text');
 
-        // 文件选择器
-        if (settings.type === 'filepicker') {
-            innerHTML = ''.concat(
-                '<a id="' + id + '-open" href="javascript:;" class="' + prefix + 'btn ' + prefix + 'btn_file" tabIndex="-1" role="button">',
-                '<span class="' + prefix + 'btn_file-label">' + settings.uploadFileLabel + '</span>',
-                (icon !== 'caret' ? '<i class="' + icon + '"></i>' : '<i class="' + prefix + 'caret"></i>'),
-                '<input id="' + id + '-inp" type="file" hidefocus="1" tabindex="-1" name="' + settings.uploadFileName + '">',
-                '</a>'
+        if (icon || text) {
+            openBtnHtml = (
+                '<div id="' + id + '-open" class="' + prefix + 'btn ' + prefix + 'open" tabIndex="-1" role="button">' +
+                '<button id="' + id + '-action" type="button" hidefocus="1" tabindex="-1">' +
+                (icon != 'caret' ? '<i class="' + icon + '"></i>' : '<i class="' + prefix + 'caret"></i>') +
+                (text ? (icon ? ' ' : '') + text : '') +
+                '</button>' +
+                '</div>'
             );
-            self.classes.add('btn_filepicker');
-        }
-        // 文本输入框
-        else {
-            innerHTML = ''.concat(
-                '<input id="' + id + '-inp" class="' + prefix + 'textbox" value="',
-                self.encode(value, false),
-                '" hidefocus="1"' + extraAttrs + ' placeholder="',
-                self.encode(settings.placeholder),
-                '">'
-            );
+
+            self.classes.add('has-open');
         }
 
         return (
             '<div id="' + id + '" class="' + self.classes + '">' +
-            innerHTML +
+            '<input id="' + id + '-inp" class="' + prefix + 'textbox" value="' +
+            self.encode(value, false) + '" hidefocus="1"' + extraAttrs + ' placeholder="' +
+            self.encode(settings.placeholder) + '" />' +
+            statusHtml +
+            openBtnHtml +
             '</div>'
         );
     },

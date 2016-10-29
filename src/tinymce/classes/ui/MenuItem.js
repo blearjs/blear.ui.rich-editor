@@ -20,6 +20,7 @@
 var Widget = require("./Widget");
 var Factory = require("./Factory");
 var Env = require("../Env");
+var Delay = require("../util/Delay");
 
 module.exports = Widget.extend({
     Defaults: {

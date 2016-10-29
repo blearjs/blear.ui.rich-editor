@@ -29,6 +29,7 @@ Factory.add('textbox', require('../classes/ui/TextBox'));
 Factory.add('checkbox', require('../classes/ui/Checkbox'));
 Factory.add('container', require('../classes/ui/Container'));
 Factory.add('menu', require('../classes/ui/Menu'));
+Factory.add('menuitem', require('../classes/ui/MenuItem'));
 require('../classes/ui/FormatControls');
 
 

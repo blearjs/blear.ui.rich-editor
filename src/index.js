@@ -131,7 +131,7 @@ pro[_initNode] = function () {
         uploadFileName: options.fileName,
         uploadFileLabel: options.fileLabel,
         toolbar: options.toolbar,
-        file_picker_callback: function (callback, value, meta, fileEl) {
+        file_browser_callback: function (callback, value, meta, fileEl) {
             fileEl.onchange = function (eve) {
                 eve = eve || window.event;
                 var imgs = parseEventFiles(eve, fileEl);

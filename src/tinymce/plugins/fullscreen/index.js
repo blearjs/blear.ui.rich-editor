@@ -1,5 +1,6 @@
 var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
+var DOM = require('../../classes/dom/DOMUtils').DOM;
 
 /**
  * plugin.js
@@ -14,7 +15,7 @@ var PluginManager = require("../../classes/AddOnManager").PluginManager;
 /*global tinymce:true */
 
 PluginManager.add('fullscreen', function (editor) {
-    var fullscreenState = false, DOM = tinymce.DOM, iframeWidth, iframeHeight, resizeHandler;
+    var fullscreenState = false, iframeWidth, iframeHeight, resizeHandler;
     var containerWidth, containerHeight, scrollPos;
 
     if (editor.settings.inline) {
@@ -41,7 +42,7 @@ PluginManager.add('fullscreen', function (editor) {
     }
 
     function getScrollPos() {
-        var vp = tinymce.DOM.getViewPort();
+        var vp = DOM.getViewPort();
 
         return {
             x: vp.x,

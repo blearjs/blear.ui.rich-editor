@@ -6,6 +6,7 @@
 
 var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
+var Tools = require('../../classes/util/Tools');
 
 /**
  * plugin.js
@@ -93,7 +94,7 @@ PluginManager.add('image', function (editor) {
 
     function showDialog(imageList) {
         var win, data = {}, dom = editor.dom, imgElm, figureElm;
-        var width, height, imageListCtrl, classListCtrl, imageDimensions = editor.settings.image_dimensions !== false;
+        var width, height, classListCtrl, imageDimensions = editor.settings.image_dimensions !== false;
 
         function recalcSize() {
             var widthCtrl, heightCtrl, newWidth, newHeight;
@@ -157,10 +158,10 @@ PluginManager.add('image', function (editor) {
                 imgElm.onerror = selectImage;
             }
 
-            updateStyle();
-            recalcSize();
+            // updateStyle();
+            // recalcSize();
 
-            data = tinymce.extend(data, win.toJSON());
+            data = Tools.extend(data, win.toJSON());
             data.src = data.url;
 
             if (!data.alt) {
@@ -302,33 +303,7 @@ PluginManager.add('image', function (editor) {
             data.url = data.src;
         }
 
-        if (imageList) {
-            imageListCtrl = {
-                type: 'listbox',
-                label: 'Image list',
-                values: buildListItems(
-                    imageList,
-                    function (item) {
-                        item.value = editor.convertURL(item.value || item.url, 'src');
-                    },
-                    [{text: 'None', value: ''}]
-                ),
-                value: data.src && editor.convertURL(data.src, 'src'),
-                onselect: function (e) {
-                    var altCtrl = win.find('#alt');
 
-                    if (!altCtrl.value() || (e.lastControl && altCtrl.value() === e.lastControl.text())) {
-                        altCtrl.value(e.control.text());
-                    }
-
-                    win.find('#src').value(e.control.value()).fire('change');
-                },
-                onPostRender: function () {
-                    /*eslint consistent-this: 0*/
-                    imageListCtrl = this;
-                }
-            };
-        }
 
         if (editor.settings.image_class_list) {
             classListCtrl = {
@@ -377,54 +352,10 @@ PluginManager.add('image', function (editor) {
                         var src = this.state.get('value');
                         onUpload({src: src});
                     }
-                },
-                imageListCtrl
+                }
             ];
 
-            if (editor.settings.image_description !== false) {
-                generalFormItems.push({name: 'alt', type: 'textbox', label: 'Image description'});
-            }
-
-            if (editor.settings.image_title) {
-                generalFormItems.push({name: 'title', type: 'textbox', label: 'Image Title'});
-            }
-
-            if (imageDimensions) {
-                generalFormItems.push({
-                    type: 'container',
-                    label: 'Dimensions',
-                    layout: 'flex',
-                    direction: 'row',
-                    align: 'center',
-                    spacing: 5,
-                    items: [
-                        {
-                            name: 'width',
-                            type: 'textbox',
-                            maxLength: 5,
-                            size: 3,
-                            onchange: recalcSize,
-                            ariaLabel: 'Width'
-                        },
-                        {type: 'label', text: 'x'},
-                        {
-                            name: 'height',
-                            type: 'textbox',
-                            maxLength: 5,
-                            size: 3,
-                            onchange: recalcSize,
-                            ariaLabel: 'Height'
-                        },
-                        {name: 'constrain', type: 'checkbox', checked: true, text: 'Constrain proportions'}
-                    ]
-                });
-            }
-
             generalFormItems.push(classListCtrl);
-
-            if (editor.settings.image_caption && tinymce.Env.ceFalse) {
-                generalFormItems.push({name: 'caption', type: 'checkbox', label: 'Caption'});
-            }
 
             return generalFormItems;
         }

@@ -98,6 +98,22 @@ var createMenuItems = function (term, targets, fileType, editorSettings) {
         return toMenuItems(filteredTargets);
     };
 
+    var anchorMenuItems = function () {
+        var anchorMenuItems = fromMenuItems('anchor');
+        var topAnchor = getSetting(editorSettings, 'anchor_top', '#top');
+        var bottomAchor = getSetting(editorSettings, 'anchor_bottom', '#bottom');
+
+        if (topAnchor !== null) {
+            anchorMenuItems.unshift(staticMenuItem('<top>', topAnchor));
+        }
+
+        if (bottomAchor !== null) {
+            anchorMenuItems.push(staticMenuItem('<bottom>', bottomAchor));
+        }
+
+        return anchorMenuItems;
+    };
+
     var join = function (items) {
         return Arr.reduce(items, function (a, b) {
             var bothEmpty = a.length === 0 || b.length === 0;
@@ -111,7 +127,8 @@ var createMenuItems = function (term, targets, fileType, editorSettings) {
 
     return join([
         filterByQuery(term, fromHistoryMenuItems(history)),
-        filterByQuery(term, fromMenuItems('header'))
+        filterByQuery(term, fromMenuItems('header')),
+        filterByQuery(term, anchorMenuItems())
     ]);
 };
 
@@ -234,22 +251,58 @@ module.exports = ComboBox.extend({
      * @param {Object} settings Name/value object with settings.
      */
     init: function (settings) {
-        var self = this, editor = window.tinymce.activeEditor, editorSettings = editor.settings;
+        var self = this, editor = tinymce.activeEditor, editorSettings = editor.settings;
+        var actionCallback, fileBrowserCallback, fileBrowserCallbackTypes;
         var fileType = settings.filetype;
 
-        debugger;
         settings.spellcheck = false;
-        settings.icon = 'browse';
-        settings.onaction = function () {
-            debugger;
-            editorSettings.file_browser_callback(
-                self.getEl('inp').id,
-                self.value(),
-                fileType,
-                window
-            );
-        };
+
+        fileBrowserCallbackTypes = editorSettings.file_picker_types || editorSettings.file_browser_callback_types;
+        if (fileBrowserCallbackTypes) {
+            fileBrowserCallbackTypes = Tools.makeMap(fileBrowserCallbackTypes, /[, ]/);
+        }
+
+        if (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[fileType]) {
+            fileBrowserCallback = editorSettings.file_picker_callback;
+            if (fileBrowserCallback && (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[fileType])) {
+                actionCallback = function () {
+                    var meta = self.fire('beforecall').meta;
+
+                    meta = Tools.extend({filetype: fileType}, meta);
+
+                    // file_picker_callback(callback, currentValue, metaData)
+                    fileBrowserCallback.call(
+                        editor,
+                        function (value, meta) {
+                            self.value(value).fire('change', {meta: meta});
+                        },
+                        self.value(),
+                        meta
+                    );
+                };
+            } else {
+                // Legacy callback: file_picker_callback(id, currentValue, filetype, window)
+                fileBrowserCallback = editorSettings.file_browser_callback;
+                if (fileBrowserCallback && (!fileBrowserCallbackTypes || fileBrowserCallbackTypes[fileType])) {
+                    actionCallback = function () {
+                        fileBrowserCallback(
+                            self.getEl('inp').id,
+                            self.value(),
+                            fileType,
+                            window
+                        );
+                    };
+                }
+            }
+        }
+
+        if (actionCallback) {
+            settings.icon = 'browse';
+            settings.onaction = actionCallback;
+        }
+
         self._super(settings);
+
         setupAutoCompleteHandler(self, editorSettings, editor.getBody(), fileType);
         setupLinkValidatorHandler(self, editorSettings, fileType);
     }
