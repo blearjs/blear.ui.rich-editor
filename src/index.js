@@ -131,7 +131,15 @@ pro[_initNode] = function () {
         uploadFileName: options.fileName,
         uploadFileLabel: options.fileLabel,
         toolbar: options.toolbar,
-        file_browser_callback: function (callback, value, meta, fileEl) {
+        font_formats: '默认=webdings;宋体=宋体,SimSun;' +
+        '微软雅黑=微软雅黑,Microsoft YaHei;' +
+        '楷体=楷体,楷体_GB2312,KaiTi_GB2312,SimKai;' +
+        '黑体=黑体,SimHei;' +
+        '隶书=隶书,SimLi;' +
+        'Arial=arial,helvetica,sans-serif;' +
+        'Times New Roman=Times New Roman',
+        fontsize_formats: '12px 14px 16px 18px 20px 30px',
+        file_picker_callback: function (callback, fileEl, meta) {
             fileEl.onchange = function (eve) {
                 eve = eve || window.event;
                 var imgs = parseEventFiles(eve, fileEl);

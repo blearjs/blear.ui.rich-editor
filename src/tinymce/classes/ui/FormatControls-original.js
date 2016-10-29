@@ -631,13 +631,13 @@ function registerControls(editor) {
             'Webdings=webdings;' +
             'Wingdings=wingdings,zapf dingbats';
 
-        var items = [], fonts = createFormats(editor.settings.font_formats);
+        var items = [], fonts = createFormats(editor.settings.font_formats || defaultFontsFormats);
 
-        each(fonts, function (font, index) {
+        each(fonts, function (font) {
             items.push({
                 text: {raw: font[0]},
                 value: font[1],
-                textStyle: !index ? '' : 'font-family:' + font[1]
+                textStyle: font[1].indexOf('dings') == -1 ? 'font-family:' + font[1] : ''
             });
         });
 
@@ -657,8 +657,8 @@ function registerControls(editor) {
     });
 
     editor.addButton('fontsizeselect', function () {
-        var items = [];
-        var fontsize_formats = editor.settings.fontsize_formats;
+        var items = [], defaultFontsizeFormats = '8pt 10pt 12pt 14pt 18pt 24pt 36pt';
+        var fontsize_formats = editor.settings.fontsize_formats || defaultFontsizeFormats;
 
         each(fontsize_formats.split(' '), function (item) {
             var text = item, value = item;

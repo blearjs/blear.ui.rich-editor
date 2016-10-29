@@ -237,16 +237,25 @@ module.exports = ComboBox.extend({
         var self = this, editor = window.tinymce.activeEditor, editorSettings = editor.settings;
         var fileType = settings.filetype;
 
-        debugger;
         settings.spellcheck = false;
         settings.icon = 'browse';
         settings.onaction = function () {
-            debugger;
-            editorSettings.file_browser_callback(
-                self.getEl('inp').id,
-                self.value(),
-                fileType,
-                window
+            var meta = self.fire('beforecall').meta;
+
+            meta = Tools.extend({filetype: settings.filetype}, meta);
+            editorSettings.file_picker_callback.call(
+                editor,
+                function (value, meta) {
+                    var root = self;
+
+                    while (root._parent) {
+                        root = root._parent;
+                    }
+
+                    root.settings.onUpload(meta);
+                },
+                self.getEl('inp'),
+                meta
             );
         };
         self._super(settings);

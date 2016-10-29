@@ -263,7 +263,7 @@ module.exports = Widget.extend({
         }
 
         icon = prefix + 'ico ' + prefix + 'i-' + (self.settings.icon || 'none');
-        iconHtml = (text !== '-' ? '<i class="' + icon + '"' + image + '></i>\u00a0' : '');
+        iconHtml = (text !== '-' ? '<i class="' + icon + '"' + image + '></i>' : '');
 
         text = boldMatches(self.encode(markMatches(text)));
         url = boldMatches(self.encode(markMatches(url)));
@@ -271,7 +271,7 @@ module.exports = Widget.extend({
         return (
             '<div id="' + id + '" class="' + self.classes + '" tabindex="-1">' +
             iconHtml +
-            (text !== '-' ? '<span id="' + id + '-text" class="' + prefix + 'text">' + text + '</span>' : '') +
+            (text !== '-' ? '<div id="' + id + '-text" class="' + prefix + 'text">' + text + '</div>' : '') +
             (shortcut ? '<div id="' + id + '-shortcut" class="' + prefix + 'menu-shortcut">' + shortcut + '</div>' : '') +
             (settings.menu ? '<div class="' + prefix + 'caret"></div>' : '') +
             (url ? '<div class="' + prefix + 'menu-item-link">' + url + '</div>' : '') +

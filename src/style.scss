@@ -6,10 +6,11 @@ body {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
 
 * {
-  max-width: 100%!important;
   box-sizing: border-box!important;
   -webkit-box-sizing: border-box!important;
   word-wrap: break-word!important;
@@ -31,15 +32,14 @@ td {
 pre {
   border: 1px solid #ccc;
   padding: 10px;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  margin: 1em;
 }
 
 p {
-  clear: both;
-  min-height: 1em;
   white-space: pre-wrap;
   margin-bottom: 1em;
 }
-
 
 ul, ol {
   margin-bottom: 1em;

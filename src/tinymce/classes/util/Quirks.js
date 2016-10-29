@@ -27,6 +27,8 @@ var Env = require("../Env");
 var Tools = require("./Tools");
 var Delay = require("./Delay");
 var CaretContainer = require("../caret/CaretContainer");
+var CaretPosition = require("../caret/CaretPosition");
+var CaretWalker = require("../caret/CaretWalker");
 
 
 module.exports = function (editor) {

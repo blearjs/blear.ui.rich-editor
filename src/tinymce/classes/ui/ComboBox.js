@@ -407,7 +407,11 @@ module.exports = Widget.extend({
 
         self.state.on('change:value', function (e) {
             if (self.getEl('inp').value != e.value) {
-                self.getEl('inp').value = e.value;
+                try {
+                    self.getEl('inp').value = e.value;
+                } catch (err) {
+                    // ignore
+                }
             }
         });
 

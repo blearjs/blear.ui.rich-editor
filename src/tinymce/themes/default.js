@@ -9,6 +9,7 @@ var Arr = require('../classes/util/Arr');
 var Tools = require('../classes/util/Tools');
 var Delay = require('../classes/util/Delay');
 var $ = require('../classes/dom/DomQuery');
+var DOM = require('../classes/dom/DOMUtils').DOM;
 
 Factory.add('button', require('../classes/ui/Button'));
 Factory.add('buttongroup', require('../classes/ui/ButtonGroup'));
@@ -23,13 +24,20 @@ Factory.add('resizehandle', require('../classes/ui/ResizeHandle'));
 Factory.add('label', require('../classes/ui/Label'));
 Factory.add('fitlayout', require('../classes/ui/FitLayout'));
 Factory.add('flexlayout', require('../classes/ui/FlexLayout'));
+Factory.add('absolutelayout', require('../classes/ui/AbsoluteLayout'));
+Factory.add('gridlayout', require('../classes/ui/GridLayout'));
 Factory.add('form', require('../classes/ui/Form'));
 Factory.add('filepicker', require('../classes/ui/FilePicker'));
 Factory.add('textbox', require('../classes/ui/TextBox'));
 Factory.add('checkbox', require('../classes/ui/Checkbox'));
+Factory.add('colorbox', require('../classes/ui/ColorBox'));
 Factory.add('container', require('../classes/ui/Container'));
 Factory.add('menu', require('../classes/ui/Menu'));
 Factory.add('menuitem', require('../classes/ui/MenuItem'));
+Factory.add('listbox', require('../classes/ui/ListBox'));
+Factory.add('menubutton', require('../classes/ui/MenuButton'));
+Factory.add('floatpanel', require('../classes/ui/FloatPanel'));
+Factory.add('tabpanel', require('../classes/ui/TabPanel'));
 require('../classes/ui/FormatControls');
 
 
@@ -57,7 +65,7 @@ require('../plugins/placeholder/index.js');
 
 ThemeManager.add('default', function (editor) {
     var self = this, settings = editor.settings,
-        each = Tools.each, DOM = tinymce.DOM;
+        each = Tools.each;
     var toolbarId = 'toolbar-' + Date.now();
 
     // Default menus
@@ -411,7 +419,7 @@ ThemeManager.add('default', function (editor) {
         function getElementRect(elm) {
             var pos, targetRect, root;
 
-            pos = tinymce.DOM.getPos(editor.getContentAreaContainer());
+            pos = DOM.getPos(editor.getContentAreaContainer());
             targetRect = editor.dom.getRect(elm);
             root = editor.dom.getRoot();
 
@@ -457,8 +465,8 @@ ThemeManager.add('default', function (editor) {
             panel.show();
 
             elementRect = getElementRect(match.element);
-            panelRect = tinymce.DOM.getRect(panel.getEl());
-            contentAreaRect = tinymce.DOM.getRect(editor.getContentAreaContainer() || editor.getBody());
+            panelRect = DOM.getRect(panel.getEl());
+            contentAreaRect = DOM.getRect(editor.getContentAreaContainer() || editor.getBody());
 
             // We need to use these instead of the rect values since the style
             // size properites might not be the same as the real size for a table
@@ -526,10 +534,10 @@ ThemeManager.add('default', function (editor) {
         function bindScrollEvent() {
             if (!scrollContainer) {
                 scrollContainer = editor.selection.getScrollContainer() || editor.getWin();
-                tinymce.$(scrollContainer).on('scroll', repositionHandler);
+                $(scrollContainer).on('scroll', repositionHandler);
 
                 editor.on('remove', function () {
-                    tinymce.$(scrollContainer).off('scroll');
+                    $(scrollContainer).off('scroll');
                 });
             }
         }
@@ -734,7 +742,7 @@ ThemeManager.add('default', function (editor) {
         editor.on('focus', function () {
             // Render only when the CSS file has been loaded
             if (args.skinUiCss) {
-                tinymce.DOM.styleSheetLoader.load(args.skinUiCss, render, render);
+                DOM.styleSheetLoader.load(args.skinUiCss, render, render);
             } else {
                 render();
             }
@@ -752,7 +760,7 @@ ThemeManager.add('default', function (editor) {
 
         // Preload skin css
         if (args.skinUiCss) {
-            tinymce.DOM.styleSheetLoader.load(args.skinUiCss);
+            DOM.styleSheetLoader.load(args.skinUiCss);
         }
 
         return {};
@@ -846,7 +854,7 @@ ThemeManager.add('default', function (editor) {
         panel.renderBefore(args.targetNode).reflow();
 
         if (settings.width) {
-            tinymce.DOM.setStyle(panel.getEl(), 'width', settings.width);
+            DOM.setStyle(panel.getEl(), 'width', settings.width);
         }
 
         // Remove the panel when the editor is removed
