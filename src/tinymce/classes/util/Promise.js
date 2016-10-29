@@ -13,13 +13,14 @@
 /* eslint-disable */
 /* jshint ignore:start */
 
+var Promise = window.Promise;
+
 /**
  * Modifed to be a feature fill and wrapped as tinymce module.
  */
-if (!window.Promise) {
+if (!Promise) {
     // Use polyfill for setImmediate for performance gains
-    var asap = Promise.immediateFn || (typeof setImmediate === 'function' && setImmediate) ||
-        function (fn) {
+    var asap = function (fn) {
             setTimeout(fn, 1);
         };
 
@@ -34,7 +35,7 @@ if (!window.Promise) {
             return Object.prototype.toString.call(value) === "[object Array]";
         };
 
-    function Promise(fn) {
+    Promise = function (fn) {
         if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new');
         if (typeof fn !== 'function') throw new TypeError('not a function');
         this._state = null;
@@ -42,7 +43,7 @@ if (!window.Promise) {
         this._deferreds = [];
 
         doResolve(fn, bind(resolve, this), bind(reject, this));
-    }
+    };
 
     function handle(deferred) {
         var me = this;
@@ -201,7 +202,7 @@ if (!window.Promise) {
 }
 
 
-module.exoports = Promise;
+module.exports = Promise;
 
 /* jshint ignore:end */
 /* eslint-enable */

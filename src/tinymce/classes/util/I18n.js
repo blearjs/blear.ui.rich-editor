@@ -17,6 +17,8 @@
 
 "use strict";
 
+var Tools = require('./Tools');
+
 var data = {}, code = "en";
 
 module.exports = {

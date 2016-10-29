@@ -29,6 +29,9 @@ var BookmarkManager = require("./dom/BookmarkManager");
 var ElementUtils = require("./dom/ElementUtils");
 var Tools = require("./util/Tools");
 var Preview = require("./fmt/Preview");
+var Hooks = require("./fmt/Hooks");
+
+
 /**
  * Constructs a new formatter instance.
  *

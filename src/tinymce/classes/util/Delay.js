@@ -114,7 +114,7 @@ module.exports = {
      * @method setEditorTimeout
      * @param {tinymce.Editor} editor Editor instance to check the removed state on.
      * @param {function} callback Callback to execute when timer runs out.
-     * @param {Number} time Optional time to wait before the callback is executed, defaults to 0.
+     * @param {Number} [time] Optional time to wait before the callback is executed, defaults to 0.
      * @return {Number} Timeout id number.
      */
     setEditorTimeout: function (editor, callback, time) {

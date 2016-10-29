@@ -30,7 +30,6 @@ var I18n = require("./util/I18n");
 var FocusManager = require("./FocusManager");
 var AddOnManager = require('./AddOnManager');
 
-
 var DOM = DOMUtils.DOM;
 var explode = Tools.explode, each = Tools.each, extend = Tools.extend;
 var instanceCounter = 0, beforeUnloadDelegate, EditorManager, boundGlobalEvents = false;
@@ -292,7 +291,24 @@ EditorManager = {
 		 * });
      */
     init: function (settings) {
-        var self = this;
+        var self = this, result, invalidInlineTargets;
+
+        invalidInlineTargets = Tools.makeMap(
+            'area base basefont br col frame hr img input isindex link meta param embed source wbr track ' +
+            'colgroup option tbody tfoot thead tr script noscript style textarea video audio iframe object menu',
+            ' '
+        );
+
+        function isInvalidInlineTarget(settings, elm) {
+            return settings.inline && elm.tagName.toLowerCase() in invalidInlineTargets;
+        }
+
+        function report(msg, elm) {
+            // Log in a non test environment
+            if (window.console && !window.test) {
+                window.console.log(msg, elm);
+            }
+        }
 
         function createId(elm) {
             var id = elm.id;
@@ -314,20 +330,150 @@ EditorManager = {
             return id;
         }
 
-        function createEditor(id, settings, targetElm) {
-            var editor = purgeDestroyedEditor(self.get(id));
+        function execCallback(name) {
+            var callback = settings[name];
 
-            if (!editor) {
-                editor = new Editor(id, settings, self);
+            if (!callback) {
+                return;
+            }
+
+            return callback.apply(self, Array.prototype.slice.call(arguments, 2));
+        }
+
+        function hasClass(elm, className) {
+            return className.constructor === RegExp ? className.test(elm.className) : DOM.hasClass(elm, className);
+        }
+
+        function findTargets(settings) {
+            var l, targets = [];
+
+            if (settings.types) {
+                each(settings.types, function (type) {
+                    targets = targets.concat(DOM.select(type.selector));
+                });
+
+                return targets;
+            } else if (settings.selector) {
+                return DOM.select(settings.selector);
+            } else if (settings.target) {
+                return [settings.target];
+            }
+
+            // Fallback to old setting
+            switch (settings.mode) {
+                case "exact":
+                    l = settings.elements || '';
+
+                    if (l.length > 0) {
+                        each(explode(l), function (id) {
+                            var elm;
+
+                            if ((elm = DOM.get(id))) {
+                                targets.push(elm);
+                            } else {
+                                each(document.forms, function (f) {
+                                    each(f.elements, function (e) {
+                                        if (e.name === id) {
+                                            id = 'mce_editor_' + instanceCounter++;
+                                            DOM.setAttrib(e, 'id', id);
+                                            targets.push(e);
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    }
+                    break;
+
+                case "textareas":
+                case "specific_textareas":
+                    each(DOM.select('textarea'), function (elm) {
+                        if (settings.editor_deselector && hasClass(elm, settings.editor_deselector)) {
+                            return;
+                        }
+
+                        if (!settings.editor_selector || hasClass(elm, settings.editor_selector)) {
+                            targets.push(elm);
+                        }
+                    });
+                    break;
+            }
+
+            return targets;
+        }
+
+        var provideResults = function (editors) {
+            result = editors;
+        };
+
+        function initEditors() {
+            var initCount = 0, editors = [], targets;
+
+            function createEditor(id, settings, targetElm) {
+                var editor = new Editor(id, settings, self);
+
+                editors.push(editor);
+
+                editor.on('init', function () {
+                    if (++initCount === targets.length) {
+                        provideResults(editors);
+                    }
+                });
+
                 editor.targetElm = editor.targetElm || targetElm;
                 editor.render();
             }
 
-            return editor;
+            DOM.unbind(window, 'ready', initEditors);
+            execCallback('onpageload');
+
+            targets = $.unique(findTargets(settings));
+
+            // TODO: Deprecate this one
+            if (settings.types) {
+                each(settings.types, function (type) {
+                    Tools.each(targets, function (elm) {
+                        if (DOM.is(elm, type.selector)) {
+                            createEditor(createId(elm), extend({}, settings, type), elm);
+                            return false;
+                        }
+
+                        return true;
+                    });
+                });
+
+                return;
+            }
+
+            Tools.each(targets, function (elm) {
+                purgeDestroyedEditor(self.get(elm.id));
+            });
+
+            targets = Tools.grep(targets, function (elm) {
+                return !self.get(elm.id);
+            });
+
+            each(targets, function (elm) {
+                if (isInvalidInlineTarget(settings, elm)) {
+                    report('Could not initialize inline editor on invalid inline target element', elm);
+                } else {
+                    createEditor(createId(elm), settings, elm);
+                }
+            });
         }
 
-        var elm = settings.ele;
-        return createEditor(createId(elm), settings, elm);
+        self.settings = settings;
+        DOM.bind(window, 'ready', initEditors);
+
+        return new Promise(function (resolve) {
+            if (result) {
+                resolve(result);
+            } else {
+                provideResults = function (editors) {
+                    resolve(editors);
+                };
+            }
+        });
     },
 
     /**

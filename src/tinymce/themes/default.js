@@ -2,6 +2,35 @@
 
 var tinymce = window.tinymce;
 var ThemeManager = require("../classes/AddOnManager").ThemeManager;
+var Factory = require('../classes/ui/Factory');
+var FloatPanel = require('../classes/ui/FloatPanel');
+var Rect = require('../classes/geom/Rect');
+var Arr = require('../classes/util/Arr');
+var Tools = require('../classes/util/Tools');
+var Delay = require('../classes/util/Delay');
+var $ = require('../classes/dom/DomQuery');
+
+Factory.add('button', require('../classes/ui/Button'));
+Factory.add('buttongroup', require('../classes/ui/ButtonGroup'));
+Factory.add('panel', require('../classes/ui/Panel'));
+Factory.add('colorbutton', require('../classes/ui/ColorButton'));
+Factory.add('toolbar', require('../classes/ui/Toolbar'));
+Factory.add('layout', require('../classes/ui/Layout'));
+Factory.add('stacklayout', require('../classes/ui/StackLayout'));
+Factory.add('flowlayout', require('../classes/ui/FlowLayout'));
+Factory.add('elementpath', require('../classes/ui/ElementPath'));
+Factory.add('resizehandle', require('../classes/ui/ResizeHandle'));
+Factory.add('label', require('../classes/ui/Label'));
+Factory.add('fitlayout', require('../classes/ui/FitLayout'));
+Factory.add('flexlayout', require('../classes/ui/FlexLayout'));
+Factory.add('form', require('../classes/ui/Form'));
+Factory.add('filepicker', require('../classes/ui/FilePicker'));
+Factory.add('textbox', require('../classes/ui/TextBox'));
+Factory.add('checkbox', require('../classes/ui/Checkbox'));
+Factory.add('container', require('../classes/ui/Container'));
+Factory.add('menu', require('../classes/ui/Menu'));
+require('../classes/ui/FormatControls');
+
 
 require('../plugins/link/index.js');
 require('../plugins/image/index.js');
@@ -26,8 +55,8 @@ require('../plugins/placeholder/index.js');
  */
 
 ThemeManager.add('default', function (editor) {
-    var self = this, settings = editor.settings, Factory = tinymce.ui.Factory,
-        each = tinymce.each, DOM = tinymce.DOM, Rect = tinymce.geom.Rect, FloatPanel = tinymce.ui.FloatPanel;
+    var self = this, settings = editor.settings,
+        each = Tools.each, DOM = tinymce.DOM;
     var toolbarId = 'toolbar-' + Date.now();
 
     // Default menus
@@ -163,9 +192,9 @@ ThemeManager.add('default', function (editor) {
 
         var toolbar = settings.toolbar || defaultToolbar;
 
-        toolbar = tinymce.isArray(toolbar) ? toolbar : [toolbar];
+        toolbar = Arr.isArray(toolbar) ? toolbar : [toolbar];
 
-        tinymce.each(toolbar, function (toolbar, i) {
+        each(toolbar, function (toolbar, i) {
             settings["toolbar" + (i + 1)] = toolbar;
         });
 
@@ -490,7 +519,7 @@ ThemeManager.add('default', function (editor) {
                 }
             }
 
-            tinymce.util.Delay.requestAnimationFrame(execute);
+            Delay.requestAnimationFrame(execute);
         }
 
         function bindScrollEvent() {
@@ -535,7 +564,7 @@ ThemeManager.add('default', function (editor) {
         }
 
         function hideAllContextToolbars() {
-            tinymce.each(getContextToolbars(), function (toolbar) {
+            each(getContextToolbars(), function (toolbar) {
                 if (toolbar.panel) {
                     toolbar.panel.hide();
                 }
@@ -567,7 +596,7 @@ ThemeManager.add('default', function (editor) {
             }
 
             // Needs to be delayed to avoid Chrome img focus out bug
-            tinymce.util.Delay.setEditorTimeout(editor, function () {
+            Delay.setEditorTimeout(editor, function () {
                 var match;
 
                 match = findFrontMostMatch(editor.selection.getNode());
@@ -886,6 +915,6 @@ ThemeManager.add('default', function (editor) {
     self.resizeTo = resizeTo;
     self.resizeBy = resizeBy;
     self.getToolbar = function () {
-        return self.toolbarEle || (self.toolbarEle = DOM.$('#' + toolbarId)[0]);
+        return self.toolbarEle || (self.toolbarEle = $('#' + toolbarId)[0]);
     };
 });

@@ -56,14 +56,6 @@ var RichEditor = UI.extend({
             callback.call(the);
         } else {
             the[_callbacks].push(callback);
-            fun.until(function () {
-                array.each(the[_callbacks], function (_, callback) {
-                    callback.call(the);
-                });
-                the[_callbacks] = [];
-            }, function () {
-                return !!the[_richEditor].getDoc();
-            });
         }
 
         return the;
@@ -161,6 +153,16 @@ pro[_initNode] = function () {
                 });
             };
         }
+    });
+
+    fun.until(function () {
+        the[_readied] = true;
+        array.each(the[_callbacks], function (_, callback) {
+            callback.call(the);
+        });
+        the[_callbacks] = [];
+    }, function () {
+        return !!the[_richEditor].getDoc();
     });
 };
 

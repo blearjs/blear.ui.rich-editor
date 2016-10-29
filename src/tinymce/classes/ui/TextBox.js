@@ -17,7 +17,12 @@
  */
 
 "use strict";
+
+
 var Widget = require("./Widget");
+var Tools = require('../util/Tools');
+var DomUtils = require('./DomUtils');
+
 
 module.exports = Widget.extend({
     /**

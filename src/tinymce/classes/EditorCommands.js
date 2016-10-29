@@ -15,12 +15,13 @@
  * @class tinymce.EditorCommands
  */
 
-    var Serializer = require("./html/Serializer");
-    var Env = require("./Env");
-    var Tools = require("./util/Tools");
-    var ElementUtils = require("./dom/ElementUtils");
-    var RangeUtils = require("./dom/RangeUtils");
-    var TreeWalker = require("./dom/TreeWalker");
+var Serializer = require("./html/Serializer");
+var Env = require("./Env");
+var Tools = require("./util/Tools");
+var ElementUtils = require("./dom/ElementUtils");
+var RangeUtils = require("./dom/RangeUtils");
+var TreeWalker = require("./dom/TreeWalker");
+var InsertContent = require('./InsertContent');
 
 
 // Added for compression purposes

@@ -1,5 +1,7 @@
 var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
+var DOM = require('../../classes/dom/DOMUtils').DOM;
+var Arr = require('../../classes/util/Arr');
 
 /**
  * plugin.js
@@ -157,14 +159,14 @@ PluginManager.add('textcolor', function (editor) {
             div.setAttribute('data-mce-color', value);
         }
 
-        if (tinymce.DOM.getParent(e.target, '.mce-custom-color-btn')) {
+        if (DOM.getParent(e.target, '.mce-custom-color-btn')) {
             buttonCtrl.hidePanel();
 
             editor.settings.color_picker_callback.call(editor, function (value) {
                 var tableElm = buttonCtrl.panel.getEl().getElementsByTagName('table')[0];
                 var customColorCells, div, i;
 
-                customColorCells = tinymce.map(tableElm.rows[tableElm.rows.length - 1].childNodes, function (elm) {
+                customColorCells = Arr.map(tableElm.rows[tableElm.rows.length - 1].childNodes, function (elm) {
                     return elm.firstChild;
                 });
 

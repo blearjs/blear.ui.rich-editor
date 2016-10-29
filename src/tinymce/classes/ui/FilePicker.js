@@ -19,9 +19,15 @@
 
 "use strict";
 
+var selector = require('blear.core.selector');
+
 var ComboBox = require("./ComboBox");
 var Tools = require("../util/Tools");
-var selector = require('blear.core.selector');
+var Arr = require("../util/Arr");
+var Fun = require("../util/Fun");
+var VK = require("../util/VK");
+var LinkTargets = require('../content/LinkTargets');
+
 var history = {};
 var HISTORY_LENGTH = 5;
 

@@ -19,7 +19,6 @@
 
 var DOMUtils = require('./dom/DOMUtils');
 var EventUtils = require('./dom/EventUtils');
-var ScriptLoader = require('./dom/ScriptLoader');
 var AddOnManager = require('./AddOnManager');
 var Tools = require('./util/Tools');
 var Env = require('./Env');
@@ -32,7 +31,6 @@ var tinymce = window.tinymce;
  * @property {tinymce.AddOnManager} ThemeManager Global ThemeManager instance.
  */
 tinymce.DOM = DOMUtils.DOM;
-tinymce.ScriptLoader = ScriptLoader.ScriptLoader;
 tinymce.PluginManager = AddOnManager.PluginManager;
 tinymce.ThemeManager = AddOnManager.ThemeManager;
 

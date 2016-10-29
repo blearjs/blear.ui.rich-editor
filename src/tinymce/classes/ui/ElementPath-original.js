@@ -25,7 +25,7 @@ module.exports = Path.extend({
      * @return {tinymce.ui.ElementPath} Current combobox instance.
      */
     postRender: function () {
-        var self = this, editor = window.tinyMCE.activeEditor;
+        var self = this, editor = self.settings.editor;
 
         function isHidden(elm) {
             if (elm.nodeType === 1) {

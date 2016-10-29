@@ -2,6 +2,7 @@
 
 var tinymce = window.tinymce;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
+var DOM = require('../../classes/dom/DOMUtils').DOM;
 
 /**
  * plugin.js
@@ -38,7 +39,7 @@ PluginManager.add('auto-resize', function (editor) {
      * This method gets executed each time the editor needs to resize.
      */
     function resize(e) {
-        var deltaSize, doc, body, docElm, DOM = tinymce.DOM, resizeHeight, myHeight,
+        var deltaSize, doc, body, docElm, resizeHeight, myHeight,
             marginTop, marginBottom, paddingTop, paddingBottom, borderTop, borderBottom;
 
         doc = editor.getDoc();

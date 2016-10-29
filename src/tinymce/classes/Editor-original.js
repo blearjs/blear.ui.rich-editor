@@ -55,6 +55,7 @@ var EnterKey = require("./EnterKey");
 var ForceBlocks = require("./ForceBlocks");
 var EditorCommands = require("./EditorCommands");
 var URI = require("./util/URI");
+var ScriptLoader = require("./dom/ScriptLoader");
 var EventUtils = require("./dom/EventUtils");
 var WindowManager = require("./WindowManager");
 var NotificationManager = require("./NotificationManager");
@@ -69,6 +70,8 @@ var Mode = require("./Mode");
 var Shortcuts = require("./Shortcuts");
 var EditorUpload = require("./EditorUpload");
 var SelectionOverrides = require("./SelectionOverrides");
+
+
 // Shorten these names
 var DOM = DOMUtils.DOM, ThemeManager = AddOnManager.ThemeManager, PluginManager = AddOnManager.PluginManager;
 var extend = Tools.extend, each = Tools.each, explode = Tools.explode;
@@ -92,10 +95,11 @@ var isGecko = Env.gecko, ie = Env.ie;
  * @param {tinymce.EditorManager} editorManager EditorManager instance.
  */
 function Editor(id, settings, editorManager) {
-    var self = this, documentBaseUrl, baseUri;
+    var self = this, documentBaseUrl, baseUri, defaultSettings;
 
     documentBaseUrl = self.documentBaseUrl = editorManager.documentBaseURL;
     baseUri = editorManager.baseURI;
+    defaultSettings = editorManager.defaultSettings;
 
     /**
      * Name/value collection with editor settings.
@@ -106,9 +110,9 @@ function Editor(id, settings, editorManager) {
      * // Get the value of the theme setting
      * tinymce.activeEditor.windowManager.alert("You are using the " + tinymce.activeEditor.settings.theme + " theme");
      */
-    self.settings = settings = extend({
+    settings = extend({
         id: id,
-        theme: 'default',
+        theme: 'modern',
         delta_width: 0,
         delta_height: 0,
         popup_css: '',
@@ -123,8 +127,6 @@ function Editor(id, settings, editorManager) {
         object_resizing: true,
         doctype: '<!DOCTYPE html>',
         visual: true,
-        content_css: false,
-        content_style: false,
         font_size_style_values: 'xx-small,x-small,small,medium,large,x-large,xx-large',
 
         // See: http://www.w3.org/TR/CSS2/fonts.html#propdef-font-size
@@ -145,16 +147,17 @@ function Editor(id, settings, editorManager) {
         entity_encoding: 'named',
         url_converter: self.convertURL,
         url_converter_scope: self,
-        /*** 2016年02月01日17:21:58 ***/
-        ie7_compat: false,
-        content_editable: false
-    }, settings);
-    self.menuItems = {};
-    self.buttons = {};
+        ie7_compat: true
+    }, defaultSettings, settings);
 
-    AddOnManager.language = settings.language || 'zh_CN';
+    // Merge external_plugins
+    if (defaultSettings && defaultSettings.external_plugins && settings.external_plugins) {
+        settings.external_plugins = extend({}, defaultSettings.external_plugins, settings.external_plugins);
+    }
+
+    self.settings = settings;
+    AddOnManager.language = settings.language || 'en';
     AddOnManager.languageLoad = settings.language_load;
-
     AddOnManager.baseURL = editorManager.baseURL;
 
     /**
@@ -235,14 +238,10 @@ function Editor(id, settings, editorManager) {
     self.shortcuts = new Shortcuts(self);
     self.loadedCSS = {};
     self.editorCommands = new EditorCommands(self);
-
-    if (settings.target) {
-        self.targetElm = settings.target;
-    }
-
     self.suffix = editorManager.suffix;
     self.editorManager = editorManager;
     self.inline = settings.inline;
+    self.settings.content_editable = self.inline;
 
     if (settings.cache_suffix) {
         Env.cacheSuffix = settings.cache_suffix.replace(/^[\?\&]+/, '');
@@ -343,10 +342,6 @@ Editor.prototype = {
                     return form._mceOldSubmit(form);
                 };
             }
-
-            DOM.bind(self.getBody(), 'cut paste', function () {
-                self.fire('change');
-            });
         }
 
         /**
@@ -407,79 +402,78 @@ Editor.prototype = {
             self.editorManager.on('BeforeUnload', self._beforeUnload);
         }
 
-        //// Load scripts
-        //function loadScripts() {
-        //    var scriptLoader = ScriptLoader.ScriptLoader;
-        ////
-        ////    if (settings.language && settings.language != 'en' && !settings.language_url) {
-        ////        settings.language_url = self.editorManager.baseURL + '/langs/' + settings.language + '.js';
-        ////    }
-        ////
-        ////    if (settings.language_url) {
-        ////        scriptLoader.add(settings.language_url);
-        ////    }
-        ////
-        ////    if (settings.theme && typeof settings.theme != "function" &&
-        ////        settings.theme.charAt(0) != '-' && !ThemeManager.urls[settings.theme]) {
-        ////        //var themeUrl = settings.theme_url;
-        ////        //
-        ////        //if (themeUrl) {
-        ////        //    themeUrl = self.documentBaseURI.toAbsolute(themeUrl);
-        ////        //} else {
-        ////        //    themeUrl = 'themes/' + settings.theme + '/theme' + suffix + '.js';
-        ////        //}
-        ////
-        ////        ThemeManager.load(settings.theme, '/static/js/tinymce-cmd/themes/' + settings.theme + '/theme.js');
-        ////    }
-        ////
-        ////    if (Tools.isArray(settings.plugins)) {
-        ////        settings.plugins = settings.plugins.join(' ');
-        ////    }
-        ////
-        ////    each(settings.external_plugins, function (url, name) {
-        ////        PluginManager.load(name, url);
-        ////        settings.plugins += ' ' + name;
-        ////    });
-        ////
-        //    settings.plugins = 'link';
-        //    each(settings.plugins.split(/[ ,]/), function (plugin) {
-        //        plugin = trim(plugin);
-        //
-        //        if (plugin && !PluginManager.urls[plugin]) {
-        //            if (plugin.charAt(0) == '-') {
-        //                plugin = plugin.substr(1, plugin.length);
-        //
-        //                var dependencies = PluginManager.dependencies(plugin);
-        //
-        //                each(dependencies, function (dep) {
-        //                    var defaultSettings = {
-        //                        prefix: 'plugins/',
-        //                        resource: dep,
-        //                        suffix: '/plugin' + suffix + '.js'
-        //                    };
-        //
-        //                    dep = PluginManager.createUrl(defaultSettings, dep);
-        //                    PluginManager.load(dep.resource, dep);
-        //                });
-        //            } else {
-        //                PluginManager.load(plugin, {
-        //                    prefix: '/static/js/tinymce-cmd/plugins/',
-        //                    resource: plugin,
-        //                    suffix: '/plugin' + suffix + '-2.js'
-        //                });
-        //            }
-        //        }
-        //    });
-        //
-        //    scriptLoader.loadQueue(function () {
-        //        if (!self.removed) {
-        //            self.init();
-        //        }
-        //    });
-        //}
+        // Load scripts
+        function loadScripts() {
+            var scriptLoader = ScriptLoader.ScriptLoader;
 
-        //loadScripts();
-        self.init();
+            if (settings.language && settings.language != 'en' && !settings.language_url) {
+                settings.language_url = self.editorManager.baseURL + '/langs/' + settings.language + '.js';
+            }
+
+            if (settings.language_url) {
+                scriptLoader.add(settings.language_url);
+            }
+
+            if (settings.theme && typeof settings.theme != "function" &&
+                settings.theme.charAt(0) != '-' && !ThemeManager.urls[settings.theme]) {
+                var themeUrl = settings.theme_url;
+
+                if (themeUrl) {
+                    themeUrl = self.documentBaseURI.toAbsolute(themeUrl);
+                } else {
+                    themeUrl = 'themes/' + settings.theme + '/theme' + suffix + '.js';
+                }
+
+                ThemeManager.load(settings.theme, themeUrl);
+            }
+
+            if (Tools.isArray(settings.plugins)) {
+                settings.plugins = settings.plugins.join(' ');
+            }
+
+            each(settings.external_plugins, function (url, name) {
+                PluginManager.load(name, url);
+                settings.plugins += ' ' + name;
+            });
+
+            each(settings.plugins.split(/[ ,]/), function (plugin) {
+                plugin = trim(plugin);
+
+                if (plugin && !PluginManager.urls[plugin]) {
+                    if (plugin.charAt(0) == '-') {
+                        plugin = plugin.substr(1, plugin.length);
+
+                        var dependencies = PluginManager.dependencies(plugin);
+
+                        each(dependencies, function (dep) {
+                            var defaultSettings = {
+                                prefix: 'plugins/',
+                                resource: dep,
+                                suffix: '/plugin' + suffix + '.js'
+                            };
+
+                            dep = PluginManager.createUrl(defaultSettings, dep);
+                            PluginManager.load(dep.resource, dep);
+                        });
+                    } else {
+                        PluginManager.load(plugin, {
+                            prefix: 'plugins/',
+                            resource: plugin,
+                            suffix: '/plugin' + suffix + '.js'
+                        });
+                    }
+                }
+            });
+
+            scriptLoader.loadQueue(function () {
+                if (!self.removed) {
+                    self.init();
+                }
+            });
+        }
+
+        self.editorManager.add(self);
+        loadScripts();
     },
 
     /**
@@ -493,11 +487,11 @@ Editor.prototype = {
         var self = this, settings = self.settings, elm = self.getElement();
         var w, h, minHeight, n, o, Theme, url, bodyId, bodyClass, re, i, initializedPlugins = [];
 
-        this.editorManager.i18n.setCode(settings.language);
-        self.rtl = settings.rtl_ui || this.editorManager.i18n.rtl;
-        self.editorManager.add(self);
-
+        self.rtl = settings.rtl_ui || self.editorManager.i18n.rtl;
+        self.editorManager.i18n.setCode(settings.language);
         settings.aria_label = settings.aria_label || DOM.getAttrib(elm, 'aria-label', self.getLang('aria.rich_text_area'));
+
+        self.fire('ScriptsLoaded');
 
         /**
          * Reference to the theme instance that was used to generate the UI.
@@ -522,7 +516,7 @@ Editor.prototype = {
             }
         }
 
-        function initPlugin(obj, plugin) {
+        function initPlugin(plugin) {
             var Plugin = PluginManager.get(plugin), pluginUrl, pluginInstance;
 
             pluginUrl = PluginManager.urls[plugin] || self.documentBaseUrl.replace(/\/$/, '');
@@ -548,7 +542,7 @@ Editor.prototype = {
         }
 
         // Create all plugins
-        each(PluginManager.lookup, initPlugin);
+        each(settings.plugins.replace(/\-/g, '').split(/[ ,]/), initPlugin);
 
         // Measure box
         if (settings.render_ui && self.theme) {
@@ -638,14 +632,17 @@ Editor.prototype = {
         self.iframeHTML += '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
 
         // Load the CSS by injecting them into the HTML this will reduce "flicker"
-        for (i = 0; i < self.contentCSS.length; i++) {
-            var cssUrl = self.contentCSS[i];
-            self.iframeHTML += (
-                '<link type="text/css" ' +
-                'rel="stylesheet" ' +
-                'href="' + Tools._addCacheSuffix(cssUrl) + '" />'
-            );
-            self.loadedCSS[cssUrl] = true;
+        // However we can't do that on Chrome since # will scroll to the editor for some odd reason see #2427
+        if (!/#$/.test(document.location.href)) {
+            for (i = 0; i < self.contentCSS.length; i++) {
+                var cssUrl = self.contentCSS[i];
+                self.iframeHTML += (
+                    '<link type="text/css" ' +
+                    'rel="stylesheet" ' +
+                    'href="' + Tools._addCacheSuffix(cssUrl) + '" />'
+                );
+                self.loadedCSS[cssUrl] = true;
+            }
         }
 
         bodyId = settings.body_id || 'tinymce';
@@ -795,6 +792,7 @@ Editor.prototype = {
 
         body.disabled = false;
 
+        self.editorUpload = new EditorUpload(self);
 
         /**
          * Schema instance, enables you to validate elements and its children.
@@ -803,9 +801,6 @@ Editor.prototype = {
          * @type tinymce.html.Schema
          */
         self.schema = new Schema(settings);
-
-        self.editorUpload = new EditorUpload(self);
-
 
         /**
          * DOM instance for the editor.
@@ -969,9 +964,8 @@ Editor.prototype = {
             DOM.setAttrib(body, "spellcheck", "false");
         }
 
-        self.fire('PostRender');
-
         self.quirks = new Quirks(self);
+        self.fire('PostRender');
 
         if (settings.directionality) {
             body.dir = settings.directionality;
@@ -1022,6 +1016,10 @@ Editor.prototype = {
         self.focus(true);
         self.nodeChanged({initial: true});
         self.execCallback('init_instance_callback', self);
+
+        self.on('compositionstart compositionend', function (e) {
+            self.composing = e.type === 'compositionstart';
+        });
 
         // Add editor specific CSS styles
         if (self.contentStyles.length > 0) {
@@ -1087,7 +1085,7 @@ Editor.prototype = {
                 controlElm = rng.item(0);
             }
 
-            self._refreshContentEditable();
+            self.quirks.refreshContentEditable();
 
             // Move focus to contentEditable=true child if needed
             contentEditableHost = getContentEditableHost(selection.getNode());
@@ -1175,7 +1173,7 @@ Editor.prototype = {
 
     /**
      * Translates the specified string by replacing variables with language pack items it will also check if there is
-     * a key mathcin the input.
+     * a key matching the input.
      *
      * @method translate
      * @param {String} text String to translate by the language pack data.
@@ -1188,9 +1186,11 @@ Editor.prototype = {
             return '';
         }
 
-        return i18n.data[lang + '.' + text] || text.replace(/\{\#([^\}]+)\}/g, function (a, b) {
+        text = i18n.data[lang + '.' + text] || text.replace(/\{\#([^\}]+)\}/g, function (a, b) {
                 return i18n.data[lang + '.' + b] || '{#' + b + '}';
             });
+
+        return this.editorManager.translate(text);
     },
 
     /**
@@ -1198,7 +1198,7 @@ Editor.prototype = {
      *
      * @method getLang
      * @param {String} name Name/key to get from the language pack.
-     * @param {String} defaultVal Optional default value to retrive.
+     * @param {String} defaultVal Optional default value to retrieve.
      */
     getLang: function (name, defaultVal) {
         return (
@@ -1211,9 +1211,9 @@ Editor.prototype = {
      * Returns a configuration parameter by name.
      *
      * @method getParam
-     * @param {String} name Configruation parameter to retrive.
-     * @param {*} defaultVal Optional default value to return.
-     * @param {String} [type] Optional type parameter.
+     * @param {String} name Configruation parameter to retrieve.
+     * @param {String} defaultVal Optional default value to return.
+     * @param {String} type Optional type parameter.
      * @return {String} Configuration parameter value or default value.
      * @example
      * // Returns a specific config value from the currently active editor
@@ -1296,6 +1296,7 @@ Editor.prototype = {
             settings.icon = name;
         }
 
+        self.buttons = self.buttons || {};
         settings.tooltip = settings.tooltip || settings.title;
         self.buttons[name] = settings;
     },
@@ -1334,6 +1335,7 @@ Editor.prototype = {
             };
         }
 
+        self.menuItems = self.menuItems || {};
         self.menuItems[name] = settings;
     },
 
@@ -1358,6 +1360,7 @@ Editor.prototype = {
         }
 
         self.contextToolbars.push({
+            id: Uuid.uuid('mcet'),
             predicate: predicate,
             items: items
         });
@@ -1603,7 +1606,6 @@ Editor.prototype = {
             args.load = true;
 
             html = self.setContent(elm.value !== undefined ? elm.value : elm.innerHTML, args);
-            self.setDirty(true);
             args.element = elm;
 
             if (!args.no_events) {
@@ -1622,8 +1624,8 @@ Editor.prototype = {
      * so all events etc that method has will get dispatched as well.
      *
      * @method save
-     * @param {Object} [args] Optional content object, this gets passed around through the whole save process.
-     * @return {String|undefined} HTML string that got set into the textarea/div.
+     * @param {Object} args Optional content object, this gets passed around through the whole save process.
+     * @return {String} HTML string that got set into the textarea/div.
      */
     save: function (args) {
         var self = this, elm = self.getElement(), html, form;
@@ -1703,7 +1705,7 @@ Editor.prototype = {
 
         // Setup args object
         args = args || {};
-        args.format = args.format || 'raw';
+        args.format = args.format || 'html';
         args.set = true;
         args.content = content;
 
@@ -1789,18 +1791,11 @@ Editor.prototype = {
      * tinymce.get('content id').getContent()
      */
     getContent: function (args) {
-        var self = this;
-
-        if (!self.isDirty()) {
-            return '';
-        }
-
-        var content;
-        var body = self.getBody();
+        var self = this, content, body = self.getBody();
 
         // Setup args object
         args = args || {};
-        args.format = args.format || 'raw';
+        args.format = args.format || 'html';
         args.get = true;
         args.getInner = true;
 
@@ -1991,7 +1986,8 @@ Editor.prototype = {
      * @return {Element} The root element of the editable area.
      */
     getBody: function () {
-        return this.bodyElement || this.getDoc().body;
+        var doc = this.getDoc();
+        return this.bodyElement || (doc ? doc.body : null);
     },
 
     /**
@@ -2002,7 +1998,7 @@ Editor.prototype = {
      * @method convertURL
      * @param {string} url URL to convert.
      * @param {string} name Attribute name src, href etc.
-     * @param {string/HTMLElement} [elm] Tag name or HTML DOM element depending on HTML or DOM insert.
+     * @param {string/HTMLElement} elm Tag name or HTML DOM element depending on HTML or DOM insert.
      * @return {string} Converted URL string.
      */
     convertURL: function (url, name, elm) {
@@ -2088,9 +2084,7 @@ Editor.prototype = {
         var self = this;
 
         if (!self.removed) {
-            self.save({
-                destroy: true
-            });
+            self.save();
             self.removed = 1;
             self.unbindAllNativeEvents();
 
@@ -2192,37 +2186,11 @@ Editor.prototype = {
 
     _scanForImages: function () {
         return this.editorUpload.scanForImages();
-    },
-
-    _refreshContentEditable: function () {
-        var self = this, body, parent;
-
-        // Check if the editor was hidden and the re-initialize contentEditable mode by removing and adding the body again
-        if (self._isHidden()) {
-            body = self.getBody();
-            parent = body.parentNode;
-
-            parent.removeChild(body);
-            parent.appendChild(body);
-
-            body.focus();
-        }
-    },
-
-    _isHidden: function () {
-        var sel;
-
-        if (!isGecko) {
-            return 0;
-        }
-
-        // Weird, wheres that cursor selection?
-        sel = this.selection.getSel();
-        return (!sel || !sel.rangeCount || sel.rangeCount === 0);
     }
 };
 
 extend(Editor.prototype, EditorObservable);
 
-return Editor;
+
+module.exports = Editor;
 

@@ -17,6 +17,7 @@
 
 "use strict";
 var Tools = require("../util/Tools");
+var Env = require("../Env");
 var DOMUtils = require("../dom/DOMUtils");
 
 var count = 0;

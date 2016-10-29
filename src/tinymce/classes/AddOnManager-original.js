@@ -164,55 +164,45 @@ AddOnManager.prototype = {
 		 * });
      */
     load: function (name, addOnUrl, callback, scope) {
-        this.urls[name] = addOnUrl;
+        var self = this, url = addOnUrl;
 
-        if (callback) {
-            if (scope) {
-                callback.call(scope);
-            } else {
-                callback.call(ScriptLoader);
+        function loadDependencies() {
+            var dependencies = self.dependencies(name);
+
+            each(dependencies, function (dep) {
+                var newUrl = self.createUrl(addOnUrl, dep);
+
+                self.load(newUrl.resource, newUrl, undefined, undefined);
+            });
+
+            if (callback) {
+                if (scope) {
+                    callback.call(scope);
+                } else {
+                    callback.call(ScriptLoader);
+                }
             }
         }
 
-        // var self = this, url = addOnUrl;
-        //
-        // function loadDependencies() {
-        //     var dependencies = self.dependencies(name);
-        //
-        //     each(dependencies, function (dep) {
-        //         var newUrl = self.createUrl(addOnUrl, dep);
-        //
-        //         self.load(newUrl.resource, newUrl, undefined, undefined);
-        //     });
-        //
-        //     if (callback) {
-        //         if (scope) {
-        //             callback.call(scope);
-        //         } else {
-        //             callback.call(ScriptLoader);
-        //         }
-        //     }
-        // }
-        //
-        // if (self.urls[name]) {
-        //     return;
-        // }
-        //
-        // if (typeof addOnUrl === "object") {
-        //     url = addOnUrl.prefix + addOnUrl.resource + addOnUrl.suffix;
-        // }
-        //
-        // if (url.indexOf('/') !== 0 && url.indexOf('://') == -1) {
-        //     url = AddOnManager.baseURL + '/' + url;
-        // }
-        //
-        // self.urls[name] = url.substring(0, url.lastIndexOf('/'));
-        //
-        // if (self.lookup[name]) {
-        //     loadDependencies();
-        // } else {
-        //     ScriptLoader.ScriptLoader.add(url, loadDependencies, scope);
-        // }
+        if (self.urls[name]) {
+            return;
+        }
+
+        if (typeof addOnUrl === "object") {
+            url = addOnUrl.prefix + addOnUrl.resource + addOnUrl.suffix;
+        }
+
+        if (url.indexOf('/') !== 0 && url.indexOf('://') == -1) {
+            url = AddOnManager.baseURL + '/' + url;
+        }
+
+        self.urls[name] = url.substring(0, url.lastIndexOf('/'));
+
+        if (self.lookup[name]) {
+            loadDependencies();
+        } else {
+            ScriptLoader.ScriptLoader.add(url, loadDependencies, scope);
+        }
     }
 };
 
