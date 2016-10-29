@@ -67,7 +67,9 @@ var RichEditor = UI.extend({
      * @returns {*|String}
      */
     getHTML: function () {
-        return this[_richEditor].getContent();
+        return this[_richEditor].getContent({
+            raw: 'html'
+        });
     },
 
 
@@ -78,7 +80,9 @@ var RichEditor = UI.extend({
      */
     setHTML: function (html) {
         var the = this;
-        the[_richEditor].setContent(html);
+        the[_richEditor].setContent(html, {
+            format: 'html'
+        });
         the[_richEditor].isNotDirty = false;
         return the;
     },
