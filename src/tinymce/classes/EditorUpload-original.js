@@ -156,7 +156,7 @@ module.exports = function (editor) {
     }
 
     function replaceBlobUris(content) {
-        return (content || '').replace(/src="(blob:[^"]+)"/g, function (match, blobUri) {
+        return content.replace(/src="(blob:[^"]+)"/g, function (match, blobUri) {
             var resultUri = uploadStatus.getResultUri(blobUri);
 
             if (resultUri) {
