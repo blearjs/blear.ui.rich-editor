@@ -81,7 +81,7 @@ var RichEditor = UI.extend({
     setHTML: function (html) {
         var the = this;
         the[_richEditor].setContent(html, {
-            format: 'html'
+            format: 'raw'
         });
         the[_richEditor].isNotDirty = false;
         return the;
