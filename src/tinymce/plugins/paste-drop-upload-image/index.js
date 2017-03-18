@@ -8,16 +8,15 @@
 
 'use strict';
 
-var event = require('blear.core.event');
 var typeis = require('blear.utils.typeis');
 var time = require('blear.utils.time');
+var loader = require('blear.utils.loader');
 var modification = require('blear.core.modification');
 
 var parseEventFiles = require('../../../parse-event-files');
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
 
 PluginManager.add('paste-drop-upload-image', function (editor) {
-    var self = this;
     var settings = editor.settings;
     var fileEl = modification.create('input', {
         type: 'file',
@@ -34,15 +33,24 @@ PluginManager.add('paste-drop-upload-image', function (editor) {
         }
 
         img.src = img.src || img.url;
-        editor.undoManager.transact(function () {
-            img.id = '__mcenew';
-            editor.selection.setContent(editor.dom.createHTML('img', img));
-            var imgElm = editor.dom.get(img.id);
-            editor.dom.setAttrib(imgElm, 'id', null);
-            editor.selection.select(imgElm);
-            editor.nodeChanged();
-            time.nextFrame(function () {
-                editor.focus();
+
+        loader.img(img.src, function (err) {
+            if (err) {
+                return;
+            }
+
+            img.width = this.width;
+            img.height = this.height;
+            editor.undoManager.transact(function () {
+                img.id = '__mcenew';
+                editor.selection.setContent(editor.dom.createHTML('img', img));
+                var imgElm = editor.dom.get(img.id);
+                editor.dom.setAttrib(imgElm, 'id', null);
+                editor.selection.select(imgElm);
+                editor.nodeChanged();
+                time.nextFrame(function () {
+                    editor.focus();
+                });
             });
         });
     };
