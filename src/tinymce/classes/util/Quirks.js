@@ -954,7 +954,7 @@ module.exports = function (editor) {
             // Needs to be the setBaseAndExtend or it will fail to select floated images
             if (/^(IMG|HR)$/.test(target.nodeName) && dom.getContentEditableParent(target) !== "false") {
                 e.preventDefault();
-                selection.getSel().setBaseAndExtent(target, 0, target, 1);
+                editor.selection.select(target);
                 editor.nodeChanged();
             }
 

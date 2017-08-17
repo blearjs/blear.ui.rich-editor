@@ -183,12 +183,9 @@ pro[_initNode] = function () {
 
 pro[_initEvent] = function () {
     var the = this;
-    var events = ['upload', 'wordCount'];
 
-    array.each(events, function (index, event) {
-        the[_richEditor].on(event, function (arg) {
-            the.emit(event, arg);
-        });
+    the[_richEditor].on('wordCount', function (meta) {
+        the.emit('wordCount', meta.count);
     });
 };
 
