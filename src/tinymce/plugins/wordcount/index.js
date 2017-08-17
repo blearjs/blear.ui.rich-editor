@@ -51,7 +51,10 @@ PluginManager.add('wordcount', function (editor) {
             return;
         }
 
-        editor.theme.panel.find('#wordcount').text(['Words: {0}', getCount()]);
+        var count = getCount();
+
+        editor.theme.panel.find('#wordcount').text(['Words: {0}', count]);
+        editor.fire('wordCount', {count: count});
     };
 
     editor.on('init', function () {

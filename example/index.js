@@ -26,3 +26,6 @@ re.ready(function () {
 
 });
 
+re.on('wordCount', function (count) {
+    console.log('wordCount', count);
+});

@@ -108,13 +108,14 @@ var RichEditor = UI.extend({
         the[_richEditor] = null;
     }
 });
-var _options = RichEditor.sole();
-var _textareaEl = RichEditor.sole();
-var _initNode = RichEditor.sole();
-var _initEvent = RichEditor.sole();
-var _richEditor = RichEditor.sole();
-var _readied = RichEditor.sole();
-var _callbacks = RichEditor.sole();
+var sole = RichEditor.sole;
+var _options = sole();
+var _textareaEl = sole();
+var _initNode = sole();
+var _initEvent = sole();
+var _richEditor = sole();
+var _readied = sole();
+var _callbacks = sole();
 var pro = RichEditor.prototype;
 
 pro[_initNode] = function () {
@@ -182,12 +183,11 @@ pro[_initNode] = function () {
 
 pro[_initEvent] = function () {
     var the = this;
-    var events = ['upload'];
+    var events = ['upload', 'wordCount'];
 
     array.each(events, function (index, event) {
-        the[_richEditor].on(event, function (args) {
-            args.unshift(event);
-            the.emit.apply(the, args);
+        the[_richEditor].on(event, function (arg) {
+            the.emit(event, arg);
         });
     });
 };
