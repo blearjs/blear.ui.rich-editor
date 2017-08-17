@@ -26,7 +26,8 @@ var defaults = {
     maxHeight: 800,
     placeholder: '<p style="color:#888">点击开始输入</p>',
     fileName: 'file',
-    fileLabel: '请选择图片'
+    fileLabel: '请选择图片',
+    elementPath: true
 };
 var RichEditor = UI.extend({
     className: 'RichEditor',
@@ -135,6 +136,7 @@ pro[_initNode] = function () {
         uploadFileName: options.fileName,
         uploadFileLabel: options.fileLabel,
         toolbar: options.toolbar,
+        elementpath: options.elementPath,
         font_formats: '默认=webdings;宋体=宋体,SimSun;' +
         '微软雅黑=微软雅黑,Microsoft YaHei;' +
         '楷体=楷体,楷体_GB2312,KaiTi_GB2312,SimKai;' +
