@@ -57,16 +57,10 @@
         var iframeEl = document.getElementById('iframe');
 
         var html = '<!doctype html><meta charset="UTF-8"><p style="font-size:20px;color:#498fff;">这是 iframe 里的一个段落。</p>';
-        window.html2 = html;
-        // var doc = iframeEl.contentDocument;
-        // doc.open();
-        // doc.write(html);
-        // doc.close();
-        iframeEl.src = 'javascript:void(function(){' +
-            'document.open();' +
-            'document.write(this.parent.html2);' +
-            'document.close();' +
-            '}())';
+        var doc = iframeEl.contentDocument;
+        doc.open();
+        doc.write(html);
+        doc.close();
 
         removeEl.onclick = function () {
             document.body.removeChild(demoEl);

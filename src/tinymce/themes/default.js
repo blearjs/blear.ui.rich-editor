@@ -1,5 +1,6 @@
 'use strict';
 
+var array = require('blear.utils.array');
 var tinymce = window.tinymce;
 var ThemeManager = require("../classes/AddOnManager").ThemeManager;
 var Factory = require('../classes/ui/Factory');
@@ -631,7 +632,7 @@ ThemeManager.add('default', function (editor) {
         editor.on('nodeChange ResizeEditor ResizeWindow', repositionHandler);
 
         editor.on('remove', function () {
-            tinymce.each(getContextToolbars(), function (toolbar) {
+            array.each(getContextToolbars(), function (toolbar) {
                 if (toolbar.panel) {
                     toolbar.panel.remove();
                 }
