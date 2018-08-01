@@ -746,12 +746,12 @@ Editor.prototype = {
      */
     initContentBody: function (skipWrite) {
         var self = this, settings = self.settings, targetElm = self.getElement(), doc = self.getDoc(), body, contentCssText;
-        var windowVarible = self.windowVarible = 'tinymce' + Date.now();
-
-        window[windowVarible] = '';
-        self.on('nodechange setcontent keyup', function () {
-            window[windowVarible] = self.getBody().innerHTML;
-        });
+        // var windowVarible = self.windowVarible = 'tinymce' + Date.now();
+        //
+        // window[windowVarible] = '';
+        // self.on('nodechange setcontent keyup', function () {
+        //     window[windowVarible] = self.getBody().innerHTML;
+        // });
 
         // Restore visibility on target element
         if (!settings.inline) {
