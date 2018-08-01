@@ -99,6 +99,15 @@ var RichEditor = UI.extend({
 
 
     /**
+     * 获取内容区域元素
+     * @returns {Element}
+     */
+    getContentEl: function () {
+        return this[_richEditor].getBody();
+    },
+
+
+    /**
      * 销毁实例
      */
     destroy: function () {
@@ -169,15 +178,12 @@ pro[_initNode] = function () {
             };
         }
     });
-
-    fun.until(function () {
+    the[_richEditor].on('init', function () {
         the[_readied] = true;
         array.each(the[_callbacks], function (_, callback) {
             callback.call(the);
         });
         the[_callbacks] = [];
-    }, function () {
-        return !!the[_richEditor].getDoc();
     });
 };
 
