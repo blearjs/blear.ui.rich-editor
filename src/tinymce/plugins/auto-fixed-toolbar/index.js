@@ -12,12 +12,15 @@ var fun = require('blear.utils.function');
 var attribute = require('blear.core.attribute');
 var layout = require('blear.core.layout');
 var event = require('blear.core.event');
+var UI = require('blear.ui');
 
 var win = window;
 var doc = win.document;
 var PluginManager = require("../../classes/AddOnManager").PluginManager;
 
 PluginManager.add('auto-fixed-toolbar', function (editor) {
+    var containerEle;
+    var containerWidth = 0;
     var resize = function (eve) {
         if (editor.destroyed) {
             return;
@@ -28,8 +31,6 @@ PluginManager.add('auto-fixed-toolbar', function (editor) {
         if (!toolbarEle) {
             return;
         }
-
-        var containerEle = editor.getContainer();
 
         if (!containerEle) {
             return;
@@ -45,10 +46,9 @@ PluginManager.add('auto-fixed-toolbar', function (editor) {
         if (scrollTop > containerTop && scrollTop < containerTop + containerHeight - toolbarHeight) {
             attribute.style(toolbarEle, {
                 position: 'fixed',
-                width: layout.innerWidth(containerEle),
+                width: containerWidth,
                 top: 0,
-                zIndex: 9,
-                left: containerLeft - winScrollLeft
+                zIndex: UI.zIndex()
             });
             attribute.style(containerEle, 'padding-top', layout.outerHeight(toolbarEle));
         } else {
@@ -56,8 +56,7 @@ PluginManager.add('auto-fixed-toolbar', function (editor) {
                 position: 'static',
                 width: 'auto',
                 top: 'auto',
-                zIndex: 'auto',
-                left: 'auto'
+                zIndex: 'auto'
             });
             attribute.style(containerEle, 'padding-top', 0);
         }
@@ -70,7 +69,11 @@ PluginManager.add('auto-fixed-toolbar', function (editor) {
     editor.on("nodechange setcontent keyup FullscreenStateChanged", fun.debounce(resize, 10));
 
     if (editor.getParam('auto_fixed_toolbar_on_init', true)) {
-        editor.on('init', fun.once(resize));
+        editor.on('init', function () {
+            containerEle = editor.getContainer();
+            containerWidth = layout.innerWidth(containerEle);
+            resize();
+        });
     }
 
     // Register the command so that it can be invoked by using tinyMCE.activeEditor.execCommand('mceExample');
