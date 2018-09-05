@@ -1,7 +1,7 @@
 {
   "name": "blear.ui.rich-editor",
-  "version": "1.1.12",
-  "description": "富文本编辑器，基于 Tinymce V4.4.3",
+  "version": "1.2.0",
+  "description": "富文本编辑器，基于 Tinymce V4.8.2 (2018-08-09)",
   "scripts": {
     "live": "browser-sync start --config bs-config.js"
   },
@@ -44,12 +44,13 @@
     "blear.utils.function": "1.x",
     "blear.utils.loader": "1.x",
     "blear.utils.object": "1.x",
+    "blear.utils.string": "^1.0.10",
     "blear.utils.time": "1.x",
     "blear.utils.typeis": "1.x"
   },
   "peerDependencies": {},
   "devDependencies": {
-    "coolie.js": "^2.2.0"
+    "coolie.js": "^2.2.3"
   },
   "license": "MIT"
 }
