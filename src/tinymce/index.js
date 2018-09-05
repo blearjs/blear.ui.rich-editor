@@ -25534,6 +25534,7 @@
                     });
                     editor.targetElm = editor.targetElm || targetElm;
                     editor.render();
+                    return editor;
                 };
                 DOM$9.unbind(window, 'ready', initEditors);
                 execCallback('onpageload');
@@ -25556,29 +25557,22 @@
                 targets = $_4ujg4tljkmcwkbk.grep(targets, function (elm) {
                     return !self$$1.get(elm.id);
                 });
-                if (targets.length === 0) {
-                    provideResults([]);
-                } else {
-                    each$22(targets, function (elm) {
-                        if (isInvalidInlineTarget(settings, elm)) {
-                            $_b9je0i54jkmcwlbe.initError('Could not initialize inline editor on invalid inline target element', elm);
-                        } else {
-                            createEditor(createId(elm), settings, elm);
-                        }
-                    });
+
+                var elm = targets[0];
+
+                if (!elm) {
+                    return null;
                 }
+
+                if (isInvalidInlineTarget(settings, elm)) {
+                    $_b9je0i54jkmcwlbe.initError('Could not initialize inline editor on invalid inline target element', elm);
+                    return null;
+                }
+
+                return createEditor(createId(elm), settings, elm);
             };
             self$$1.settings = settings;
-            DOM$9.bind(window, 'ready', initEditors);
-            return new promiseObj(function (resolve) {
-                if (result) {
-                    resolve(result);
-                } else {
-                    provideResults = function (editors) {
-                        resolve(editors);
-                    };
-                }
-            });
+            return initEditors();
         },
         get: function (id) {
             if (arguments.length === 0) {

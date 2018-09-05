@@ -9,12 +9,14 @@
 
 var RichEditor = require('../src/index');
 
-var re = new RichEditor({
-    el: '#demo',
-    toolb2ar: 'bold italic underline strikethrough | forecolor removeformat | bullist numlist | ' +
-    ' alignleft aligncenter alignright alignjustify | image hr | fullscreen undo redo',
-    elementPath: false
-});
+
+document.getElementById('start').onclick = function () {
+    var re = new RichEditor({
+        el: '#demo',
+        toolb2ar: 'bold italic underline strikethrough | forecolor removeformat | bullist numlist | ' +
+            ' alignleft aligncenter alignright alignjustify | image hr | fullscreen undo redo',
+        elementPath: false
+    });
 
 // re.setHTML('<p>100元，只要 100 块<br>20012dqw</p><p>这是栋罗马风格浓烈的欧式建筑。\n 如何评价 Clean Code 作者对 Swift 与 Kotlin 的看法？<br></p>');
 //
@@ -29,3 +31,6 @@ var re = new RichEditor({
 // re.on('wordCount', function (count) {
 //     console.log('wordCount', count);
 // });
+
+};
+

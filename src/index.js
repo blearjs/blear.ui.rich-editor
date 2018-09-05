@@ -126,13 +126,9 @@ pro[_initNode] = function () {
     var options = the[_options];
     var textareaEl = the[_textareaEl];
 
-    tinymce.init({
+    the[_richEditor] = tinymce.init({
         // https://www.tiny.cloud/docs/configure/integration-and-setup/#target
         target: textareaEl,
-        // https://www.tiny.cloud/docs/configure/integration-and-setup/#init_instance_callback
-        init_instance_callback: function (editor) {
-            the[_richEditor] = editor;
-        },
         // https://www.tiny.cloud/docs/configure/editor-appearance/#branding
         branding: false,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#color_picker_callback
