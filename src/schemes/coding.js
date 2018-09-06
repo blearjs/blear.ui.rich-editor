@@ -87,7 +87,7 @@ module.exports = {
         'formatselect alignleft aligncenter alignright hr removeformat undo redo fullscreen code'
     ],
     contextMenu: 'bold italic underline strikethrough link',
-    appendContentStyle: require('blear.utils.code-highlight/src/themes/light.css', 'css|text')
+    appendContentCSS: require('blear.utils.code-highlight/src/themes/light.css', 'css|text')
 };
 
 

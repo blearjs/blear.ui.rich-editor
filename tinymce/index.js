@@ -23858,6 +23858,7 @@
         $_ejk8vk74jkmcwlp8.setup(editor);
         $_5utnj35ljkmcwldh.setup(editor);
         editor.fire('PreInit');
+        settings.preInit(editor);
         if (!settings.browser_spellcheck && !settings.gecko_spellcheck) {
             doc.body.spellcheck = false;
             DOM$2.setAttrib(body, 'spellcheck', 'false');

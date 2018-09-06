@@ -11,6 +11,7 @@
 var UI = require('blear.ui');
 var selector = require('blear.core.selector');
 var object = require('blear.utils.object');
+var modification = require('blear.core.modification');
 
 require('../tinymce/index');
 require('../tinymce/themes/modern/index');
@@ -18,6 +19,7 @@ require('../tinymce/skins/lightgray/index');
 require('../tinymce/langs/zh_CN');
 require('../tinymce/plugins/autoresize/index');
 require('../tinymce/plugins/wordcount/index');
+require('../tinymce/plugins/placeholder/index');
 
 var tinymce = window.tinymce;
 var defaults = {
@@ -28,7 +30,7 @@ var defaults = {
     contentStyle: require('./style.css'),
     height: 300,
     maxHeight: 800,
-    placeholder: '<p style="color:#888">点击开始输入</p>',
+    placeholder: '点击开始输入',
     fileName: 'file',
     fileLabel: '请选择图片',
     /**
@@ -54,10 +56,10 @@ var RichEditor = UI.extend({
         delete options.schema;
 
         options = the[_options] = object.assign({}, defaults, schema, options);
-        var appendContentStyle = options.appendContentStyle;
+        var appendContentCSS = options.appendContentCSS;
 
-        if (appendContentStyle) {
-            options.contentStyle += appendContentStyle;
+        if (appendContentCSS) {
+            options.contentStyle += appendContentCSS;
         }
 
         RichEditor.parent(the);
@@ -134,6 +136,15 @@ prot[_initNode] = function () {
     var textareaEl = the[_textareaEl];
 
     the[_richEditor] = tinymce.init({
+        preInit: function (editor) {
+            var doc = editor.getDoc();
+            var dom = editor.dom;
+            var styleEl = dom.add(doc.head, 'style');
+            editor.appendContentStyle = function (cssText) {
+                modification.importStyle(cssText, styleEl, true);
+            };
+        },
+        placeholder: options.placeholder,
         // https://www.tiny.cloud/docs/configure/integration-and-setup/#target
         target: textareaEl,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#branding
