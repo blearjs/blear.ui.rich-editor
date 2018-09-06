@@ -11,18 +11,76 @@
 
 'use strict';
 
-require('../tinymce/plugins/advlist/index');
-require('../tinymce/plugins/link/index');
-require('../tinymce/plugins/image/index');
-require('../tinymce/plugins/contextmenu/index');
-require('../tinymce/plugins/textcolor/index');
-require('../tinymce/plugins/lists/index');
-require('../tinymce/plugins/fullscreen/index');
-require('../tinymce/plugins/hr/index');
-require('../tinymce/plugins/codesample/index');
-require('../tinymce/plugins/code/index');
+require('../../tinymce/plugins/advlist/index');
+require('../../tinymce/plugins/link/index');
+require('../../tinymce/plugins/image/index');
+require('../../tinymce/plugins/contextmenu/index');
+require('../../tinymce/plugins/textcolor/index');
+require('../../tinymce/plugins/lists/index');
+require('../../tinymce/plugins/fullscreen/index');
+require('../../tinymce/plugins/hr/index');
+require('../../tinymce/plugins/codesample/index');
+require('../../tinymce/plugins/code/index');
 
 module.exports = {
+    codesample_languages: [
+        {
+            text: 'HTML/XML',
+            value: 'markup'
+        },
+        {
+            text: 'JavaScript',
+            value: 'javascript'
+        },
+        {
+            text: 'CSS',
+            value: 'css'
+        },
+        {
+            text: 'PHP',
+            value: 'php'
+        },
+        {
+            text: 'JSON',
+            value: 'json'
+        },
+        {
+            text: 'Java',
+            value: 'java'
+        },
+        {
+            text: 'Bash',
+            value: 'bash'
+        },
+        {
+            text: 'Python',
+            value: 'python'
+        },
+        {
+            text: 'C',
+            value: 'clike'
+        },
+        {
+            text: 'Go',
+            value: 'go'
+        },
+        {
+            text: 'ini',
+            value: 'ini'
+        },
+        {
+            text: 'nginx',
+            value: 'nginx'
+        },
+        {
+            text: 'swift',
+            value: 'swift'
+        },
+        {
+            text: 'yaml',
+            value: 'yaml'
+        }
+    ],
     toolbar: [
         'bold italic underline strikethrough link unlink forecolor backcolor bullist numlist image codesample',
         'formatselect alignleft aligncenter alignright hr removeformat undo redo fullscreen code'

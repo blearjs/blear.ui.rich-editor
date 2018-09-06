@@ -15,13 +15,13 @@ var object = require('blear.utils.object');
 // var typeis = require('blear.utils.typeis');
 // var fun = require('blear.utils.function');
 
-require('./tinymce/index');
-require('./tinymce/themes/modern/index');
-require('./tinymce/skins/lightgray/index');
-require('./tinymce/langs/zh_CN');
+require('../tinymce/index');
+require('../tinymce/themes/modern/index');
+require('../tinymce/skins/lightgray/index');
+require('../tinymce/langs/zh_CN');
 // require('./tinymce/plugins/advlist/index');
 // require('./tinymce/plugins/autolink/index');
-require('./tinymce/plugins/autoresize/index');
+require('../tinymce/plugins/autoresize/index');
 // require('./tinymce/plugins/autosave/index');
 // require('./tinymce/plugins/codesample/index');
 // require('./tinymce/plugins/contextmenu/index');

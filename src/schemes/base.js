@@ -10,7 +10,7 @@
 
 'use strict';
 
-require('../tinymce/plugins/contextmenu/index');
+require('../../tinymce/plugins/contextmenu/index');
 
 module.exports = {
     toolbar: [

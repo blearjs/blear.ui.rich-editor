@@ -11,10 +11,10 @@
 
 'use strict';
 
-require('../tinymce/plugins/advlist/index');
-require('../tinymce/plugins/link/index');
-require('../tinymce/plugins/image/index');
-require('../tinymce/plugins/contextmenu/index');
+require('../../tinymce/plugins/advlist/index');
+require('../../tinymce/plugins/link/index');
+require('../../tinymce/plugins/image/index');
+require('../../tinymce/plugins/contextmenu/index');
 
 module.exports = {
     toolbar: [
