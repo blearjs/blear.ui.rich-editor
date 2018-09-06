@@ -11,28 +11,13 @@
 var UI = require('blear.ui');
 var selector = require('blear.core.selector');
 var object = require('blear.utils.object');
-// var array = require('blear.utils.array');
-// var typeis = require('blear.utils.typeis');
-// var fun = require('blear.utils.function');
 
 require('../tinymce/index');
 require('../tinymce/themes/modern/index');
 require('../tinymce/skins/lightgray/index');
 require('../tinymce/langs/zh_CN');
-// require('./tinymce/plugins/advlist/index');
-// require('./tinymce/plugins/autolink/index');
 require('../tinymce/plugins/autoresize/index');
-// require('./tinymce/plugins/autosave/index');
-// require('./tinymce/plugins/codesample/index');
-// require('./tinymce/plugins/contextmenu/index');
-// require('./tinymce/plugins/fullscreen/index');
-// require('./tinymce/plugins/hr/index');
-// require('./tinymce/plugins/image/index');
-// require('./tinymce/plugins/link/index');
-// require('./tinymce/plugins/lists/index');
-// require('./tinymce/plugins/table/index');
-// require('./tinymce/plugins/textcolor/index');
-// require('./tinymce/plugins/wordcount/index');
+require('../tinymce/plugins/wordcount/index');
 
 var tinymce = window.tinymce;
 var defaults = {
@@ -69,6 +54,11 @@ var RichEditor = UI.extend({
         delete options.schema;
 
         options = the[_options] = object.assign({}, defaults, schema, options);
+        var appendContentStyle = options.appendContentStyle;
+
+        if (appendContentStyle) {
+            options.contentStyle += appendContentStyle;
+        }
 
         RichEditor.parent(the);
         the[_textareaEl] = selector.query(options.el)[0];
@@ -204,7 +194,11 @@ prot[_initNode] = function () {
         // https://www.tiny.cloud/docs/plugins/contextmenu/
         contextmenu: options.contextMenu,
         // https://www.tiny.cloud/docs/configure/url-handling/#relative_urls
-        relative_urls: false
+        relative_urls: false,
+        // https://www.tiny.cloud/docs/plugins/codesample/#codesample_languages
+        codesample_languages: options.codesampleLanguages,
+        // https://www.tiny.cloud/docs/plugins/autoresize/#autoresize_bottom_margin
+        autoresize_bottom_margin: 1
     });
 };
 

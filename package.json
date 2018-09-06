@@ -41,17 +41,17 @@
     "blear.core.selector": "1.x",
     "blear.ui": "1.x",
     "blear.utils.array": "1.x",
+    "blear.utils.code-highlight": "^1.0.0",
     "blear.utils.function": "1.x",
     "blear.utils.loader": "1.x",
     "blear.utils.object": "1.x",
     "blear.utils.string": "^1.0.10",
     "blear.utils.time": "1.x",
-    "blear.utils.typeis": "1.x",
-    "prismjs": "^1.15.0"
+    "blear.utils.typeis": "1.x"
   },
   "peerDependencies": {},
   "devDependencies": {
-    "coolie.js": "^2.2.3"
+    "coolie.js": "^2.3.1"
   },
   "license": "MIT"
 }

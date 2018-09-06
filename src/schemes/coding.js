@@ -21,9 +21,10 @@ require('../../tinymce/plugins/fullscreen/index');
 require('../../tinymce/plugins/hr/index');
 require('../../tinymce/plugins/codesample/index');
 require('../../tinymce/plugins/code/index');
+var codeHighligt = require('blear.utils.code-highlight');
 
 module.exports = {
-    codesample_languages: [
+    codesampleLanguages: [
         {
             text: 'HTML/XML',
             value: 'markup'
@@ -85,7 +86,8 @@ module.exports = {
         'bold italic underline strikethrough link unlink forecolor backcolor bullist numlist image codesample',
         'formatselect alignleft aligncenter alignright hr removeformat undo redo fullscreen code'
     ],
-    contextMenu: 'bold italic underline strikethrough link'
+    contextMenu: 'bold italic underline strikethrough link',
+    appendContentStyle: require('blear.utils.code-highlight/src/themes/light.css', 'css|text')
 };
 
 
