@@ -23983,33 +23983,39 @@
     var $_9jv4e17njkmcwlsj = {init: init$1};
 
     var DOM$4 = DOMUtils$1.DOM;
-    var initPlugin = function (editor, initializedPlugins, plugin) {
-        var Plugin = PluginManager$1.get(plugin);
-        var pluginUrl, pluginInstance;
-        pluginUrl = PluginManager$1.urls[plugin] || editor.documentBaseUrl.replace(/\/$/, '');
-        plugin = $_4ujg4tljkmcwkbk.trim(plugin);
-        if (Plugin && $_4ujg4tljkmcwkbk.inArray(initializedPlugins, plugin) === -1) {
-            $_4ujg4tljkmcwkbk.each(PluginManager$1.dependencies(plugin), function (dep) {
-                initPlugin(editor, initializedPlugins, dep);
-            });
-            if (editor.plugins[plugin]) {
-                return;
-            }
-            pluginInstance = new Plugin(editor, pluginUrl, editor.$);
-            editor.plugins[plugin] = pluginInstance;
-            if (pluginInstance.init) {
-                pluginInstance.init(editor, pluginUrl);
-                initializedPlugins.push(plugin);
-            }
-        }
-    };
+    // var initPlugin = function (editor, initializedPlugins, plugin) {
+    //     var Plugin = PluginManager$1.get(plugin);
+    //     var pluginUrl, pluginInstance;
+    //     pluginUrl = PluginManager$1.urls[plugin] || editor.documentBaseUrl.replace(/\/$/, '');
+    //     plugin = $_4ujg4tljkmcwkbk.trim(plugin);
+    //     if (Plugin && $_4ujg4tljkmcwkbk.inArray(initializedPlugins, plugin) === -1) {
+    //         $_4ujg4tljkmcwkbk.each(PluginManager$1.dependencies(plugin), function (dep) {
+    //             initPlugin(editor, initializedPlugins, dep);
+    //         });
+    //         if (editor.plugins[plugin]) {
+    //             return;
+    //         }
+    //         pluginInstance = new Plugin(editor, pluginUrl, editor.$);
+    //         editor.plugins[plugin] = pluginInstance;
+    //         if (pluginInstance.init) {
+    //             pluginInstance.init(editor, pluginUrl);
+    //             initializedPlugins.push(plugin);
+    //         }
+    //     }
+    // };
     var trimLegacyPrefix = function (name) {
         return name.replace(/^\-/, '');
     };
     var initPlugins = function (editor) {
-        var initializedPlugins = [];
-        $_4ujg4tljkmcwkbk.each(editor.settings.plugins.split(/[ ,]/), function (name) {
-            initPlugin(editor, initializedPlugins, trimLegacyPrefix(name));
+        $_4ujg4tljkmcwkbk.each(PluginManager$1.lookup, function (meta, name) {
+            var pluginUrl = PluginManager$1.urls[name] || editor.documentBaseUrl.replace(/\/$/, '');
+            var plugin = new meta.instance(editor, pluginUrl, editor.$);
+
+            if (plugin.init) {
+                plugin.init(editor, pluginUrl);
+            }
+
+            editor.plugins[name] = plugin;
         });
     };
     var initTheme = function (editor) {

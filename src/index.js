@@ -11,18 +11,34 @@
 var UI = require('blear.ui');
 var selector = require('blear.core.selector');
 var object = require('blear.utils.object');
-var array = require('blear.utils.array');
-var typeis = require('blear.utils.typeis');
-var fun = require('blear.utils.function');
+// var array = require('blear.utils.array');
+// var typeis = require('blear.utils.typeis');
+// var fun = require('blear.utils.function');
 
 require('./tinymce/index');
 require('./tinymce/themes/modern/index');
 require('./tinymce/skins/lightgray/index');
 require('./tinymce/langs/zh_CN');
+// require('./tinymce/plugins/advlist/index');
+// require('./tinymce/plugins/autolink/index');
+require('./tinymce/plugins/autoresize/index');
+// require('./tinymce/plugins/autosave/index');
+// require('./tinymce/plugins/codesample/index');
+// require('./tinymce/plugins/contextmenu/index');
+// require('./tinymce/plugins/fullscreen/index');
+// require('./tinymce/plugins/hr/index');
+// require('./tinymce/plugins/image/index');
+// require('./tinymce/plugins/link/index');
+// require('./tinymce/plugins/lists/index');
+// require('./tinymce/plugins/table/index');
+// require('./tinymce/plugins/textcolor/index');
+// require('./tinymce/plugins/wordcount/index');
 
 var tinymce = window.tinymce;
 var defaults = {
     el: '',
+    // 方案
+    schema: null,
     // 内容样式
     contentStyle: require('./style.css'),
     height: 300,
@@ -35,24 +51,25 @@ var defaults = {
      * @type Boolean
      */
     elementPath: true,
-    menus: {
-        file: {title: 'File', items: 'newdocument'},
-        edit: {title: 'Edit', items: 'undo redo | cut copy paste pastetext | selectall'},
-        insert: {title: 'Insert', items: 'link media | template hr'},
-        view: {title: 'View', items: 'visualaid'},
-        format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | formats | removeformat'},
-        table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'},
-        tools: {title: 'Tools', items: 'spellchecker code'}
-    },
     resize: true,
-    toolbar: 'undo redo | styleselect | bold italic | link image'
+    menubar: 'file edit insert view format table tools help',
+    toolbar: [
+        'bold italic underline strikethrough' +
+        ' forecolor backcolor link unlink removeformat' +
+        ' image hr',
+        'formatselect bullist numlist alignleft aligncenter alignright undo redo fullscreen'
+    ],
+    contextMenu: 'bold italic underline strikethrough link'
 };
 var RichEditor = UI.extend({
     className: 'RichEditor',
     constructor: function (options) {
         var the = this;
+        var schema = options.schema;
+        delete options.schema;
 
-        options = the[_options] = object.assign({}, defaults, options);
+        options = the[_options] = object.assign({}, defaults, schema, options);
+
         RichEditor.parent(the);
         the[_textareaEl] = selector.query(options.el)[0];
         the[_initNode]();
@@ -119,9 +136,9 @@ var _initEvent = sole();
 var _richEditor = sole();
 var _readied = sole();
 var _callbacks = sole();
-var pro = RichEditor.prototype;
+var prot = RichEditor.prototype;
 
-pro[_initNode] = function () {
+prot[_initNode] = function () {
     var the = this;
     var options = the[_options];
     var textareaEl = the[_textareaEl];
@@ -131,10 +148,10 @@ pro[_initNode] = function () {
         target: textareaEl,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#branding
         branding: false,
-        // https://www.tiny.cloud/docs/configure/editor-appearance/#color_picker_callback
-        color_picker_callback: function (callback, value) {
-            callback(value);
-        },
+        // // https://www.tiny.cloud/docs/configure/editor-appearance/#color_picker_callback
+        // color_picker_callback: function (callback, value) {
+        //     callback(value);
+        // },
         // https://www.tiny.cloud/docs/configure/editor-appearance/#elementpath
         elementpath: options.elementPath,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#height
@@ -143,12 +160,12 @@ pro[_initNode] = function () {
         min_height: options.height,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#max_height
         max_height: options.maxHeight,
-        // https://www.tiny.cloud/docs/configure/editor-appearance/#menu
-        menu: options.menus,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#resize
         resize: options.resize,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#statusbar
         statusbar: true,
+        // https://www.tiny.cloud/docs/configure/editor-appearance/#menubar
+        menubar: false,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#toolbar
         toolbar: options.toolbar,
         // https://www.tiny.cloud/docs/configure/content-appearance/#content_style
@@ -183,11 +200,15 @@ pro[_initNode] = function () {
         // https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_handler
         images_upload_handler: function (blob, success, failure) {
             failure('未配置文件上传');
-        }
+        },
+        // https://www.tiny.cloud/docs/plugins/contextmenu/
+        contextmenu: options.contextMenu,
+        // https://www.tiny.cloud/docs/configure/url-handling/#relative_urls
+        relative_urls: false
     });
 };
 
-pro[_initEvent] = function () {
+prot[_initEvent] = function () {
     var the = this;
 
     // the[_richEditor].on('wordCount', function (meta) {

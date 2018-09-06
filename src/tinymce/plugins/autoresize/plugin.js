@@ -73,7 +73,7 @@
         };
         var resize = function (editor, oldSize) {
             var deltaSize, doc, body, resizeHeight, myHeight;
-            var marginTop, marginBottom, paddingTop, paddingBottom, borderTop, borderBottom;
+            var marginTop, marginBottom;
             var dom = editor.dom;
             doc = editor.getDoc();
             if (!doc) {
@@ -87,11 +87,17 @@
             resizeHeight = $_37zh3k93jkmcwo49.getAutoResizeMinHeight(editor);
             marginTop = dom.getStyle(body, 'margin-top', true);
             marginBottom = dom.getStyle(body, 'margin-bottom', true);
-            paddingTop = dom.getStyle(body, 'padding-top', true);
-            paddingBottom = dom.getStyle(body, 'padding-bottom', true);
-            borderTop = dom.getStyle(body, 'border-top-width', true);
-            borderBottom = dom.getStyle(body, 'border-bottom-width', true);
-            myHeight = body.offsetHeight + parseInt(marginTop, 10) + parseInt(marginBottom, 10) + parseInt(paddingTop, 10) + parseInt(paddingBottom, 10) + parseInt(borderTop, 10) + parseInt(borderBottom, 10);
+            // paddingTop = dom.getStyle(body, 'padding-top', true);
+            // paddingBottom = dom.getStyle(body, 'padding-bottom', true);
+            // borderTop = dom.getStyle(body, 'border-top-width', true);
+            // borderBottom = dom.getStyle(body, 'border-bottom-width', true);
+            myHeight = body.offsetHeight
+                + parseInt(marginTop, 10)
+                + parseInt(marginBottom, 10);
+                // + parseInt(paddingTop, 10)
+                // + parseInt(paddingBottom, 10)
+                // + parseInt(borderTop, 10)
+                // + parseInt(borderBottom, 10);
             if (isNaN(myHeight) || myHeight <= 0) {
                 myHeight = global$1.ie ? body.scrollHeight : global$1.webkit && body.clientHeight === 0 ? 0 : body.offsetHeight;
             }
