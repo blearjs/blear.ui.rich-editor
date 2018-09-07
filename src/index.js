@@ -342,9 +342,13 @@ prot[_initNode] = function () {
 prot[_initEvent] = function () {
     var the = this;
 
-    // the[_richEditor].on('wordCount', function (meta) {
-    //     the.emit('wordCount', meta.count);
-    // });
+    the[_richEditor].on('wordCount', function (meta) {
+        the.emit('wordCount', meta.count);
+    });
+
+    the[_richEditor].on('setcontent beforeaddundo nodechange undo redo keyup', function (meta) {
+        the.emit('change');
+    });
 };
 
 RichEditor.defaults = defaults;

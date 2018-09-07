@@ -8,7 +8,6 @@
 'use strict';
 
 var RichEditor = require('../src/index');
-var scene = require('../src/scenes/writing');
 
 var containerEl = document.getElementById('container');
 var bind = function (sel, fun) {
@@ -16,27 +15,8 @@ var bind = function (sel, fun) {
 };
 
 var re = new RichEditor({
-    el: '#demo',
-    scene: scene,
-    placeholder: '点击开始你的写作...',
-    imageUploadHandler: function (inputEl, callback) {
-        setTimeout(function () {
-            callback(null, {
-                src: 'https://cdn.bdqkl-inc.com/screenshot/20180906082851.png',
-                alt: '静夜思'
-            });
-        }, 1500);
-    },
-    imagePasteHandler: function (inputEl, callback) {
-        setTimeout(function () {
-            callback(null, {
-                src: 'https://cdn.bdqkl-inc.com/screenshot/20180906082851.png',
-                alt: '静夜思'
-            });
-        }, 1500);
-    }
+    el: '#demo'
 });
-
 
 bind('getHTML', function () {
     alert(re.getHTML());

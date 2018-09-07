@@ -14,7 +14,7 @@ new RichEditor({
     el: '#demo',
     scene: scene,
     placeholder: '点击开始你的写作...',
-    imageUploadHandler: function (inputEl, callback) {
+    imageChooseHandler: function (inputEl, callback) {
         setTimeout(function () {
             callback(null, {
                 src: 'https://cdn.bdqkl-inc.com/screenshot/20180906082851.png',
