@@ -19,7 +19,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     <title>API</title>
     <style>
-        button {
+        .buttons button {
             border: 1px solid #d2d2d2;
             background: #f7f7f7;
             color: #333;
@@ -29,8 +29,8 @@
             cursor: pointer;
         }
 
-        button:hover,
-        button:active {
+        .buttons button:hover,
+        .buttons button:active {
             background: #eee;
             border-color: #bbb;
         }
@@ -40,12 +40,15 @@
 
 <h1>API</h1>
 
-<button id="getHTML">getHTML</button>
-<button id="getText">getText</button>
-<button id="setHTML">setHTML</button>
-<button id="insertHTML">insertHTML</button>
-<button id="getWordCount">getWordCount</button>
-
+<div class="buttons">
+    <button id="getHTML">getHTML</button>
+    <button id="getText">getText</button>
+    <button id="setHTML">setHTML</button>
+    <button id="insertHTML">insertHTML</button>
+    <button id="getWordCount">getWordCount</button>
+    <button id="getContentEl">getContentEl</button>
+    <button id="command">command('bold')</button>
+</div>
 <hr>
 
 <div id="demo"></div>

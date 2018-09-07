@@ -101,11 +101,10 @@ var RichEditor = UI.extend({
      * @returns {RichEditor}
      */
     setHTML: function (html) {
-        var the = this;
-        the[_richEditor].setContent(html, {
+        this[_richEditor].setContent(html, {
             format: 'raw'
         });
-        return the;
+        return this;
     },
 
     /**
@@ -114,9 +113,8 @@ var RichEditor = UI.extend({
      * @returns {RichEditor}
      */
     insertHTML: function (html) {
-        var the = this;
-        the[_richEditor].insertContent(html);
-        return the;
+        this[_richEditor].insertContent(html);
+        return this;
     },
 
     /**
@@ -133,6 +131,36 @@ var RichEditor = UI.extend({
      */
     getContentEl: function () {
         return this[_richEditor].getBody();
+    },
+
+    /**
+     * 执行命令
+     * @param cmd {string}
+     * @returns {RichEditor}
+     */
+    command: function (cmd) {
+        this[_richEditor].execCommand(cmd, false);
+        return this;
+    },
+
+    /**
+     * 聚焦
+     * @param cmd
+     * @returns {RichEditor}
+     */
+    focus: function (cmd) {
+        this[_richEditor].focus();
+        return this;
+    },
+
+    /**
+     * 设置/取消 loading 状态
+     * @param bool {boolean}
+     * @returns {RichEditor}
+     */
+    loading: function (bool) {
+        this.setProgressState(bool);
+        return this;
     },
 
     /**

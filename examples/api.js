@@ -60,3 +60,11 @@ bind('insertHTML', function () {
 bind('getWordCount', function () {
     alert(re.getWordCount());
 });
+
+bind('getContentEl', function () {
+    console.log(re.getContentEl());
+});
+
+bind('command', function () {
+    re.command('bold');
+});

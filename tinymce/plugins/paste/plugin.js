@@ -26,7 +26,6 @@ var Cell = function (initial) {
 };
 
 var global = tinymce.util.Tools.resolve('tinymce.PluginManager');
-var UI = tinymce.util.Tools.resolve('tinymce.ui.Factory');
 
 var hasProPlugin = function (editor) {
     if (/(^|[ ,])powerpaste([, ]|$)/.test(editor.settings.plugins) && global.get('powerpaste')) {
@@ -845,12 +844,9 @@ var pasteImageData = function (editor, e, rng) {
         }
 
         if (image) {
-            var Throbber = UI.get('Throbber');
-            var throbber = new Throbber(editor.getContainer());
-
-            throbber.show();
+            editor.setProgressState(true);
             editor.settings.imagePasteHandler(image, function (err, meta) {
-                throbber.hide();
+                editor.setProgressState(false);
 
                 if (err) {
                     editor.windowManager.alert(err.message);
