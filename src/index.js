@@ -159,7 +159,7 @@ var RichEditor = UI.extend({
      * @returns {RichEditor}
      */
     loading: function (bool) {
-        this.setProgressState(bool);
+        this[_richEditor].setProgressState(bool);
         return this;
     },
 

@@ -10,6 +10,7 @@
 var RichEditor = require('../src/index');
 var schema = require('../src/schemes/writing');
 
+var containerEl = document.getElementById('container');
 var bind = function (sel, fun) {
     document.getElementById(sel).onclick = fun;
 };
@@ -67,4 +68,28 @@ bind('getContentEl', function () {
 
 bind('command', function () {
     re.command('bold');
+});
+
+bind('focus', function () {
+    re.focus();
+});
+
+bind('loadingTrue', function () {
+    re.loading(true);
+});
+
+bind('loadingFalse', function () {
+    re.loading(false);
+});
+
+bind('destroy', function () {
+    re.destroy();
+});
+
+bind('remove', function () {
+    document.body.removeChild(containerEl);
+});
+
+bind('restore', function () {
+    document.body.appendChild(containerEl);
 });
