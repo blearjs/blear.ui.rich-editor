@@ -31,22 +31,19 @@ var defaults = {
     height: 300,
     maxHeight: 800,
     placeholder: '点击开始输入',
-    fileName: 'file',
-    fileLabel: '请选择图片',
+    uploadFiledName: 'file',
     /**
      * 显示元素路径
      * @type Boolean
      */
     elementPath: true,
     resize: true,
-    menubar: 'file edit insert view format table tools help',
     toolbar: [
-        'bold italic underline strikethrough' +
-        ' forecolor backcolor link unlink removeformat' +
-        ' image hr',
-        'formatselect bullist numlist alignleft aligncenter alignright undo redo fullscreen'
+        'bold'
     ],
-    contextMenu: 'bold italic underline strikethrough link'
+    imageUploadHandler: function (inputEl, blob, callback) {
+        callback(new Error('未配置图片上传'));
+    }
 };
 var RichEditor = UI.extend({
     className: 'RichEditor',
@@ -186,22 +183,15 @@ prot[_initNode] = function () {
         fontsize_formats: '12px 14px 16px 18px 20px 30px',
         // https://www.tiny.cloud/docs/configure/spelling/#browser_spellcheck
         browser_spellcheck: false,
-        // https://www.tiny.cloud/docs/configure/file-image-upload/#file_browser_callback
-        file_browser_callback: function (filed, url, type, win) {
-
-        },
         // https://www.tiny.cloud/docs/configure/file-image-upload/#file_browser_callback_types
         file_browser_callback_types: 'image',
         // https://www.tiny.cloud/docs/configure/file-image-upload/#file_picker_types
         file_picker_types: 'image',
-        // https://www.tiny.cloud/docs/configure/file-image-upload/#file_picker_callback
-        file_picker_callback: function (callback, value, meta) {
-            // callback('myimage.jpg', {alt: 'My alt text'});
-        },
+        uploadFiledName: options.uploadFiledName,
         // https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_handler
-        images_upload_handler: function (blob, success, failure) {
-            failure('未配置文件上传');
-        },
+        images_upload_handler: options.imageUploadHandler,
+        // https://www.tiny.cloud/docs/plugins/image/#image_advtab
+        image_advtab: false,
         // https://www.tiny.cloud/docs/plugins/contextmenu/
         contextmenu: options.contextMenu,
         // https://www.tiny.cloud/docs/configure/url-handling/#relative_urls

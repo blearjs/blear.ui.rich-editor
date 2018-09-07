@@ -1,4 +1,6 @@
 (function () {
+    var typeis = require('blear.utils.typeis');
+
     var image = (function () {
         'use strict';
 
@@ -903,123 +905,36 @@
             getGeneralItems: getGeneralItems
         };
 
-        var url = function () {
-            return $_db9o2scwjkmcwomp.getOrDie('URL');
-        };
-        var createObjectURL = function (blob) {
-            return url().createObjectURL(blob);
-        };
-        var revokeObjectURL = function (u) {
-            url().revokeObjectURL(u);
-        };
-        var $_e8tsx4dcjkmcwooe = {
-            createObjectURL: createObjectURL,
-            revokeObjectURL: revokeObjectURL
-        };
-
         var global$5 = tinymce.util.Tools.resolve('tinymce.ui.Factory');
-
-        function XMLHttpRequest() {
-            var f = $_db9o2scwjkmcwomp.getOrDie('XMLHttpRequest');
-            return new f();
-        }
-
-        var noop = function () {
-        };
-        var pathJoin = function (path1, path2) {
-            if (path1) {
-                return path1.replace(/\/$/, '') + '/' + path2.replace(/^\//, '');
-            }
-            return path2;
-        };
-
-        function Uploader(settings) {
-            var defaultHandler = function (blobInfo, success, failure, progress) {
-                var xhr, formData;
-                xhr = new XMLHttpRequest();
-                xhr.open('POST', settings.url);
-                xhr.withCredentials = settings.credentials;
-                xhr.upload.onprogress = function (e) {
-                    progress(e.loaded / e.total * 100);
-                };
-                xhr.onerror = function () {
-                    failure('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
-                };
-                xhr.onload = function () {
-                    var json;
-                    if (xhr.status < 200 || xhr.status >= 300) {
-                        failure('HTTP Error: ' + xhr.status);
-                        return;
-                    }
-                    json = JSON.parse(xhr.responseText);
-                    if (!json || typeof json.location !== 'string') {
-                        failure('Invalid JSON: ' + xhr.responseText);
-                        return;
-                    }
-                    success(pathJoin(settings.basePath, json.location));
-                };
-                formData = new FormData();
-                formData.append('file', blobInfo.blob(), blobInfo.filename());
-                xhr.send(formData);
-            };
-            var uploadBlob = function (blobInfo, handler) {
-                return new global$1(function (resolve, reject) {
-                    try {
-                        handler(blobInfo, resolve, reject, noop);
-                    } catch (ex) {
-                        reject(ex.message);
-                    }
-                });
-            };
-            var isDefaultHandler = function (handler) {
-                return handler === defaultHandler;
-            };
-            var upload = function (blobInfo) {
-                return !settings.url && isDefaultHandler(settings.handler) ? global$1.reject('Upload url missing from the settings.') : uploadBlob(blobInfo, settings.handler);
-            };
-            settings = global$2.extend({
-                credentials: false,
-                handler: defaultHandler
-            }, settings);
-            return {upload: upload};
-        }
 
         var onFileInput = function (editor) {
             return function (evt) {
                 var Throbber = global$5.get('Throbber');
                 var rootControl = evt.control.rootControl;
                 var throbber = new Throbber(rootControl.getEl());
-                var file = evt.control.value();
-                var blobUri = $_e8tsx4dcjkmcwooe.createObjectURL(file);
-                var uploader = Uploader({
-                    url: $_gc1jdictjkmcwomd.getUploadUrl(editor),
-                    basePath: $_gc1jdictjkmcwomd.getUploadBasePath(editor),
-                    credentials: $_gc1jdictjkmcwomd.getUploadCredentials(editor),
-                    handler: $_gc1jdictjkmcwomd.getUploadHandler(editor)
-                });
-                var finalize = function () {
-                    throbber.hide();
-                    $_e8tsx4dcjkmcwooe.revokeObjectURL(blobUri);
-                };
+
                 throbber.show();
-                return $_9v7cmwcujkmcwomi.blobToDataUri(file).then(function (dataUrl) {
-                    var blobInfo = editor.editorUpload.blobCache.create({
-                        blob: file,
-                        blobUri: blobUri,
-                        name: file.name ? file.name.replace(/\.[^\.]+$/, '') : null,
-                        base64: dataUrl.split(',')[1]
+                editor.settings.images_upload_handler(evt.target, null, function (err, meta) {
+                    throbber.hide();
+                    evt.destroy();
+
+                    if (err) {
+                        editor.windowManager.alert(err.message);
+                        return;
+                    }
+
+                    if(typeis.String(meta)) {
+                        meta = {
+                            src: meta
+                        };
+                    }
+
+                    editor.undoManager.transact(function () {
+                        var win = evt.control.getRoot();
+                        var data = merge(readImageDataFromSelection(editor), win.toJSON(), meta);
+                        insertOrUpdateImage(editor, data);
+                        win.close();
                     });
-                    return uploader.upload(blobInfo).then(function (url) {
-                        var src = rootControl.find('#src');
-                        src.value(url);
-                        rootControl.find('tabpanel')[0].activateTab(0);
-                        src.fire('change');
-                        finalize();
-                        return url;
-                    });
-                }).catch(function (err) {
-                    editor.windowManager.alert(err);
-                    finalize();
                 });
             };
         };
@@ -1043,6 +958,7 @@
                             {
                                 text: 'Browse for an image',
                                 type: 'browsebutton',
+                                name: editor.settings.uploadFiledName,
                                 accept: acceptExts,
                                 onchange: onFileInput(editor)
                             },
@@ -1099,6 +1015,7 @@
             function showDialog(imageList) {
                 var data = readImageDataFromSelection(editor);
                 var win, imageListCtrl;
+
                 if (imageList) {
                     imageListCtrl = {
                         type: 'listbox',
@@ -1123,29 +1040,21 @@
                         }
                     };
                 }
-                if ($_gc1jdictjkmcwomd.hasAdvTab(editor) || $_gc1jdictjkmcwomd.hasUploadUrl(editor) || $_gc1jdictjkmcwomd.hasUploadHandler(editor)) {
-                    var body = [$_bpqbuud9jkmcwoo5.makeTab(editor, imageListCtrl)];
-                    if ($_gc1jdictjkmcwomd.hasAdvTab(editor)) {
-                        body.push($_4qd61kd3jkmcwonl.makeTab(editor));
-                    }
-                    if ($_gc1jdictjkmcwomd.hasUploadUrl(editor) || $_gc1jdictjkmcwomd.hasUploadHandler(editor)) {
-                        body.push($_26ghgddbjkmcwooa.makeTab(editor));
-                    }
-                    win = editor.windowManager.open({
-                        title: 'Insert/edit image',
-                        data: data,
-                        bodyType: 'tabpanel',
-                        body: body,
-                        onSubmit: curry(submitForm, editor)
-                    });
-                } else {
-                    win = editor.windowManager.open({
-                        title: 'Insert/edit image',
-                        data: data,
-                        body: $_bpqbuud9jkmcwoo5.getGeneralItems(editor, imageListCtrl),
-                        onSubmit: curry(submitForm, editor)
-                    });
+
+                var body = [];
+
+                if ($_gc1jdictjkmcwomd.hasUploadHandler(editor)) {
+                    body.push($_26ghgddbjkmcwooa.makeTab(editor));
                 }
+
+                body.push($_bpqbuud9jkmcwoo5.makeTab(editor, imageListCtrl));
+                win = editor.windowManager.open({
+                    title: 'Insert/edit image',
+                    data: data,
+                    bodyType: 'tabpanel',
+                    body: body,
+                    onSubmit: curry(submitForm, editor)
+                });
                 $_14kdtjdajkmcwoo8.syncSize(win);
             }
 

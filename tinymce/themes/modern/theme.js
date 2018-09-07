@@ -4950,13 +4950,6 @@
                 self$$1._super(settings);
                 settings = self$$1.settings;
                 size = self$$1.settings.size;
-                self$$1.on('click mousedown', function (e) {
-                    e.preventDefault();
-                });
-                self$$1.on('touchstart', function (e) {
-                    self$$1.fire('click', e);
-                    e.preventDefault();
-                });
                 if (settings.subtype) {
                     self$$1.classes.add(settings.subtype);
                 }
@@ -5065,37 +5058,43 @@
                 }
             },
             postRender: function () {
+                var editor = tinyMCE.activeEditor;
                 var self = this;
-                var input = funcs.create('input', {
-                    type: 'file',
-                    id: self._id + '-browse',
-                    accept: self.settings.accept
-                });
-                self._super();
-                global$9(input).on('change', function (e) {
-                    var files = e.target.files;
-                    self.value = function () {
-                        if (!files.length) {
-                            return null;
-                        } else if (self.settings.multiple) {
-                            return files;
-                        } else {
-                            return files[0];
-                        }
+                var input;
+                var buildDestroy = function (input) {
+                    return function () {
+                        global$9(input).off();
+                        document.body.removeChild(input);
                     };
-                    e.preventDefault();
-                    if (files.length) {
-                        self.fire('change', e);
+                };
+                var inputChange = function (e) {
+                    if (!this.value) {
+                        return;
                     }
-                });
-                global$9(input).on('click', function (e) {
-                    e.stopPropagation();
-                });
-                global$9(self.getEl('button')).on('click', function (e) {
-                    e.stopPropagation();
-                    input.click();
-                });
-                self.getEl().appendChild(input);
+
+                    input.style.display = 'none';
+                    document.body.appendChild(input);
+                    e.destroy = buildDestroy(input);
+                    self.fire('change', e);
+                    init();
+                };
+                var init = function () {
+                    input = funcs.create('input', {
+                        type: 'file',
+                        accept: self.settings.accept,
+                        name: self.settings.name
+                    });
+                    global$9(input).on('change', inputChange);
+                    self.getEl('button').appendChild(input);
+                    self.destroy = (function (_input) {
+                        return function () {
+
+                        };
+                    }(input));
+                };
+
+                init();
+                self._super();
             },
             remove: function () {
                 global$9(this.getEl('button')).off();
