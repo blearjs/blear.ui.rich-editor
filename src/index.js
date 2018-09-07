@@ -46,8 +46,7 @@ var defaults = {
     toolbar: [
         'bold'
     ],
-    pasteValidstyles: 'none',
-    imageUploadHandler: function (inputEl, callback) {
+    imageChooseHandler: function (inputEl, callback) {
         callback(new Error('未配置图片选择上传'));
     },
     imagePasteHandler: function (blob, callback) {
@@ -324,7 +323,7 @@ prot[_initNode] = function () {
         // https://www.tiny.cloud/docs/configure/file-image-upload/#file_picker_types
         file_picker_types: 'image',
         uploadFiledName: options.uploadFiledName,
-        imageUploadHandler: overrideHandler(options.imageUploadHandler),
+        imageChooseHandler: overrideHandler(options.imageChooseHandler),
         imagePasteHandler: overrideHandler(options.imagePasteHandler),
         // https://www.tiny.cloud/docs/plugins/image/#image_advtab
         image_advtab: false,

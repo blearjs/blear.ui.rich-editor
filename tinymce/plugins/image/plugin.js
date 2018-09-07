@@ -821,7 +821,7 @@ var onFileInput = function (editor) {
         var throbber = new Throbber(rootControl.getEl());
 
         throbber.show();
-        editor.settings.imageUploadHandler(evt.target, function (err, meta) {
+        editor.settings.imageChooseHandler(evt.target, function (err, meta) {
             throbber.hide();
             evt.destroy();
 
