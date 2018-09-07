@@ -1,6 +1,11 @@
-'use strict';
+/**
+ * 粘贴插件
+ * @author tinymce
+ * @author 云淡然
+ * @update 2018年09月07日14:58:57
+ */
 
-var typeis = require('blear.utils.typeis');
+'use strict';
 
 var Cell = function (initial) {
     var value = initial;
@@ -850,12 +855,6 @@ var pasteImageData = function (editor, e, rng) {
                 if (err) {
                     editor.windowManager.alert(err.message);
                     return;
-                }
-
-                if (typeis.String(meta)) {
-                    meta = {
-                        src: meta
-                    };
                 }
 
                 editor.undoManager.transact(function () {

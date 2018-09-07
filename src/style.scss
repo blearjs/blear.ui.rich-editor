@@ -18,6 +18,17 @@ body {
   margin: 0;
 }
 
+table, p, ul, ol, pre {
+  margin-bottom: 1.5em;
+}
+
+hr {
+  margin: 1.5em 0;
+  height: 0;
+  border: 0;
+  border-bottom: 1px solid #cacaca;
+}
+
 table {
   border: 1px solid #ccc;
   width: 100%;
@@ -33,16 +44,10 @@ pre {
   border: 1px solid #ccc;
   padding: 10px;
   font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  margin: 1em;
 }
 
 p {
   white-space: pre-wrap;
-  margin-bottom: 1.5em;
-}
-
-ul, ol {
-  margin-bottom: 1.5em;
 }
 
 li ul,

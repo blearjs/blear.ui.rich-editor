@@ -10,7 +10,10 @@
 
 var UI = require('blear.ui');
 var selector = require('blear.core.selector');
+var access = require('blear.utils.access');
 var object = require('blear.utils.object');
+var typeis = require('blear.utils.typeis');
+var loader = require('blear.utils.loader');
 var modification = require('blear.core.modification');
 
 require('../tinymce/index');
@@ -42,6 +45,7 @@ var defaults = {
     toolbar: [
         'bold'
     ],
+    pasteValidstyles: 'none',
     imageUploadHandler: function (inputEl, callback) {
         callback(new Error('未配置图片选择上传'));
     },
@@ -135,6 +139,30 @@ prot[_initNode] = function () {
     var the = this;
     var options = the[_options];
     var textareaEl = the[_textareaEl];
+    var overrideHandler = function (handler) {
+        return function () {
+            var args = access.args(arguments);
+            var latestIndex = args.length - 1;
+            var callback = args[latestIndex];
+
+            args[latestIndex] = function (err, meta) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (typeis.String(meta)) {
+                    meta = {
+                        src: meta
+                    };
+                }
+
+                loader.img(meta.src, function () {
+                    callback(null, meta);
+                });
+            };
+            handler.apply(null, args);
+        };
+    };
 
     the[_richEditor] = tinymce.init({
         preInit: function (editor) {
@@ -150,10 +178,6 @@ prot[_initNode] = function () {
         target: textareaEl,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#branding
         branding: false,
-        // // https://www.tiny.cloud/docs/configure/editor-appearance/#color_picker_callback
-        // color_picker_callback: function (callback, value) {
-        //     callback(value);
-        // },
         // https://www.tiny.cloud/docs/configure/editor-appearance/#elementpath
         elementpath: options.elementPath,
         // https://www.tiny.cloud/docs/configure/editor-appearance/#height
@@ -192,8 +216,8 @@ prot[_initNode] = function () {
         // https://www.tiny.cloud/docs/configure/file-image-upload/#file_picker_types
         file_picker_types: 'image',
         uploadFiledName: options.uploadFiledName,
-        imageUploadHandler: options.imageUploadHandler,
-        imagePasteHandler: options.imagePasteHandler,
+        imageUploadHandler: overrideHandler(options.imageUploadHandler),
+        imagePasteHandler: overrideHandler(options.imagePasteHandler),
         // https://www.tiny.cloud/docs/plugins/image/#image_advtab
         image_advtab: false,
         // https://www.tiny.cloud/docs/plugins/contextmenu/
