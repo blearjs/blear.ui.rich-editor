@@ -41,8 +41,11 @@ var defaults = {
     toolbar: [
         'bold'
     ],
-    imageUploadHandler: function (inputEl, blob, callback) {
-        callback(new Error('未配置图片上传'));
+    imageUploadHandler: function (inputEl, callback) {
+        callback(new Error('未配置图片选择上传'));
+    },
+    imagePasteHandler: function (blob, callback) {
+        callback(new Error('未配置图片粘贴上传'));
     }
 };
 var RichEditor = UI.extend({
@@ -189,7 +192,7 @@ prot[_initNode] = function () {
         file_picker_types: 'image',
         uploadFiledName: options.uploadFiledName,
         // https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_handler
-        images_upload_handler: options.imageUploadHandler,
+        imageUploadHandler: options.imageUploadHandler,
         // https://www.tiny.cloud/docs/plugins/image/#image_advtab
         image_advtab: false,
         // https://www.tiny.cloud/docs/plugins/contextmenu/

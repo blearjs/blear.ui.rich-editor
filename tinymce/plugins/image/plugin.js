@@ -30,24 +30,6 @@
         var getImageList = function (editor) {
             return editor.getParam('image_list', false);
         };
-        var hasUploadUrl = function (editor) {
-            return editor.getParam('images_upload_url', false);
-        };
-        var hasUploadHandler = function (editor) {
-            return editor.getParam('images_upload_handler', false);
-        };
-        var getUploadUrl = function (editor) {
-            return editor.getParam('images_upload_url');
-        };
-        var getUploadHandler = function (editor) {
-            return editor.getParam('images_upload_handler');
-        };
-        var getUploadBasePath = function (editor) {
-            return editor.getParam('images_upload_base_path');
-        };
-        var getUploadCredentials = function (editor) {
-            return editor.getParam('images_upload_credentials');
-        };
         var $_gc1jdictjkmcwomd = {
             hasDimensions: hasDimensions,
             hasAdvTab: hasAdvTab,
@@ -56,13 +38,7 @@
             hasDescription: hasDescription,
             hasImageTitle: hasImageTitle,
             hasImageCaption: hasImageCaption,
-            getImageList: getImageList,
-            hasUploadUrl: hasUploadUrl,
-            hasUploadHandler: hasUploadHandler,
-            getUploadUrl: getUploadUrl,
-            getUploadHandler: getUploadHandler,
-            getUploadBasePath: getUploadBasePath,
-            getUploadCredentials: getUploadCredentials
+            getImageList: getImageList
         };
 
         var Global = typeof window !== 'undefined' ? window : Function('return this;')();
@@ -842,7 +818,7 @@
                 var throbber = new Throbber(rootControl.getEl());
 
                 throbber.show();
-                editor.settings.images_upload_handler(evt.target, null, function (err, meta) {
+                editor.settings.imageUploadHandler(evt.target, function (err, meta) {
                     throbber.hide();
                     evt.destroy();
 
@@ -868,20 +844,15 @@
         };
         var acceptExts = '.jpg,.jpeg,.png,.gif';
         var getGeneralItems = function (editor, imageListCtrl) {
-            var generalFormItems = [];
-
-            if ($_gc1jdictjkmcwomd.hasUploadHandler(editor)) {
-                generalFormItems.push({
+            var generalFormItems = [
+                {
                     label: 'Upload',
                     type: 'browsebutton',
                     name: editor.settings.uploadFiledName,
                     accept: acceptExts,
                     text: 'Browse for an image',
                     onchange: onFileInput(editor)
-                });
-            }
-
-            generalFormItems.push(
+                },
                 {
                     name: 'src',
                     type: 'filepicker',
@@ -894,7 +865,7 @@
                     onbeforecall: onBeforeCall
                 },
                 imageListCtrl
-            );
+            ];
 
             if ($_gc1jdictjkmcwomd.hasDescription(editor)) {
                 generalFormItems.push({
