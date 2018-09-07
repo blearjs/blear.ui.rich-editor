@@ -48,13 +48,13 @@ bind('getText', function () {
 
 bind('setHTML', function () {
     re.setHTML(
-        '<p>重新设置了内容：<b>' + new Date().toLocaleString() + '</b></p>'
+        '<p>重新设置了内容：<b>' + new Date().toLocaleString() + '</b>。</p>'
     );
 });
 
 bind('insertHTML', function () {
     re.insertHTML(
-        '插入的内容：<b>' + new Date().toLocaleString() + '</b>'
+        '插入的内容：<b>' + new Date().toLocaleString() + '</b>。'
     );
 });
 
@@ -74,12 +74,24 @@ bind('focus', function () {
     re.focus();
 });
 
+bind('focusEnd', function () {
+    re.focus(true);
+});
+
 bind('loadingTrue', function () {
     re.loading(true);
 });
 
 bind('loadingFalse', function () {
     re.loading(false);
+});
+
+bind('empty', function () {
+    re.empty();
+});
+
+bind('isEmpty', function () {
+    alert('编辑器内容' + (re.isEmpty() ? '【是】' : '【不】') + '为空');
 });
 
 bind('destroy', function () {

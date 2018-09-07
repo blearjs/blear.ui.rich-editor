@@ -75,8 +75,8 @@ tinymce.PluginManager.add('placeholder', function (editor) {
             }
         };
 
+        editor.isEmpty = isEmpty;
         editor.on('init nodechange setcontent keyup', check);
-
     });
 });
 

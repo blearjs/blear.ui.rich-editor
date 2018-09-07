@@ -105,8 +105,7 @@ var RichEditor = UI.extend({
         this[_richEditor].setContent(html, {
             format: 'raw'
         });
-        this[_richEditor].selection.select(this[_richEditor].getBody(), true);
-        this[_richEditor].selection.collapse(false);
+        this.focus(true);
         return this;
     },
 
@@ -148,10 +147,15 @@ var RichEditor = UI.extend({
 
     /**
      * 聚焦
-     * @param cmd
+     * @param [end] {boolean} 聚焦到结尾
      * @returns {RichEditor}
      */
-    focus: function (cmd) {
+    focus: function (end) {
+        if (end) {
+            this[_richEditor].selection.select(this[_richEditor].getBody(), true);
+            this[_richEditor].selection.collapse(false);
+        }
+
         this[_richEditor].focus();
         return this;
     },
@@ -178,6 +182,10 @@ var RichEditor = UI.extend({
 
     /**
      * 编辑器分离
+     * 因为编辑器内容区域使用的是 iframe，而 iframe 在 dom 分离之后会销毁
+     * 因此当编辑器分离也会导致 iframe 销毁
+     * 而当编辑器再次插入到页面中时，编辑器的 iframe 会丢失
+     * 所以，需要 detach、attch 来进行分离和结合
      * @ref https://stackoverflow.com/a/4655467
      * @returns {RichEditor}
      */
@@ -187,13 +195,31 @@ var RichEditor = UI.extend({
     },
 
     /**
-     * 结合
+     * 编辑器结合
      * @returns {RichEditor}
      */
     attach: function () {
         EditorManager.execCommand('mceAddEditor', true, this[_richEditorId]);
         this[_richEditor] = EditorManager.get(this[_richEditorId]);
         return this;
+    },
+
+    /**
+     * 清空编辑器
+     * @returns {RichEditor}
+     */
+    empty: function () {
+        this.setHTML('');
+        return this;
+    },
+
+    /**
+     * 判断内容是否为空
+     * 不为空：有图片、有多个段落、有文字、有空格
+     * @returns {boolean}
+     */
+    isEmpty: function () {
+        return this[_richEditor].isEmpty();
     },
 
     /**
