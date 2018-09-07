@@ -18,8 +18,9 @@ require('../tinymce/themes/modern/index');
 require('../tinymce/skins/lightgray/index');
 require('../tinymce/langs/zh_CN');
 require('../tinymce/plugins/autoresize/index');
-require('../tinymce/plugins/wordcount/index');
 require('../tinymce/plugins/placeholder/index');
+require('../tinymce/plugins/paste/index');
+require('../tinymce/plugins/wordcount/index');
 
 var tinymce = window.tinymce;
 var defaults = {
@@ -191,8 +192,8 @@ prot[_initNode] = function () {
         // https://www.tiny.cloud/docs/configure/file-image-upload/#file_picker_types
         file_picker_types: 'image',
         uploadFiledName: options.uploadFiledName,
-        // https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_handler
         imageUploadHandler: options.imageUploadHandler,
+        imagePasteHandler: options.imagePasteHandler,
         // https://www.tiny.cloud/docs/plugins/image/#image_advtab
         image_advtab: false,
         // https://www.tiny.cloud/docs/plugins/contextmenu/

@@ -1,8 +1,8 @@
 (function () {
-    var typeis = require('blear.utils.typeis');
 
     var image = (function () {
         'use strict';
+        var typeis = require('blear.utils.typeis');
 
         var global = tinymce.util.Tools.resolve('tinymce.PluginManager');
 
