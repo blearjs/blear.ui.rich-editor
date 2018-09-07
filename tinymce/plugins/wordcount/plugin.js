@@ -277,10 +277,18 @@ var wordcount = (function () {
   var global$2 = tinymce.util.Tools.resolve('tinymce.util.I18n');
 
   var setup = function (editor) {
+    editor.getWordCount = function () {
+        return lastCount;
+    };
+
+    var lastCount = 0;
     var wordsToText = function (editor) {
-      return global$2.translate([
+        var count = $_bjntw8tfjkmcwse9.getCount(editor);
+        lastCount = count;
+        editor.fire('wordCount', {count: count});
+        return global$2.translate([
         '{0} words',
-        $_bjntw8tfjkmcwse9.getCount(editor)
+        count
       ]);
     };
     var update = function () {

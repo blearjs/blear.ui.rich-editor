@@ -81,7 +81,17 @@ var RichEditor = UI.extend({
      */
     getHTML: function () {
         return this[_richEditor].getContent({
-            raw: 'html'
+            format: 'html'
+        });
+    },
+
+    /**
+     * 获取 text 内容
+     * @returns {*|String}
+     */
+    getText: function () {
+        return this[_richEditor].getContent({
+            format: 'text'
         });
     },
 
@@ -95,7 +105,17 @@ var RichEditor = UI.extend({
         the[_richEditor].setContent(html, {
             format: 'raw'
         });
-        the[_richEditor].isNotDirty = false;
+        return the;
+    },
+
+    /**
+     * 当前位置插入 HTML
+     * @param html
+     * @returns {RichEditor}
+     */
+    insertHTML: function (html) {
+        var the = this;
+        the[_richEditor].insertContent(html);
         return the;
     },
 

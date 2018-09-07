@@ -10,7 +10,11 @@
 var RichEditor = require('../src/index');
 var schema = require('../src/schemes/writing');
 
-new RichEditor({
+var bind = function (sel, fun) {
+    document.getElementById(sel).onclick = fun;
+};
+
+var re = new RichEditor({
     el: '#demo',
     schema: schema,
     placeholder: '点击开始你的写作...',
@@ -30,4 +34,29 @@ new RichEditor({
             });
         }, 1500);
     }
+});
+
+
+bind('getHTML', function () {
+    alert(re.getHTML());
+});
+
+bind('getText', function () {
+    alert(re.getText());
+});
+
+bind('setHTML', function () {
+    re.setHTML(
+        '<p>重新设置了内容：<b>' + new Date().toLocaleString() + '</b></p>'
+    );
+});
+
+bind('insertHTML', function () {
+    re.insertHTML(
+        '插入的内容：<b>' + new Date().toLocaleString() + '</b>'
+    );
+});
+
+bind('getWordCount', function () {
+    alert(re.getWordCount());
 });
