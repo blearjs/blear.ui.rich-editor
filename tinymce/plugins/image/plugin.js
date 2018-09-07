@@ -835,8 +835,53 @@
         var onBeforeCall = function (evt) {
             evt.meta = evt.control.rootControl.toJSON();
         };
+        var onFileInput = function (editor) {
+            return function (evt) {
+                var Throbber = global$5.get('Throbber');
+                var rootControl = evt.control.rootControl;
+                var throbber = new Throbber(rootControl.getEl());
+
+                throbber.show();
+                editor.settings.images_upload_handler(evt.target, null, function (err, meta) {
+                    throbber.hide();
+                    evt.destroy();
+
+                    if (err) {
+                        editor.windowManager.alert(err.message);
+                        return;
+                    }
+
+                    if (typeis.String(meta)) {
+                        meta = {
+                            src: meta
+                        };
+                    }
+
+                    editor.undoManager.transact(function () {
+                        var win = evt.control.getRoot();
+                        var data = merge(readImageDataFromSelection(editor), win.toJSON(), meta);
+                        insertOrUpdateImage(editor, data);
+                        win.close();
+                    });
+                });
+            };
+        };
+        var acceptExts = '.jpg,.jpeg,.png,.gif';
         var getGeneralItems = function (editor, imageListCtrl) {
-            var generalFormItems = [
+            var generalFormItems = [];
+
+            if ($_gc1jdictjkmcwomd.hasUploadHandler(editor)) {
+                generalFormItems.push({
+                    label: 'Upload',
+                    type: 'browsebutton',
+                    name: editor.settings.uploadFiledName,
+                    accept: acceptExts,
+                    text: 'Browse for an image',
+                    onchange: onFileInput(editor)
+                });
+            }
+
+            generalFormItems.push(
                 {
                     name: 'src',
                     type: 'filepicker',
@@ -849,7 +894,8 @@
                     onbeforecall: onBeforeCall
                 },
                 imageListCtrl
-            ];
+            );
+
             if ($_gc1jdictjkmcwomd.hasDescription(editor)) {
                 generalFormItems.push({
                     name: 'alt',
@@ -857,6 +903,7 @@
                     label: 'Image description'
                 });
             }
+
             if ($_gc1jdictjkmcwomd.hasImageTitle(editor)) {
                 generalFormItems.push({
                     name: 'title',
@@ -864,9 +911,11 @@
                     label: 'Image Title'
                 });
             }
+
             if ($_gc1jdictjkmcwomd.hasDimensions(editor)) {
                 generalFormItems.push($_14kdtjdajkmcwoo8.createUi());
             }
+
             if ($_gc1jdictjkmcwomd.getClassList(editor)) {
                 generalFormItems.push({
                     name: 'class',
@@ -884,6 +933,7 @@
                     })
                 });
             }
+
             if ($_gc1jdictjkmcwomd.hasImageCaption(editor)) {
                 generalFormItems.push({
                     name: 'caption',
@@ -891,6 +941,7 @@
                     label: 'Caption'
                 });
             }
+
             return generalFormItems;
         };
         var makeTab$1 = function (editor, imageListCtrl) {
@@ -901,84 +952,10 @@
             };
         };
         var $_bpqbuud9jkmcwoo5 = {
-            makeTab: makeTab$1,
-            getGeneralItems: getGeneralItems
+            makeTab: makeTab$1
         };
 
         var global$5 = tinymce.util.Tools.resolve('tinymce.ui.Factory');
-
-        var onFileInput = function (editor) {
-            return function (evt) {
-                var Throbber = global$5.get('Throbber');
-                var rootControl = evt.control.rootControl;
-                var throbber = new Throbber(rootControl.getEl());
-
-                throbber.show();
-                editor.settings.images_upload_handler(evt.target, null, function (err, meta) {
-                    throbber.hide();
-                    evt.destroy();
-
-                    if (err) {
-                        editor.windowManager.alert(err.message);
-                        return;
-                    }
-
-                    if(typeis.String(meta)) {
-                        meta = {
-                            src: meta
-                        };
-                    }
-
-                    editor.undoManager.transact(function () {
-                        var win = evt.control.getRoot();
-                        var data = merge(readImageDataFromSelection(editor), win.toJSON(), meta);
-                        insertOrUpdateImage(editor, data);
-                        win.close();
-                    });
-                });
-            };
-        };
-        var acceptExts = '.jpg,.jpeg,.png,.gif';
-        var makeTab$2 = function (editor) {
-            return {
-                title: 'Upload',
-                type: 'form',
-                layout: 'flex',
-                direction: 'column',
-                align: 'stretch',
-                padding: '20 20 20 20',
-                items: [
-                    {
-                        type: 'container',
-                        layout: 'flex',
-                        direction: 'column',
-                        align: 'center',
-                        spacing: 10,
-                        items: [
-                            {
-                                text: 'Browse for an image',
-                                type: 'browsebutton',
-                                name: editor.settings.uploadFiledName,
-                                accept: acceptExts,
-                                onchange: onFileInput(editor)
-                            },
-                            {
-                                text: 'OR',
-                                type: 'label'
-                            }
-                        ]
-                    },
-                    {
-                        text: 'Drop an image here',
-                        type: 'dropzone',
-                        accept: acceptExts,
-                        height: 100,
-                        onchange: onFileInput(editor)
-                    }
-                ]
-            };
-        };
-        var $_26ghgddbjkmcwooa = {makeTab: makeTab$2};
 
         var curry = function (f) {
             var x = [];
@@ -1041,17 +1018,10 @@
                     };
                 }
 
-                var body = [];
-
-                if ($_gc1jdictjkmcwomd.hasUploadHandler(editor)) {
-                    body.push($_26ghgddbjkmcwooa.makeTab(editor));
-                }
-
-                body.push($_bpqbuud9jkmcwoo5.makeTab(editor, imageListCtrl));
+                var body = $_bpqbuud9jkmcwoo5.makeTab(editor, imageListCtrl);
                 win = editor.windowManager.open({
                     title: 'Insert/edit image',
                     data: data,
-                    bodyType: 'tabpanel',
                     body: body,
                     onSubmit: curry(submitForm, editor)
                 });
