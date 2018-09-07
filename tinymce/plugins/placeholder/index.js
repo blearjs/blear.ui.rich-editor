@@ -18,7 +18,7 @@ tinymce.PluginManager.add('placeholder', function (editor) {
         var className = 'mce-placeholder';
         var body = editor.getBody();
 
-        editor.appendContentStyle(
+        editor.appendContentCSS(
             '.mce-placeholder::before{' +
             /****/'content:"' + placeholder + '";' +
             /****/'color:#999;' +

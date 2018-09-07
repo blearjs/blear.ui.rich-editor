@@ -26,12 +26,13 @@ require('../tinymce/plugins/paste/index');
 require('../tinymce/plugins/wordcount/index');
 
 var tinymce = window.tinymce;
+var EditorManager = tinymce.EditorManager;
 var defaults = {
     el: '',
-    // 方案
-    schema: null,
+    // 场景
+    scene: null,
     // 内容样式
-    contentStyle: require('./style.css'),
+    contentCSS: require('./style.css'),
     height: 300,
     maxHeight: 800,
     placeholder: '点击开始输入',
@@ -57,14 +58,14 @@ var RichEditor = UI.extend({
     className: 'RichEditor',
     constructor: function (options) {
         var the = this;
-        var schema = options.schema;
-        delete options.schema;
+        var scene = options.scene;
+        delete options.scene;
 
-        options = the[_options] = object.assign({}, defaults, schema, options);
+        options = the[_options] = object.assign({}, defaults, scene, options);
         var appendContentCSS = options.appendContentCSS;
 
         if (appendContentCSS) {
-            options.contentStyle += appendContentCSS;
+            options.contentCSS += appendContentCSS;
         }
 
         RichEditor.parent(the);
@@ -104,6 +105,8 @@ var RichEditor = UI.extend({
         this[_richEditor].setContent(html, {
             format: 'raw'
         });
+        this[_richEditor].selection.select(this[_richEditor].getBody(), true);
+        this[_richEditor].selection.collapse(false);
         return this;
     },
 
@@ -164,6 +167,36 @@ var RichEditor = UI.extend({
     },
 
     /**
+     * 追加内容 css 样式
+     * @param cssText {string}
+     * @returns {RichEditor}
+     */
+    appendContentCSS: function (cssText) {
+        this[_richEditor].appendContentCSS(cssText);
+        return this;
+    },
+
+    /**
+     * 编辑器分离
+     * @ref https://stackoverflow.com/a/4655467
+     * @returns {RichEditor}
+     */
+    detach: function () {
+        EditorManager.execCommand('mceRemoveEditor', true, this[_richEditorId]);
+        return this;
+    },
+
+    /**
+     * 结合
+     * @returns {RichEditor}
+     */
+    attach: function () {
+        EditorManager.execCommand('mceAddEditor', true, this[_richEditorId]);
+        this[_richEditor] = EditorManager.get(this[_richEditorId]);
+        return this;
+    },
+
+    /**
      * 销毁实例
      */
     destroy: function () {
@@ -179,6 +212,7 @@ var _textareaEl = sole();
 var _initNode = sole();
 var _initEvent = sole();
 var _richEditor = sole();
+var _richEditorId = sole();
 var _readied = sole();
 var _callbacks = sole();
 var prot = RichEditor.prototype;
@@ -217,7 +251,7 @@ prot[_initNode] = function () {
             var doc = editor.getDoc();
             var dom = editor.dom;
             var styleEl = dom.add(doc.head, 'style');
-            editor.appendContentStyle = function (cssText) {
+            editor.appendContentCSS = function (cssText) {
                 modification.importStyle(cssText, styleEl, true);
             };
         },
@@ -243,7 +277,7 @@ prot[_initNode] = function () {
         // https://www.tiny.cloud/docs/configure/editor-appearance/#toolbar
         toolbar: options.toolbar,
         // https://www.tiny.cloud/docs/configure/content-appearance/#content_style
-        content_style: options.contentStyle,
+        content_style: options.contentCSS,
         // https://www.tiny.cloud/docs/configure/content-formatting/#block_formats
         block_formats: 'Paragraph=p;Heading 1=h1;Heading 2=h2;Heading 3=h3;' +
             'Heading 4=h4;Heading 5=h5;Heading 6=h6;Preformatted=pre',
@@ -277,6 +311,7 @@ prot[_initNode] = function () {
         // https://www.tiny.cloud/docs/plugins/autoresize/#autoresize_bottom_margin
         autoresize_bottom_margin: 1
     });
+    the[_richEditorId] = the[_richEditor].id;
 };
 
 prot[_initEvent] = function () {

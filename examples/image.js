@@ -8,11 +8,11 @@
 'use strict';
 
 var RichEditor = require('../src/index');
-var schema = require('../src/scenes/writing');
+var scene = require('../src/scenes/writing');
 
 new RichEditor({
     el: '#demo',
-    schema: schema,
+    scene: scene,
     placeholder: '点击开始你的写作...',
     imageUploadHandler: function (inputEl, callback) {
         setTimeout(function () {

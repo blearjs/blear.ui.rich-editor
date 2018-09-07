@@ -8,9 +8,9 @@
 'use strict';
 
 var RichEditor = require('../src/index');
-var schema = require('../src/scenes/coding');
+var scene = require('../src/scenes/coding');
 
 new RichEditor({
     el: '#demo',
-    schema: schema
+    scene: scene
 });

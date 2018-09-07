@@ -8,7 +8,7 @@
 'use strict';
 
 var RichEditor = require('../src/index');
-var schema = require('../src/scenes/writing');
+var scene = require('../src/scenes/writing');
 
 var containerEl = document.getElementById('container');
 var bind = function (sel, fun) {
@@ -17,7 +17,7 @@ var bind = function (sel, fun) {
 
 var re = new RichEditor({
     el: '#demo',
-    schema: schema,
+    scene: scene,
     placeholder: '点击开始你的写作...',
     imageUploadHandler: function (inputEl, callback) {
         setTimeout(function () {
@@ -87,9 +87,11 @@ bind('destroy', function () {
 });
 
 bind('remove', function () {
+    re.detach();
     document.body.removeChild(containerEl);
 });
 
 bind('restore', function () {
     document.body.appendChild(containerEl);
+    re.attach();
 });
